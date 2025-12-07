@@ -1,0 +1,39 @@
+import { auth } from "./auth";
+import { headers } from "next/headers";
+
+/**
+ * Get the current session on the server side
+ * Use this in Server Components, Server Actions, and API Routes
+ */
+export async function getSession() {
+  return auth.api.getSession({
+    headers: await headers(),
+  });
+}
+
+/**
+ * Get the current user on the server side
+ * Returns null if not authenticated
+ */
+export async function getCurrentUser() {
+  const session = await getSession();
+  return session?.user || null;
+}
+
+/**
+ * Require authentication - throws if not authenticated
+ * Use this when you need to ensure a user is logged in
+ */
+export async function requireAuth() {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+  return session;
+}
+
+/**
+ * Get the auth instance for direct API calls
+ */
+export { auth };
+
