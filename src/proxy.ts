@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionCookie } from "better-auth/cookies";
 import { PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/constants";
+import { auth } from "@/libs/better-auth";
+import { headers } from "next/headers";
 
 export async function proxy(request: NextRequest) {
   // Use Better Auth's getSessionCookie helper for cookie-based checks
-  // This is the recommended approach for optimistic redirects
+  // This is the recommended approach for optimistic redirects at the edge
+  // NOTE: This only checks for cookie presence, not validity
   // Full session validation happens in server components (Node.js runtime)
-  const sessionCookie = getSessionCookie(request);
+  // The conversations layout uses getSession() for actual security
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   // Define public routes that don't require authentication
   const publicRoutes = [PUBLIC_ROUTES.LOGIN, PUBLIC_ROUTES.SIGNUP];
@@ -16,7 +21,7 @@ export async function proxy(request: NextRequest) {
 
   // If authenticated user tries to access login/signup, redirect to conversations
   // This prevents redirect loops
-  if (isPublicRoute && sessionCookie) {
+  if (isPublicRoute && session) {
     const conversationsUrl = new URL(
       PROTECTED_ROUTES.CONVERSATIONS,
       request.url
@@ -36,9 +41,10 @@ export async function proxy(request: NextRequest) {
 
   if (isProtectedRoute) {
     // If no session cookie, redirect to login
-    // THIS IS NOT SECURE! This is an optimistic redirect only.
-    // Full validation happens in server components.
-    if (!sessionCookie) {
+    // NOTE: This is an optimistic redirect for better UX
+    // Real security is enforced in server components via getSession()
+    // The conversations layout validates the session server-side
+    if (!session) {
       const loginUrl = new URL(PUBLIC_ROUTES.LOGIN, request.url);
       // Add the attempted URL as a query parameter for redirect after login
       loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);

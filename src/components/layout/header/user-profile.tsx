@@ -70,9 +70,18 @@ export function UserProfile() {
   }, [user?.name, user?.email]);
 
   const handleSignOut = async () => {
-    await signOut();
-    router.push(PUBLIC_ROUTES.LOGIN);
-    router.refresh();
+    try {
+      await signOut();
+      // Wait a bit to ensure cookies are cleared
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      router.push(PUBLIC_ROUTES.LOGIN);
+      router.refresh();
+    } catch (error) {
+      console.error("Error signing out:", error);
+      // Still redirect even if signOut fails
+      router.push(PUBLIC_ROUTES.LOGIN);
+      router.refresh();
+    }
   };
 
   if (!user) {
