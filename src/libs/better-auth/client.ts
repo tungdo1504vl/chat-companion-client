@@ -8,4 +8,3 @@ export const authClient = createAuthClient({
 
 // Export commonly used hooks and methods
 export const { signIn, signUp, signOut, useSession } = authClient;
-
