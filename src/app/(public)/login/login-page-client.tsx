@@ -2,6 +2,8 @@
 
 import { useSignIn } from "@/features/login-page/hooks/use-sign-in";
 import { LoginForm } from "@/features/login-page/components/login-form";
+import { GoogleSignInButton } from "@/features/login-page/components/google-sign-in-button";
+import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 
 export default function LoginPageClient() {
@@ -15,6 +17,17 @@ export default function LoginPageClient() {
           <p className="text-muted-foreground">
             Enter your email and password to sign in
           </p>
+        </div>
+        <GoogleSignInButton />
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <Separator />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
         </div>
         <LoginForm onSubmit={signIn} isLoading={isPending} />
         <div className="text-center text-sm text-muted-foreground">

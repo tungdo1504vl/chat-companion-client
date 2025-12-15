@@ -11,17 +11,12 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  // Uncomment and configure social providers as needed
-  // socialProviders: {
-  //   github: {
-  //     clientId: process.env.GITHUB_CLIENT_ID as string,
-  //     clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-  //   },
-  //   google: {
-  //     clientId: process.env.GOOGLE_CLIENT_ID as string,
-  //     clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-  //   },
-  // },
+  socialProviders: {
+    google: {
+      clientId: envServer.GOOGLE_CLIENT_ID,
+      clientSecret: envServer.GOOGLE_CLIENT_SECRET,
+    },
+  },
 });
 
 export type Session = typeof auth.$Infer.Session;
