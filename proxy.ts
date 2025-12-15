@@ -1,13 +1,28 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { PROTECTED_ROUTES } from "@/constants";
+import { NextRequest, NextResponse } from "next/server";
+import { getSessionCookie } from "better-auth/cookies";
+import { PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/constants";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
+  // Use Better Auth's getSessionCookie helper for cookie-based checks
+  // This is the recommended approach for optimistic redirects
+  // Full session validation happens in server components (Node.js runtime)
+  const sessionCookie = getSessionCookie(request);
+
   // Define public routes that don't require authentication
-  const publicRoutes = ["/login", "/signup"];
+  const publicRoutes = [PUBLIC_ROUTES.LOGIN, PUBLIC_ROUTES.SIGNUP];
   const isPublicRoute = publicRoutes.some((route) =>
     request.nextUrl.pathname.startsWith(route)
   );
+
+  // If authenticated user tries to access login/signup, redirect to conversations
+  // This prevents redirect loops
+  if (isPublicRoute && sessionCookie) {
+    const conversationsUrl = new URL(
+      PROTECTED_ROUTES.CONVERSATIONS,
+      request.url
+    );
+    return NextResponse.redirect(conversationsUrl);
+  }
 
   // Allow public routes and API routes (especially auth API)
   if (isPublicRoute || request.nextUrl.pathname.startsWith("/api")) {
@@ -20,20 +35,11 @@ export async function middleware(request: NextRequest) {
   );
 
   if (isProtectedRoute) {
-    // Check for better-auth session cookie
-    // Better-auth uses cookies prefixed with "better-auth"
-    // Check for common cookie names
-    const sessionCookie =
-      request.cookies.get("better-auth.session_token") ||
-      request.cookies.get("better-auth.session") ||
-      // Fallback: check if any cookie starts with "better-auth"
-      Array.from(request.cookies.getAll()).find((cookie) =>
-        cookie.name.startsWith("better-auth")
-      );
-
     // If no session cookie, redirect to login
+    // THIS IS NOT SECURE! This is an optimistic redirect only.
+    // Full validation happens in server components.
     if (!sessionCookie) {
-      const loginUrl = new URL("/login", request.url);
+      const loginUrl = new URL(PUBLIC_ROUTES.LOGIN, request.url);
       // Add the attempted URL as a query parameter for redirect after login
       loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
       return NextResponse.redirect(loginUrl);
@@ -43,7 +49,7 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Configure which routes the middleware should run on
+// Configure which routes the proxy should run on
 export const config = {
   matcher: [
     /*
