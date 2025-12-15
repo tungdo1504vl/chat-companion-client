@@ -6,6 +6,9 @@ import { requiresPasswordDecryption } from "@/libs/better-auth/utils";
 import { AUTH_ERROR_MESSAGES } from "@/constants/auth";
 import { extractErrorMessage } from "@/libs/crypto/utils";
 
+// Explicitly set Node.js runtime since we use Node.js crypto module
+export const runtime = "nodejs";
+
 /**
  * Decrypts password in request body if present
  * @param body - Request body object

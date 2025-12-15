@@ -3,6 +3,9 @@ import { NextResponse } from "next/server";
 import { CONTENT_TYPES } from "@/constants/auth";
 import { ERROR_MESSAGES } from "@/libs/crypto/constants";
 
+// Explicitly set Node.js runtime since we use Node.js crypto module
+export const runtime = "nodejs";
+
 // HTTP Status Codes
 const HTTP_STATUS = {
   OK: 200,
@@ -40,4 +43,3 @@ export async function GET() {
     );
   }
 }
-

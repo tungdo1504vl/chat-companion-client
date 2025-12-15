@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { auth } from "@/libs/better-auth/auth";
 import { PROTECTED_ROUTES } from "@/constants";
 
 export async function middleware(request: NextRequest) {
@@ -21,13 +20,19 @@ export async function middleware(request: NextRequest) {
   );
 
   if (isProtectedRoute) {
-    // Get session from better-auth
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
+    // Check for better-auth session cookie
+    // Better-auth uses cookies prefixed with "better-auth"
+    // Check for common cookie names
+    const sessionCookie =
+      request.cookies.get("better-auth.session_token") ||
+      request.cookies.get("better-auth.session") ||
+      // Fallback: check if any cookie starts with "better-auth"
+      Array.from(request.cookies.getAll()).find((cookie) =>
+        cookie.name.startsWith("better-auth")
+      );
 
-    // If no session, redirect to login
-    if (!session) {
+    // If no session cookie, redirect to login
+    if (!sessionCookie) {
       const loginUrl = new URL("/login", request.url);
       // Add the attempted URL as a query parameter for redirect after login
       loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
