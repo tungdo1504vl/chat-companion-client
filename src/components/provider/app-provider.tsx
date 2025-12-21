@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { ThemeProvider } from "@/libs/next-theme";
-import ReactQueryProvider from "@/libs/react-query/provider";
-import { Toaster } from "../ui/sonner";
+import { ThemeProvider } from '@/libs/next-theme';
+import ReactQueryProvider from '@/libs/react-query/provider';
+import { Toaster } from '../ui/sonner';
 
 export default function AppProvider({
   children,
@@ -12,8 +12,8 @@ export default function AppProvider({
   return (
     <ThemeProvider
       attribute="class"
-      defaultTheme="system"
-      enableSystem
+      defaultTheme="light"
+      enableSystem={false}
       disableTransitionOnChange
     >
       <ReactQueryProvider>
