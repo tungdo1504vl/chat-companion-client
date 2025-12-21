@@ -3,19 +3,26 @@ import {
   SmartGiftIdeasSection,
   PlanBirthdaySection,
 } from "../components";
-import type { PartnerProfile } from "../types";
+import type { PartnerProfile, SpecialDay } from "../types";
 
 type SpecialThingsTabProps = Readonly<{
   profile: PartnerProfile;
+  onSpecialDaysChange?: (days: SpecialDay[]) => void;
 }>;
 
-export default function SpecialThingsTab({ profile }: SpecialThingsTabProps) {
+export default function SpecialThingsTab({
+  profile,
+  onSpecialDaysChange,
+}: SpecialThingsTabProps) {
   const birthday = profile.specialDays?.find((day) => day.type === "Birthday");
 
   return (
     <div className="flex flex-col gap-8">
       {/* Special Days Section */}
-      <SpecialDaysSection specialDays={profile.specialDays} />
+      <SpecialDaysSection
+        specialDays={profile.specialDays}
+        onChange={onSpecialDaysChange}
+      />
 
       {/* Smart Gift Ideas Section */}
       <SmartGiftIdeasSection

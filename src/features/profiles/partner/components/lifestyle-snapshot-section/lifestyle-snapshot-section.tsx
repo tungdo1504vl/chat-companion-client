@@ -1,8 +1,14 @@
 "use client";
 
-import { Coffee, Droplet, Star, Hash } from "lucide-react";
+import { useState } from "react";
+import { Coffee, Droplet, Star, Hash, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { AiIndicator } from "../ai-indicator";
 import { PillButtonGroup, type PillButtonOption } from "../pill-button-group";
 import { DateBudgetSlider } from "../date-budget-slider";
@@ -11,37 +17,83 @@ import {
   SOCIAL_ENERGY_OPTIONS,
   HOBBY_OPTIONS,
 } from "../../const";
-import type { PartnerProfile } from "../../types";
+import type {
+  PartnerProfile,
+  WorkRhythm,
+  SocialEnergyLevel,
+  DateBudget,
+  Hobby,
+} from "../../types";
 import { format, parseISO } from "date-fns";
 import { ContentCard } from "@/features/profiles/common/content-card";
 
 interface LifestyleSnapshotSectionProps {
   profile: PartnerProfile;
+  onWorkRhythmChange?: (rhythm: WorkRhythm) => void;
+  onSocialEnergyChange?: (energy: SocialEnergyLevel) => void;
+  onDateBudgetChange?: (budget: DateBudget) => void;
+  onHobbiesChange?: (hobbies: Hobby[]) => void;
+  onFavoriteHobbiesChange?: (favorites: Hobby[]) => void;
   className?: string;
 }
 
 export function LifestyleSnapshotSection({
   profile,
+  onWorkRhythmChange,
+  onSocialEnergyChange,
+  onDateBudgetChange,
+  onHobbiesChange,
+  onFavoriteHobbiesChange,
   className,
 }: LifestyleSnapshotSectionProps) {
-  const workRhythmOptions: PillButtonOption[] = WORK_RHYTHM_OPTIONS.map(
-    (rhythm) => ({
+  const [hobbyPopoverOpen, setHobbyPopoverOpen] = useState(false);
+
+  const workRhythmOptions: PillButtonOption<WorkRhythm>[] =
+    WORK_RHYTHM_OPTIONS.map((rhythm) => ({
       value: rhythm.value,
       label: rhythm.label,
-    })
-  );
+    }));
 
-  const socialEnergyOptions: PillButtonOption[] = SOCIAL_ENERGY_OPTIONS.map(
-    (energy) => ({
+  const socialEnergyOptions: PillButtonOption<SocialEnergyLevel>[] =
+    SOCIAL_ENERGY_OPTIONS.map((energy) => ({
       value: energy.value,
       label: energy.label,
-    })
+    }));
+
+  const availableHobbies = HOBBY_OPTIONS.filter(
+    (hobby) => !profile.hobbies.includes(hobby)
   );
 
-  const hobbyOptions: PillButtonOption[] = HOBBY_OPTIONS.map((hobby) => ({
-    value: hobby,
-    label: hobby,
-  }));
+  const handleToggleFavorite = (hobby: Hobby) => {
+    if (!onFavoriteHobbiesChange) return;
+    const favorites = profile.favoriteHobbies || [];
+    const isFavorite = favorites.includes(hobby);
+    if (isFavorite) {
+      onFavoriteHobbiesChange(favorites.filter((h) => h !== hobby));
+    } else {
+      onFavoriteHobbiesChange([...favorites, hobby]);
+    }
+  };
+
+  const handleRemoveHobby = (hobby: Hobby) => {
+    if (!onHobbiesChange) return;
+    const updated = profile.hobbies.filter((h) => h !== hobby);
+    onHobbiesChange(updated);
+    // Also remove from favorites if it was a favorite
+    if (onFavoriteHobbiesChange && profile.favoriteHobbies?.includes(hobby)) {
+      onFavoriteHobbiesChange(
+        profile.favoriteHobbies.filter((h) => h !== hobby)
+      );
+    }
+  };
+
+  const handleAddHobby = (hobby: Hobby) => {
+    if (!onHobbiesChange) return;
+    if (!profile.hobbies.includes(hobby)) {
+      onHobbiesChange([...profile.hobbies, hobby]);
+    }
+    setHobbyPopoverOpen(false);
+  };
 
   const formatCycleDate = (dateString?: string) => {
     if (!dateString) return "";
@@ -98,7 +150,12 @@ export function LifestyleSnapshotSection({
               options={workRhythmOptions}
               value={profile.workRhythm}
               multiple={false}
-              disabled={true}
+              onValueChange={(value) => {
+                if (!Array.isArray(value)) {
+                  onWorkRhythmChange?.(value as WorkRhythm);
+                }
+              }}
+              disabled={!onWorkRhythmChange}
             />
           </div>
         )}
@@ -118,7 +175,12 @@ export function LifestyleSnapshotSection({
               options={socialEnergyOptions}
               value={profile.socialEnergyLevel}
               multiple={false}
-              disabled={true}
+              onValueChange={(value) => {
+                if (!Array.isArray(value)) {
+                  onSocialEnergyChange?.(value as SocialEnergyLevel);
+                }
+              }}
+              disabled={!onSocialEnergyChange}
             />
           </div>
         )}
@@ -169,37 +231,88 @@ export function LifestyleSnapshotSection({
             </div>
             <DateBudgetSlider
               value={profile.dateBudget}
-              disabled={true}
+              onChange={onDateBudgetChange}
+              disabled={!onDateBudgetChange}
               isAiGenerated={profile.dateBudgetIsAiGenerated}
             />
           </div>
         )}
 
         {/* Hobbies & Interests */}
-        {profile.hobbies.length > 0 && (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">Hobbies & Interests</label>
-              {profile.hobbiesIsAiGenerated && <AiIndicator size="sm" />}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {profile.hobbies.map((hobby) => {
-                const isFavorite = profile.favoriteHobbies?.includes(hobby);
-                return (
-                  <Badge
-                    key={hobby}
-                    variant="default"
-                    className="rounded-full flex items-center gap-1"
-                  >
-                    <Hash className="size-3" />
-                    {hobby}
-                    {isFavorite && <Star className="size-3 fill-current" />}
-                  </Badge>
-                );
-              })}
-            </div>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium">Hobbies & Interests</label>
+            {profile.hobbiesIsAiGenerated && <AiIndicator size="sm" />}
           </div>
-        )}
+          <div className="flex flex-wrap gap-2">
+            {profile.hobbies.map((hobby) => {
+              const isFavorite = profile.favoriteHobbies?.includes(hobby);
+              return (
+                <Badge
+                  key={hobby}
+                  variant="default"
+                  className="rounded-full flex items-center gap-1"
+                >
+                  <Hash className="size-3" />
+                  {hobby}
+                  {onFavoriteHobbiesChange && (
+                    <button
+                      type="button"
+                      onClick={() => handleToggleFavorite(hobby)}
+                      className="ml-1 hover:bg-primary/20 rounded-full p-0.5"
+                      title={
+                        isFavorite
+                          ? "Remove from favorites"
+                          : "Add to favorites"
+                      }
+                    >
+                      <Star
+                        className={`size-3 ${
+                          isFavorite ? "fill-current" : "fill-none"
+                        }`}
+                      />
+                    </button>
+                  )}
+                  {onHobbiesChange && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveHobby(hobby)}
+                      className="ml-1 hover:bg-primary/20 rounded-full p-0.5"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  )}
+                </Badge>
+              );
+            })}
+            {onHobbiesChange && availableHobbies.length > 0 && (
+              <Popover
+                open={hobbyPopoverOpen}
+                onOpenChange={setHobbyPopoverOpen}
+              >
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="rounded-full">
+                    <Plus className="size-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-2">
+                  <div className="flex flex-col gap-1">
+                    {availableHobbies.map((hobby) => (
+                      <button
+                        key={hobby}
+                        type="button"
+                        onClick={() => handleAddHobby(hobby)}
+                        className="text-left px-2 py-1.5 text-sm rounded hover:bg-accent"
+                      >
+                        {hobby}
+                      </button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            )}
+          </div>
+        </div>
       </div>
     </ContentCard>
   );

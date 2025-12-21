@@ -1,13 +1,15 @@
 "use client";
 
-import { Share2, PawPrint, Coffee as CoffeeIcon } from "lucide-react";
+import { Share2, PawPrint, Coffee as CoffeeIcon, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { AiIndicator } from "../ai-indicator";
-import type { PartnerProfile } from "../../types";
+import type { PartnerProfile, SocialSignal } from "../../types";
 import { ContentCard } from "@/features/profiles/common/content-card";
 
 interface SocialSignalsSectionProps {
   profile: PartnerProfile;
+  onSocialSignalsChange?: (signals: SocialSignal[]) => void;
   className?: string;
 }
 
@@ -18,8 +20,15 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export function SocialSignalsSection({
   profile,
+  onSocialSignalsChange,
   className,
 }: SocialSignalsSectionProps) {
+  const handleRemoveSignal = (index: number) => {
+    if (!onSocialSignalsChange) return;
+    const updated = profile.socialSignals.filter((_, i) => i !== index);
+    onSocialSignalsChange(updated);
+  };
+
   return (
     <ContentCard className={className}>
       <div className="flex items-center justify-between mb-4">
@@ -54,6 +63,17 @@ export function SocialSignalsSection({
                   {signal.description}
                 </p>
               </div>
+              {onSocialSignalsChange && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleRemoveSignal(index)}
+                  className="h-6 w-6 p-0 shrink-0"
+                >
+                  <X className="size-4" />
+                </Button>
+              )}
             </div>
           );
         })}
