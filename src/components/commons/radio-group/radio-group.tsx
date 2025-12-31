@@ -24,7 +24,7 @@ export const RadioGroupItem = React.forwardRef<
   const itemId = id || `radio-${value}`;
 
   return (
-    <div className="flex-1">
+    <div>
       <UIRadioGroupItem
         ref={ref}
         value={value}
@@ -34,10 +34,10 @@ export const RadioGroupItem = React.forwardRef<
       />
       <Label
         htmlFor={itemId}
-        className="flex items-center justify-center px-6 py-2.5 rounded-lg border-2 cursor-pointer transition-all
-                 peer-data-[state=checked]:bg-indigo-600 peer-data-[state=checked]:border-indigo-600 peer-data-[state=checked]:text-white
-                 peer-data-[state=unchecked]:bg-transparent peer-data-[state=unchecked]:border-transparent
-                 hover:border-indigo-600"
+        className="flex items-center justify-center px-6 py-2.5 rounded-full border-2 cursor-pointer transition-all whitespace-nowrap
+                 peer-data-[state=checked]:bg-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-primary-foreground
+                 peer-data-[state=unchecked]:bg-transparent peer-data-[state=unchecked]:border-gray-300 peer-data-[state=unchecked]:text-foreground
+                 hover:border-primary"
       >
         {children}
       </Label>
