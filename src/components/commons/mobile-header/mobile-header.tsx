@@ -1,7 +1,7 @@
-import { ArrowLeft, MoreVertical } from "lucide-react";
-import { TMobileHeaderProps } from "./types";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { ArrowLeft, MoreVertical } from 'lucide-react';
+import { TMobileHeaderProps } from './types';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 export default function MobileHeader(props: TMobileHeaderProps) {
   const { isHaveBackButton = true, title, actions } = props;
@@ -24,7 +24,7 @@ export default function MobileHeader(props: TMobileHeaderProps) {
           <ArrowLeft className="size-5" />
         </Button>
       )}
-      <h1 className="flex-1 text-center text-2xl font-bold">{title}</h1>
+      <h1 className="flex-1 text-center text-xl font-bold">{title}</h1>
       <Button variant="ghost" size="icon" className="shrink-0">
         <MoreVertical className="size-5" />
       </Button>

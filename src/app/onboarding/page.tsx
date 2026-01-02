@@ -1,12 +1,40 @@
 'use client';
 
+import { COUNTRY_LIST } from '@/constants/data';
 import { OnboardingForm } from '@/features/onboarding/components';
+import { useOnboarding } from '@/features/onboarding/hooks/use-onboarding';
 import { TOnboardingFormData } from '@/features/onboarding/types';
+import { TCommonPayload } from '@/services/user.service';
+import { toast } from 'sonner';
 
 export default function OnboardingPage() {
-  const handleSubmit = (data: TOnboardingFormData) => {
-    console.log('Onboarding data:', data);
-    // TODO: Implement API call to save onboarding data
+  const mutateOnboarding = useOnboarding();
+  const handleSubmit = (formData: TOnboardingFormData) => {
+    console.log('Onboarding form data:', formData);
+    try {
+      const birthDay = `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`;
+      const birthTime = `${formData.birthHour}:${formData.birthMinute}:00`;
+      const countryName = COUNTRY_LIST.find(
+        (item) => item.code === formData.country
+      )?.name;
+      const payload: TCommonPayload = {
+        task_type: 'user_profile_validate',
+        input_args: {
+          name: formData.name,
+          gender: formData.genderAtBirth,
+          dob: birthDay,
+          time_of_birth: birthTime,
+          country_of_birth: countryName || '',
+          city_of_birth: formData.city,
+        },
+        priority: 'high',
+      };
+      const res = mutateOnboarding.mutateAsync(payload);
+      console.log('res:', res);
+      toast.success('Successfully');
+    } catch (error) {
+      console.log('error:', error);
+    }
   };
 
   return (
