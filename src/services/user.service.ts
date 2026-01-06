@@ -1,37 +1,45 @@
-import axiosClient from '@/libs/axios';
-
-export interface TCommonPayload {
-  priority: string;
-  task_type: string;
-  input_args: { [key: string]: string | number };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface TOnboardingPayload extends TCommonPayload {}
-
-export interface TCommonResponse {
-  metadata: { [key: string]: string | number };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  result: any;
-  task_type: string;
-  task_id: string;
-  status: string;
-}
+import { createTaskRequest } from "./base.service";
+import { TCommonPayload, TCommonResponse, TOnboardingPayload } from "./types";
 
 /**
  * User service
+ * Maintains backward compatibility with existing methods
  */
 const userService = {
+  /**
+   * Submit a task for processing
+   */
   submit(payload: TOnboardingPayload): Promise<TCommonResponse> {
-    return axiosClient.post('/internal/v1/tasks/submit', payload);
+    return createTaskRequest(
+      payload.task_type,
+      payload.input_args,
+      payload.priority,
+      "/internal/v1/tasks/submit"
+    );
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+  /**
+   * Compute a task
+   */
   compute(payload: TCommonPayload): Promise<TCommonResponse> {
-    return axiosClient.post('/internal/v1/tasks/compute', payload);
+    return createTaskRequest(
+      payload.task_type,
+      payload.input_args,
+      payload.priority,
+      "/internal/v1/tasks/compute"
+    );
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+  /**
+   * Stream a task
+   */
   stream(payload: TCommonPayload): Promise<TCommonResponse> {
-    return axiosClient.post('/internal/v1/tasks/stream', payload);
+    return createTaskRequest(
+      payload.task_type,
+      payload.input_args,
+      payload.priority,
+      "/internal/v1/tasks/stream"
+    );
   },
 };
 
