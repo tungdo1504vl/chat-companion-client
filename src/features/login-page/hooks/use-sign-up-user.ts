@@ -39,7 +39,8 @@ export const useSignUpUser = () => {
 
       await refetchSession();
       toast.success(AUTH_SUCCESS_MESSAGES.SIGN_UP);
-      router.push(PROTECTED_ROUTES.CONVERSATIONS);
+      // Redirect to onboarding for new users
+      router.push(PROTECTED_ROUTES.ONBOARDING);
       router.refresh();
     },
     onError: (error) => {

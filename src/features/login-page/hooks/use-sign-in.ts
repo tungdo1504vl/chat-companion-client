@@ -40,8 +40,10 @@ export const useSignIn = () => {
       await refetchSession();
       toast.success(AUTH_SUCCESS_MESSAGES.SIGN_IN);
 
+      // Redirect to callbackUrl or default to conversations
+      // Middleware will handle onboarding redirect if needed
       const callbackUrl =
-        searchParams.get("callbackUrl") || PROTECTED_ROUTES.CONVERSATIONS;
+        searchParams.get("callbackUrl") || PROTECTED_ROUTES.ONBOARDING;
       router.push(callbackUrl);
       router.refresh();
     },

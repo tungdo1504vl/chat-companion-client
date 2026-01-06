@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:new": "npx supabase migration new",
+    "db:migrate": "npx supabase db reset",
+    "db:reset": "npx supabase db reset",
+    "db:push": "npx supabase db push",
+    "db:status": "npx supabase migration list"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",

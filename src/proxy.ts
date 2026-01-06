@@ -1,70 +1,60 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/constants";
-import { auth } from "@/libs/better-auth";
-import { headers } from "next/headers";
+
+const PUBLIC_PATHS = new Set([PUBLIC_ROUTES.LOGIN, PUBLIC_ROUTES.SIGNUP]);
+const ONBOARDING_PATH = PROTECTED_ROUTES.ONBOARDING;
+const STATIC_FILE_PATTERN = /\.(svg|png|jpg|jpeg|gif|webp|ico)$/;
+
+function isSystemPath(pathname: string): boolean {
+  return (
+    pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon.ico") ||
+    STATIC_FILE_PATTERN.exec(pathname) !== null
+  );
+}
+
+function hasSessionCookie(request: NextRequest): boolean {
+  return request.cookies
+    .getAll()
+    .some((cookie) => cookie.name.startsWith("better-auth"));
+}
+
+function redirectToLogin(request: NextRequest, pathname: string): NextResponse {
+  const url = new URL(PUBLIC_ROUTES.LOGIN, request.url);
+  url.searchParams.set("callbackUrl", pathname);
+  return NextResponse.redirect(url);
+}
 
 export async function proxy(request: NextRequest) {
-  // Use Better Auth's getSessionCookie helper for cookie-based checks
-  // This is the recommended approach for optimistic redirects at the edge
-  // NOTE: This only checks for cookie presence, not validity
-  // Full session validation happens in server components (Node.js runtime)
-  // The conversations layout uses getSession() for actual security
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const { pathname } = request.nextUrl;
 
-  // Define public routes that don't require authentication
-  const publicRoutes = [PUBLIC_ROUTES.LOGIN, PUBLIC_ROUTES.SIGNUP];
-  const isPublicRoute = publicRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route)
-  );
-
-  // If authenticated user tries to access login/signup, redirect to conversations
-  // This prevents redirect loops
-  if (isPublicRoute && session) {
-    const conversationsUrl = new URL(
-      PROTECTED_ROUTES.CONVERSATIONS,
-      request.url
-    );
-    return NextResponse.redirect(conversationsUrl);
-  }
-
-  // Allow public routes and API routes (especially auth API)
-  if (isPublicRoute || request.nextUrl.pathname.startsWith("/api")) {
+  if (isSystemPath(pathname)) {
     return NextResponse.next();
   }
 
-  // Check for protected routes (e.g., /conversations)
-  const isProtectedRoute = request.nextUrl.pathname.startsWith(
-    PROTECTED_ROUTES.CONVERSATIONS
-  );
+  const hasSession = hasSessionCookie(request);
 
-  if (isProtectedRoute) {
-    // If no session cookie, redirect to login
-    // NOTE: This is an optimistic redirect for better UX
-    // Real security is enforced in server components via getSession()
-    // The conversations layout validates the session server-side
-    if (!session) {
-      const loginUrl = new URL(PUBLIC_ROUTES.LOGIN, request.url);
-      // Add the attempted URL as a query parameter for redirect after login
-      loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
-      return NextResponse.redirect(loginUrl);
-    }
+  // Public routes: redirect authenticated users away
+  if (PUBLIC_PATHS.has(pathname as "/login" | "/signup")) {
+    return hasSession
+      ? NextResponse.redirect(new URL(PROTECTED_ROUTES.ONBOARDING, request.url))
+      : NextResponse.next();
   }
 
-  return NextResponse.next();
+  // Onboarding route: require authentication
+  if (pathname === ONBOARDING_PATH) {
+    return hasSession
+      ? NextResponse.next()
+      : redirectToLogin(request, pathname);
+  }
+
+  // Protected routes: require authentication
+  return hasSession ? NextResponse.next() : redirectToLogin(request, pathname);
 }
 
-// Configure which routes the proxy should run on
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (public folder)
-     */
-    "/conversations/:path*",
+    String.raw`/((?!api/auth|_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp)).*)`,
   ],
 };
