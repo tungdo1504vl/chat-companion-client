@@ -9,7 +9,7 @@ export const defaultOnboardingFormValues: TOnboardingFormData = {
   birthMinute: "30",
   birthPeriod: "PM",
   birthTimeKnown: false,
-  genderAtBirth: "Male",
+  genderAtBirth: "male",
   country: "",
   city: "",
 };
@@ -53,11 +53,6 @@ export const periods = [
 ];
 
 export const genders = [
-  { value: "Male", label: "Male" },
-  { value: "Female", label: "Female" },
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
 ];
-
-
-
-
-

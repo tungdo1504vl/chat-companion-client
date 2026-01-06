@@ -1,13 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useForm, useStore } from '@tanstack/react-form';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Select } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/commons/radio-group';
+import { useState } from "react";
+import { useForm, useStore } from "@tanstack/react-form";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Select } from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
+import { RadioGroup, RadioGroupItem } from "@/components/commons/radio-group";
 import {
   defaultOnboardingFormValues,
   years,
@@ -17,10 +18,107 @@ import {
   minutes,
   periods,
   genders,
-} from '../const';
-import { COUNTRY_LIST } from '@/constants/data';
-import { onboardingFormSchema } from '../validate-schema';
-import { TOnboardingFormProps } from '../types';
+} from "../const";
+import { COUNTRY_LIST } from "@/constants/data";
+import { onboardingFormSchema } from "../validate-schema";
+import { TOnboardingFormProps } from "../types";
+import { useCities } from "../hooks/use-cities";
+import { useDebounce } from "../hooks/use-debounce";
+import type { TOnboardingFormData } from "../types";
+
+interface CityFieldStepProps {
+  readonly values: TOnboardingFormData;
+  readonly isLoading: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly form: any;
+}
+
+function CityFieldStep({ values, isLoading, form }: CityFieldStepProps) {
+  const [cityQuery, setCityQuery] = useState("");
+  const debouncedQuery = useDebounce(cityQuery, 500);
+
+  const { data: cityOptions, isLoading: isCitiesLoading } = useCities({
+    country: values.country,
+    query: debouncedQuery,
+    limit: 50,
+  });
+
+  const isCityFieldDisabled = isLoading || !values.country;
+
+  return (
+    <div className="flex flex-col gap-6">
+      <form.Field name="country">
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        {(field: any) => (
+          <Field className="flex flex-col gap-2">
+            <FieldLabel htmlFor={field.name}>Country of Birth</FieldLabel>
+            <Select
+              value={field.state.value}
+              onValueChange={(value) => {
+                field.handleChange(value);
+                // Reset city when country changes
+                form.setFieldValue("city", "");
+                setCityQuery("");
+              }}
+              options={COUNTRY_LIST.map((country) => ({
+                value: country.name,
+                label: country.name,
+              }))}
+              placeholder="Select a country"
+              disabled={isLoading}
+            />
+            <FieldError errors={field.state.meta.errors} />
+          </Field>
+        )}
+      </form.Field>
+      <form.Field name="city">
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        {(field: any) => (
+          <Field className="flex flex-col gap-2">
+            <FieldLabel htmlFor={field.name}>City of Birth</FieldLabel>
+            <Combobox
+              value={field.state.value}
+              onValueChange={(value) => {
+                field.handleChange(value);
+                // Update search query to match selected value
+                const selectedCity = cityOptions.find(
+                  (opt) => opt.value === value
+                );
+                if (selectedCity) {
+                  setCityQuery(selectedCity.label);
+                } else if (!value) {
+                  setCityQuery("");
+                }
+              }}
+              searchValue={cityQuery}
+              onSearchChange={(search) => {
+                setCityQuery(search);
+                // Clear selected value if user is typing a new search
+                if (search !== field.state.value) {
+                  field.handleChange("");
+                }
+              }}
+              options={cityOptions}
+              placeholder={(() => {
+                if (!values.country) return "Select a country first";
+                return "Search and select a city";
+              })()}
+              searchPlaceholder="Search cities..."
+              emptyText={(() => {
+                if (debouncedQuery.length > 0) return "No cities found";
+                return "Start typing to search cities";
+              })()}
+              disabled={isCityFieldDisabled}
+              isLoading={isCitiesLoading}
+              allowClear
+            />
+            <FieldError errors={field.state.meta.errors} />
+          </Field>
+        )}
+      </form.Field>
+    </div>
+  );
+}
 
 export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
   const { onSubmit, isLoading } = props;
@@ -54,30 +152,31 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
     }
   };
 
-  const validateCurrentStep = () => {
+  const validateCurrentStep = (): boolean => {
     if (currentStep === 1) {
-      return values.name.trim() !== '';
+      return values.name.trim() !== "";
     }
     if (currentStep === 2) {
-      const dateValid =
+      const dateValid = Boolean(
         values.birthYear &&
-        values.birthMonth &&
-        values.birthDay &&
-        values.genderAtBirth;
+          values.birthMonth &&
+          values.birthDay &&
+          values.genderAtBirth
+      );
 
       // If time is known, validate time fields; otherwise, only date is required
       if (values.birthTimeKnown) {
-        return (
+        return Boolean(
           dateValid &&
-          values.birthHour &&
-          values.birthMinute &&
-          values.birthPeriod
+            values.birthHour &&
+            values.birthMinute &&
+            values.birthPeriod
         );
       }
       return dateValid;
     }
     if (currentStep === 3) {
-      return values.country.trim() !== '' && values.city.trim() !== '';
+      return values.country.trim() !== "" && values.city.trim() !== "";
     }
     return true;
   };
@@ -172,9 +271,9 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                   <FieldLabel>Time of Birth</FieldLabel>
                   <div className="bg-gray-100 rounded-md p-px">
                     <RadioGroup
-                      value={field.state.value ? 'known' : 'unknown'}
+                      value={field.state.value ? "known" : "unknown"}
                       onValueChange={(value) =>
-                        field.handleChange(value === 'known')
+                        field.handleChange(value === "known")
                       }
                       disabled={isLoading}
                       className="flex gap-2"
@@ -223,7 +322,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                       <Select
                         value={field.state.value}
                         onValueChange={(value) =>
-                          field.handleChange(value as 'AM' | 'PM')
+                          field.handleChange(value as "AM" | "PM")
                         }
                         options={periods}
                         placeholder="AM/PM"
@@ -245,7 +344,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                     <RadioGroup
                       value={field.state.value}
                       onValueChange={(value) =>
-                        field.handleChange(value as 'Male' | 'Female')
+                        field.handleChange(value as "male" | "female")
                       }
                       disabled={isLoading}
                       className="flex gap-2"
@@ -266,48 +365,11 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
 
       case 3:
         return (
-          <div className="flex flex-col gap-6">
-            <form.Field name="country">
-              {(field) => (
-                <Field className="flex flex-col gap-2">
-                  <FieldLabel htmlFor={field.name}>Country of Birth</FieldLabel>
-                  <Select
-                    value={field.state.value}
-                    onValueChange={(value) => field.handleChange(value)}
-                    options={COUNTRY_LIST.map((country) => ({
-                      value: country.name,
-                      label: country.name,
-                    }))}
-                    placeholder="Select a country"
-                    disabled={isLoading}
-                  />
-                  <FieldError errors={field.state.meta.errors} />
-                </Field>
-              )}
-            </form.Field>
-            <form.Field name="city">
-              {(field) => (
-                <Field className="flex flex-col gap-2">
-                  <FieldLabel htmlFor={field.name}>City of Birth</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="text"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    disabled={isLoading || !values.country}
-                    placeholder={
-                      values.country
-                        ? 'Enter city name'
-                        : 'Select a country first'
-                    }
-                  />
-                  <FieldError errors={field.state.meta.errors} />
-                </Field>
-              )}
-            </form.Field>
-          </div>
+          <CityFieldStep
+            values={values}
+            isLoading={Boolean(isLoading)}
+            form={form}
+          />
         );
 
       default:
@@ -364,7 +426,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
           <Button
             type="button"
             onClick={handleNext}
-            disabled={isLoading || !validateCurrentStep()}
+            disabled={Boolean(isLoading || !validateCurrentStep())}
             className="flex-1"
           >
             Next
@@ -375,7 +437,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
             disabled={!canSubmit || isLoading}
             className="flex-1"
           >
-            {isLoading ? 'Processing...' : 'Start Analyzing'}
+            {isLoading ? "Processing..." : "Start Analyzing"}
           </Button>
         )}
       </div>

@@ -4,7 +4,7 @@ import { COUNTRY_LIST } from '@/constants/data';
 import { OnboardingForm } from '@/features/onboarding/components';
 import { useOnboarding } from '@/features/onboarding/hooks/use-onboarding';
 import { TOnboardingFormData } from '@/features/onboarding/types';
-import { TCommonPayload } from '@/services/user.service';
+import { TCommonPayload } from '@/services';
 
 export default function OnboardingPage() {
   const mutateOnboarding = useOnboarding();

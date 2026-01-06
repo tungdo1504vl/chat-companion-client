@@ -1,45 +1,149 @@
 import { createTaskRequest } from "./base.service";
-import { TCommonPayload, TCommonResponse, TOnboardingPayload } from "./types";
+import { TCommonResponse, TTaskInputArgs, TTaskType } from "./types";
+
+/**
+ * Default endpoint for task submission
+ */
+const DEFAULT_ENDPOINT = "/internal/v1/tasks/compute";
+
+/**
+ * Helper function to create a task request with default endpoint
+ * Keeps code DRY and makes it easy to change endpoint pattern in the future
+ */
+const createTask = <TResult = unknown>(
+  taskType: TTaskType,
+  inputArgs: TTaskInputArgs,
+  priority: string = "medium"
+): Promise<TCommonResponse<TResult>> => {
+  return createTaskRequest<TResult>(
+    taskType,
+    inputArgs,
+    priority,
+    DEFAULT_ENDPOINT
+  );
+};
 
 /**
  * User service
- * Maintains backward compatibility with existing methods
+ * Provides type-safe functions for each task type
  */
 const userService = {
+  // ============================================
+  // Partner Profile Functions
+  // ============================================
+
   /**
-   * Submit a task for processing
+   * Get a partner profile by ID
    */
-  submit(payload: TOnboardingPayload): Promise<TCommonResponse> {
-    return createTaskRequest(
-      payload.task_type,
-      payload.input_args,
-      payload.priority,
-      "/internal/v1/tasks/submit"
-    );
+  getPartnerProfile<TResult = unknown>(
+    inputArgs: TTaskInputArgs,
+    priority: string = "medium"
+  ): Promise<TCommonResponse<TResult>> {
+    return createTask<TResult>("partner_profile_get", inputArgs, priority);
   },
 
   /**
-   * Compute a task
+   * List all partner profiles
    */
-  compute(payload: TCommonPayload): Promise<TCommonResponse> {
-    return createTaskRequest(
-      payload.task_type,
-      payload.input_args,
-      payload.priority,
-      "/internal/v1/tasks/compute"
-    );
+  listPartnerProfiles<TResult = unknown>(
+    inputArgs: TTaskInputArgs,
+    priority: string = "medium"
+  ): Promise<TCommonResponse<TResult>> {
+    return createTask<TResult>("partner_profile_list", inputArgs, priority);
   },
 
   /**
-   * Stream a task
+   * Create a new partner profile
    */
-  stream(payload: TCommonPayload): Promise<TCommonResponse> {
-    return createTaskRequest(
-      payload.task_type,
-      payload.input_args,
-      payload.priority,
-      "/internal/v1/tasks/stream"
-    );
+  createPartnerProfile<TResult = unknown>(
+    inputArgs: TTaskInputArgs,
+    priority: string = "medium"
+  ): Promise<TCommonResponse<TResult>> {
+    return createTask<TResult>("partner_profile_create", inputArgs, priority);
+  },
+
+  /**
+   * Get insights for a partner profile
+   */
+  getPartnerProfileInsights<TResult = unknown>(
+    inputArgs: TTaskInputArgs,
+    priority: string = "medium"
+  ): Promise<TCommonResponse<TResult>> {
+    return createTask<TResult>("partner_profile_insights", inputArgs, priority);
+  },
+
+  /**
+   * List partner insights
+   */
+  listPartnerInsights<TResult = unknown>(
+    inputArgs: TTaskInputArgs,
+    priority: string = "medium"
+  ): Promise<TCommonResponse<TResult>> {
+    return createTask<TResult>("partner_insights_list", inputArgs, priority);
+  },
+
+  /**
+   * Get gift ideas for a partner
+   */
+  getPartnerGiftIdeas<TResult = unknown>(
+    inputArgs: TTaskInputArgs,
+    priority: string = "medium"
+  ): Promise<TCommonResponse<TResult>> {
+    return createTask<TResult>("partner_gift_ideas", inputArgs, priority);
+  },
+
+  // ============================================
+  // User Profile Functions
+  // ============================================
+
+  /**
+   * Get user profile
+   */
+  getUserProfile<TResult = unknown>(
+    inputArgs: TTaskInputArgs,
+    priority: string = "medium"
+  ): Promise<TCommonResponse<TResult>> {
+    return createTask<TResult>("user_profile_get", inputArgs, priority);
+  },
+
+  /**
+   * Update user profile
+   */
+  updateUserProfile<TResult = unknown>(
+    inputArgs: TTaskInputArgs,
+    priority: string = "medium"
+  ): Promise<TCommonResponse<TResult>> {
+    return createTask<TResult>("user_profile_update", inputArgs, priority);
+  },
+
+  /**
+   * Validate user profile data
+   */
+  validateUserProfile<TResult = unknown>(
+    inputArgs: TTaskInputArgs,
+    priority: string = "medium"
+  ): Promise<TCommonResponse<TResult>> {
+    return createTask<TResult>("user_profile_validate", inputArgs, priority);
+  },
+
+  /**
+   * Analyze user profile
+   */
+  analyzeUserProfile<TResult = unknown>(
+    inputArgs: TTaskInputArgs,
+    priority: string = "medium"
+  ): Promise<TCommonResponse<TResult>> {
+    return createTask<TResult>("user_profile_analyze", inputArgs, priority);
+  },
+
+  /**
+   * Get locations
+   */
+  getLocations<TResult = unknown>(
+    inputArgs: TTaskInputArgs,
+    priority: string = "medium"
+  ): Promise<TCommonResponse<TResult>> {
+    return createTask<TResult>("location_city_list", inputArgs, priority);
   },
 };
 

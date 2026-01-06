@@ -1,28 +1,28 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { ArrowLeft, MoreVertical, Pencil } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { ProfileForm, BirthChart } from '@/features/profile/components';
-import { TProfileFormData } from '@/features/profile/types';
-import { useSession } from '@/libs/better-auth/client';
+import { useState } from "react";
+import { ArrowLeft, MoreVertical, Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ProfileForm, BirthChart } from "@/features/profile/components";
+import { TProfileFormData } from "@/features/profile/types";
+import { useSession } from "@/libs/better-auth/client";
 
 export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('settings');
+  const [activeTab, setActiveTab] = useState("settings");
   const { data: session } = useSession();
 
   const handleSubmit = async (data: TProfileFormData) => {
     setIsLoading(true);
     try {
       // TODO: Implement API call to save profile data
-      console.log('Profile data:', data);
+      console.log("Profile data:", data);
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
-      console.error('Error saving profile:', error);
+      console.error("Error saving profile:", error);
     } finally {
       setIsLoading(false);
     }
@@ -49,7 +49,7 @@ export default function ProfilePage() {
             <div className="relative">
               <Avatar className="h-24 w-24 border-2 border-primary">
                 <AvatarImage
-                  src={session?.user?.image || '/images/placeholder-avatar.png'}
+                  src={session?.user?.image || "/images/placeholder-avatar.png"}
                   alt="Profile"
                 />
                 <AvatarFallback>{session?.user?.name}</AvatarFallback>

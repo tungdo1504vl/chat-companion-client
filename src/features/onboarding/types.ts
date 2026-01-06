@@ -7,7 +7,7 @@ export type TOnboardingFormData = {
   birthMinute: string;
   birthPeriod: "AM" | "PM";
   birthTimeKnown: boolean;
-  genderAtBirth: "Male" | "Female";
+  genderAtBirth: "male" | "female";
   country: string;
   city: string;
 };
@@ -16,8 +16,3 @@ export type TOnboardingFormProps = {
   onSubmit?: (data: TOnboardingFormData) => void;
   isLoading?: boolean;
 };
-
-
-
-
-
