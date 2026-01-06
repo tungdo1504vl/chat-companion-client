@@ -1,5 +1,6 @@
 import { useMutation } from '@/libs/react-query';
-import userService, { TOnboardingPayload } from '@/services/user.service';
+import userService from '@/services/user.service';
+import { TOnboardingPayload } from '@/types/common';
 
 export const useOnboarding = () => {
   const signInMutation = useMutation({

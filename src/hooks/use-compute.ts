@@ -1,15 +1,15 @@
 import { useMutation } from '@/libs/react-query';
-import userService from '@/services/user.service';
+import commonService from '@/services/common.service';
 import { TCommonPayload } from '@/types/common';
 
-export const useCompute = () => {
-  const signInMutation = useMutation({
+export const useCommonCompute = () => {
+  const commonMutation = useMutation({
     mutationFn: async (data: TCommonPayload) => {
-      return await userService.compute(data);
+      return await commonService.compute(data);
     },
     onSuccess: async (response) => {},
     onError: (error) => {},
   });
 
-  return signInMutation;
+  return commonMutation;
 };

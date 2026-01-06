@@ -8,7 +8,7 @@ import {
 /**
  * User service
  */
-const userService = {
+const commonService = {
   submit(payload: TOnboardingPayload): Promise<TCommonResponse> {
     return axiosClient.post('/internal/v1/tasks/submit', payload);
   },
@@ -20,4 +20,4 @@ const userService = {
   },
 };
 
-export default userService;
+export default commonService;

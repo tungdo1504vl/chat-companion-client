@@ -5,6 +5,11 @@ import { ChevronDown, Smile } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import MobileHeader from '@/components/commons/mobile-header/mobile-header';
+import { useComputeGet } from '@/hooks/use-compute-get';
+import { createTaskParams } from '@/utils/helpers';
+import { TASK_TYPE } from '@/constants/task';
+import { useSession } from '@/libs/better-auth/client';
+import { useEffect } from 'react';
 
 interface Partner {
   id: string;
@@ -36,6 +41,15 @@ export default function PartnersPage() {
   const router = useRouter();
   const partners = mockPartners;
   const hasPartners = partners.length > 0;
+  const { data: session } = useSession();
+  const userId = session?.user.id;
+  const aa = createTaskParams(TASK_TYPE.PARTNER_PROFILE_LIST, {
+    user_id: userId || '',
+    // user_id: 'bf48a9a3-dad1-424e-9b74-fc319f43cf34',
+    include_archived: false,
+  });
+  const { data, refetch, isLoading, isError } = useComputeGet(aa);
+  console.log('data:', data);
 
   const handleCreatePartner = () => {
     router.push('/partner-create');
