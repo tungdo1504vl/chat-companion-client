@@ -1,16 +1,17 @@
-'use client';
+"use client";
 
-import { useForm, useStore } from '@tanstack/react-form';
-import ReactTagsInput from 'react-tagsinput';
-import { BrainCog, Coffee, Share2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Select } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/commons/radio-group';
+import { useEffect, useRef } from "react";
+import { useForm, useStore } from "@tanstack/react-form";
+import ReactTagsInput from "react-tagsinput";
+import { BrainCog, Coffee, Share2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Select } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/commons/radio-group";
 import {
   CheckboxGroup,
   CheckboxGroupItem,
-} from '@/components/commons/checkbox-group';
+} from "@/components/commons/checkbox-group";
 import {
   defaultProfileFormValues,
   loveLanguages,
@@ -18,12 +19,13 @@ import {
   communicationStyles,
   workSchedules,
   socialEnergyLevels,
-} from '../const';
-import { profileFormSchema } from '../validate-schema';
-import { TProfileFormProps } from '../types';
+} from "../const";
+import { profileFormSchema } from "../validate-schema";
+import { TProfileFormProps } from "../types";
 
 export default function ProfileForm(props: Readonly<TProfileFormProps>) {
   const { onSubmit, isLoading, defaultValues } = props;
+  const previousValuesRef = useRef<string | undefined>(undefined);
 
   const form = useForm({
     defaultValues: {
@@ -39,13 +41,28 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
     },
   });
 
+  // Reset form when defaultValues change (e.g., when profile data is fetched)
+  useEffect(() => {
+    if (defaultValues) {
+      const currentValuesString = JSON.stringify(defaultValues);
+      // Only reset if values actually changed
+      if (previousValuesRef.current !== currentValuesString) {
+        form.reset({
+          ...defaultProfileFormValues,
+          ...defaultValues,
+        });
+        previousValuesRef.current = currentValuesString;
+      }
+    }
+  }, [defaultValues, form]);
+
   const canSubmit = useStore(form.store, (state) => state.canSubmit);
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Validate form before submitting
-    await form.validateAllFields('submit');
+    await form.validateAllFields("submit");
 
     // Check if form is valid
     if (!form.state.isValid) {
@@ -137,13 +154,13 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                     }}
                     disabled={isLoading}
                     inputProps={{
-                      placeholder: 'Add a deal-breaker (e.g., Smoking)',
-                      className: 'react-tagsinput-input',
+                      placeholder: "Add a deal-breaker (e.g., Smoking)",
+                      className: "react-tagsinput-input",
                       onBlur: () => field.handleBlur(),
                     }}
                     tagProps={{
-                      className: 'react-tagsinput-tag text-white',
-                      classNameRemove: 'react-tagsinput-remove',
+                      className: "react-tagsinput-tag text-white",
+                      classNameRemove: "react-tagsinput-remove",
                     }}
                   />
                 </div>
@@ -248,14 +265,14 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                     }}
                     disabled={isLoading}
                     inputProps={{
-                      placeholder: 'Add a hobby',
-                      className: 'react-tagsinput-input',
+                      placeholder: "Add a hobby",
+                      className: "react-tagsinput-input",
                       onBlur: () => field.handleBlur(),
                     }}
                     tagProps={{
                       className:
-                        'react-tagsinput-tag bg-primary text-primary-foreground',
-                      classNameRemove: 'react-tagsinput-remove',
+                        "react-tagsinput-tag bg-primary text-primary-foreground",
+                      classNameRemove: "react-tagsinput-remove",
                     }}
                   />
                 </div>
@@ -371,7 +388,7 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
           disabled={!canSubmit || isLoading}
         >
           <span className="mr-2">💾</span>
-          {isLoading ? 'Saving...' : 'Save Changes'}
+          {isLoading ? "Saving..." : "Save Changes"}
         </Button>
       </div>
     </form>
