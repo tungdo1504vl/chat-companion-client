@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
 import ReactTagsInput from "react-tagsinput";
 import { BrainCog, Coffee, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Select } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { Select } from "@/components/commons/select";
 import { RadioGroup, RadioGroupItem } from "@/components/commons/radio-group";
 import {
   CheckboxGroup,
@@ -26,6 +28,12 @@ import { TProfileFormProps } from "../types";
 export default function ProfileForm(props: Readonly<TProfileFormProps>) {
   const { onSubmit, isLoading, defaultValues } = props;
   const previousValuesRef = useRef<string | undefined>(undefined);
+  const [showInstagramInput, setShowInstagramInput] = useState(
+    () =>
+      !!(
+        defaultValues?.instagramUrl && defaultValues.instagramUrl.trim() !== ""
+      )
+  );
 
   const form = useForm({
     defaultValues: {
@@ -52,6 +60,13 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
           ...defaultValues,
         });
         previousValuesRef.current = currentValuesString;
+        // Sync Instagram input visibility with URL presence
+        setShowInstagramInput(
+          !!(
+            defaultValues.instagramUrl &&
+            defaultValues.instagramUrl.trim() !== ""
+          )
+        );
       }
     }
   }, [defaultValues, form]);
@@ -92,7 +107,10 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                 <FieldLabel>Primary Love Language</FieldLabel>
                 <Select
                   value={field.state.value}
-                  onValueChange={(value) => field.handleChange(value)}
+                  onValueChange={(value) => {
+                    field.handleChange(value);
+                    field.handleBlur();
+                  }}
                   options={loveLanguages}
                   placeholder="Select love language"
                   disabled={isLoading}
@@ -131,7 +149,10 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                 <FieldLabel>Attachment Style</FieldLabel>
                 <Select
                   value={field.state.value}
-                  onValueChange={(value) => field.handleChange(value)}
+                  onValueChange={(value) => {
+                    field.handleChange(value);
+                    field.handleBlur();
+                  }}
                   options={attachmentStyles}
                   placeholder="Select attachment style"
                   disabled={isLoading}
@@ -184,7 +205,10 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                 <div className="bg-gray-100 rounded-md p-px">
                   <RadioGroup
                     value={field.state.value}
-                    onValueChange={(value) => field.handleChange(value)}
+                    onBlur={() => field.handleBlur()}
+                    onValueChange={(value) => {
+                      field.handleChange(value);
+                    }}
                     disabled={isLoading}
                     className="flex gap-2"
                   >
@@ -213,15 +237,16 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                     <span className="font-medium">${field.state.value}</span>
                     <span>High</span>
                   </div>
-                  <input
-                    type="range"
-                    min="10"
-                    max="1000"
+                  <Slider
+                    min={10}
+                    max={1000}
                     step={10}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(Number(e.target.value))}
+                    value={[field.state.value]}
+                    onValueChange={(values) => {
+                      field.handleChange(values[0]);
+                      field.handleBlur();
+                    }}
                     disabled={isLoading}
-                    className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary disabled:opacity-50"
                   />
                 </div>
                 <FieldError errors={field.state.meta.errors} />
@@ -236,7 +261,10 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                 <div className="bg-gray-100 rounded-md p-px">
                   <RadioGroup
                     value={field.state.value}
-                    onValueChange={(value) => field.handleChange(value)}
+                    onValueChange={(value) => {
+                      field.handleChange(value);
+                      field.handleBlur();
+                    }}
                     disabled={isLoading}
                     className="flex gap-2"
                   >
@@ -289,85 +317,81 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
             <h3 className="text-base font-semibold">Social Signals</h3>
           </div>
 
-          <div className="space-y-3">
-            <form.Field name="instagramLinked">
-              {(field) => (
-                <div className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded bg-gradient-to-br from-orange-400 to-purple-600 flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">IG</span>
-                    </div>
-                    <span className="font-medium">Instagram</span>
-                  </div>
-                  {field.state.value ? (
-                    <span className="text-sm text-green-600">✓ Linked</span>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="link"
-                      className="text-blue-600 p-0 h-auto"
-                      onClick={() => field.handleChange(true)}
-                      disabled={isLoading}
-                    >
-                      Connect
-                    </Button>
-                  )}
-                </div>
-              )}
-            </form.Field>
+          {/* Instagram */}
+          <form.Subscribe selector={(state) => state.values.instagramUrl}>
+            {(instagramUrl) => {
+              const hasUrl = instagramUrl && instagramUrl.trim() !== "";
+              const shouldShowInput = hasUrl || showInstagramInput;
 
-            <form.Field name="facebookLinked">
-              {(field) => (
-                <div className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded bg-blue-600 flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">f</span>
+              return (
+                <form.Field
+                  name="instagramUrl"
+                  listeners={{
+                    onChange: ({ value }) => {
+                      // Auto-hide input if URL is cleared
+                      if (!value || value.trim() === "") {
+                        setShowInstagramInput(false);
+                      }
+                    },
+                  }}
+                >
+                  {(field) => (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-8 rounded bg-gradient-to-br from-orange-400 to-purple-600 flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">
+                              IG
+                            </span>
+                          </div>
+                          <span className="font-medium">Instagram</span>
+                        </div>
+                        {hasUrl ? (
+                          <span className="text-sm text-green-600">
+                            ✓ Linked
+                          </span>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="link"
+                            className="text-blue-600 p-0 h-auto"
+                            onClick={() => {
+                              setShowInstagramInput(true);
+                              // Focus the input after it appears
+                              setTimeout(() => {
+                                const input =
+                                  document.querySelector<HTMLInputElement>(
+                                    'input[name="instagramUrl"]'
+                                  );
+                                input?.focus();
+                              }, 0);
+                            }}
+                            disabled={isLoading}
+                          >
+                            Connect
+                          </Button>
+                        )}
+                      </div>
+                      {shouldShowInput && (
+                        <Field className="flex flex-col gap-2">
+                          <Input
+                            type="url"
+                            name="instagramUrl"
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            onBlur={field.handleBlur}
+                            placeholder="https://instagram.com/username"
+                            disabled={isLoading}
+                          />
+                          <FieldError errors={field.state.meta.errors} />
+                        </Field>
+                      )}
                     </div>
-                    <span className="font-medium">Facebook</span>
-                  </div>
-                  {field.state.value ? (
-                    <span className="text-sm text-green-600">✓ Linked</span>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="link"
-                      className="text-blue-600 p-0 h-auto"
-                      onClick={() => field.handleChange(true)}
-                      disabled={isLoading}
-                    >
-                      Connect
-                    </Button>
                   )}
-                </div>
-              )}
-            </form.Field>
-
-            <form.Field name="threadsLinked">
-              {(field) => (
-                <div className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-black flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">@</span>
-                    </div>
-                    <span className="font-medium">Threads</span>
-                  </div>
-                  {field.state.value ? (
-                    <span className="text-sm text-green-600">✓ Linked</span>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="link"
-                      className="text-blue-600 p-0 h-auto"
-                      onClick={() => field.handleChange(true)}
-                      disabled={isLoading}
-                    >
-                      Connect
-                    </Button>
-                  )}
-                </div>
-              )}
-            </form.Field>
-          </div>
+                </form.Field>
+              );
+            }}
+          </form.Subscribe>
         </div>
       </div>
 

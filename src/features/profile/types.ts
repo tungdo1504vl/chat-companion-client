@@ -7,9 +7,7 @@ export type TProfileFormData = {
   dateBudget: number;
   socialEnergy: string;
   hobbies: string[];
-  instagramLinked: boolean;
-  facebookLinked: boolean;
-  threadsLinked: boolean;
+  instagramUrl: string;
 };
 
 export type TProfileFormProps = {
@@ -49,9 +47,6 @@ export interface TLifestyle {
 
 export interface TSocialLinks {
   instagram: string;
-  facebook: string;
-  threads: string;
-  tiktok: string;
 }
 
 export interface TUserProfile {
@@ -68,9 +63,6 @@ export interface TUserProfile {
   date_budget: number;
   social_energy: string;
   hobbies: string[];
-  instagram_linked: boolean;
-  facebook_linked: boolean;
-  threads_linked: boolean;
 }
 
 export interface TNatalChartMeta {
@@ -177,4 +169,44 @@ export interface TUnifiedUser {
   insights: TInsights | null;
   created_at: string | null;
   updated_at: string | null;
+}
+
+/**
+ * Profile update payload structure matching API expectations
+ * Only includes fields that have changed
+ */
+export interface TProfileUpdatePayload {
+  user_id: string;
+  profile_update?: {
+    name?: string;
+    avatar_url?: string;
+    gender?: TGender;
+    dob?: string;
+    time_of_birth?: string;
+    country_of_birth?: string;
+    city_of_birth?: string;
+  };
+  personality?: {
+    love_languages?: string[];
+    communication_styles?: string[];
+    attachment_style?: string;
+    deal_breakers?: string[];
+  };
+  lifestyle?: {
+    work_schedule?: string;
+    date_budget?: number;
+    social_energy_level?: string;
+    hobbies?: string[];
+  };
+  social_links?: {
+    instagram?: string;
+  };
+  primary_love_language?: string;
+  communication_styles?: string[];
+  attachment_style?: string;
+  deal_breakers?: string[];
+  work_schedule?: string;
+  date_budget?: number;
+  social_energy?: string;
+  hobbies?: string[];
 }

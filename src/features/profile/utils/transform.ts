@@ -1,5 +1,9 @@
-import { TProfileFormData, TUserProfile } from '../types';
-import { defaultProfileFormValues } from '../const';
+import {
+  TProfileFormData,
+  TUserProfile,
+  TProfileUpdatePayload,
+} from "../types";
+import { defaultProfileFormValues } from "../const";
 
 /**
  * Transform API profile response to form data format
@@ -13,17 +17,23 @@ export function profileToFormData(
   }
 
   return {
-    primaryLoveLanguage: profile.primary_love_language || defaultProfileFormValues.primaryLoveLanguage,
-    communicationStyles: profile.communication_styles || defaultProfileFormValues.communicationStyles,
-    attachmentStyle: profile.attachment_style || defaultProfileFormValues.attachmentStyle,
-    dealBreakers: profile.deal_breakers || defaultProfileFormValues.dealBreakers,
-    workSchedule: profile.work_schedule || defaultProfileFormValues.workSchedule,
+    primaryLoveLanguage:
+      profile.primary_love_language ||
+      defaultProfileFormValues.primaryLoveLanguage,
+    communicationStyles:
+      profile.communication_styles ||
+      defaultProfileFormValues.communicationStyles,
+    attachmentStyle:
+      profile.attachment_style || defaultProfileFormValues.attachmentStyle,
+    dealBreakers:
+      profile.deal_breakers || defaultProfileFormValues.dealBreakers,
+    workSchedule:
+      profile.work_schedule || defaultProfileFormValues.workSchedule,
     dateBudget: profile.date_budget ?? defaultProfileFormValues.dateBudget,
-    socialEnergy: profile.social_energy || defaultProfileFormValues.socialEnergy,
+    socialEnergy:
+      profile.social_energy || defaultProfileFormValues.socialEnergy,
     hobbies: profile.hobbies || defaultProfileFormValues.hobbies,
-    instagramLinked: profile.instagram_linked ?? defaultProfileFormValues.instagramLinked,
-    facebookLinked: profile.facebook_linked ?? defaultProfileFormValues.facebookLinked,
-    threadsLinked: profile.threads_linked ?? defaultProfileFormValues.threadsLinked,
+    instagramUrl: profile.social_links?.instagram || "",
   };
 }
 
@@ -43,15 +53,141 @@ export function formDataToProfileUpdate(
     date_budget: data.dateBudget,
     social_energy: data.socialEnergy,
     hobbies: data.hobbies,
-    instagram_linked: data.instagramLinked,
-    facebook_linked: data.facebookLinked,
-    threads_linked: data.threadsLinked,
   };
+}
+
+/**
+ * Transform form data to update payload format
+ * Only includes fields that have changed compared to initial values
+ * Builds payload according to API spec with nested structures
+ */
+export function formDataToUpdatePayload(
+  currentData: TProfileFormData,
+  initialData: TProfileFormData,
+  userId: string
+): TProfileUpdatePayload {
+  const payload: TProfileUpdatePayload = {
+    user_id: userId,
+  };
+
+  // Track if any fields in each section changed
+  let hasPersonalityChanges = false;
+  let hasLifestyleChanges = false;
+  let hasSocialLinksChanges = false;
+  let hasTopLevelChanges = false;
+
+  // Check personality fields
+  const personalityChanges: TProfileUpdatePayload["personality"] = {};
+  if (
+    JSON.stringify(currentData.communicationStyles) !==
+    JSON.stringify(initialData.communicationStyles)
+  ) {
+    personalityChanges.communication_styles = currentData.communicationStyles;
+    hasPersonalityChanges = true;
+    hasTopLevelChanges = true;
+  }
+  if (currentData.attachmentStyle !== initialData.attachmentStyle) {
+    personalityChanges.attachment_style = currentData.attachmentStyle;
+    hasPersonalityChanges = true;
+    hasTopLevelChanges = true;
+  }
+  if (
+    JSON.stringify(currentData.dealBreakers) !==
+    JSON.stringify(initialData.dealBreakers)
+  ) {
+    personalityChanges.deal_breakers = currentData.dealBreakers;
+    hasPersonalityChanges = true;
+    hasTopLevelChanges = true;
+  }
+  if (hasPersonalityChanges) {
+    payload.personality = personalityChanges;
+  }
+
+  // Check lifestyle fields
+  const lifestyleChanges: TProfileUpdatePayload["lifestyle"] = {};
+  if (currentData.workSchedule !== initialData.workSchedule) {
+    lifestyleChanges.work_schedule = currentData.workSchedule;
+    hasLifestyleChanges = true;
+    hasTopLevelChanges = true;
+  }
+  if (currentData.dateBudget !== initialData.dateBudget) {
+    lifestyleChanges.date_budget = currentData.dateBudget;
+    hasLifestyleChanges = true;
+    hasTopLevelChanges = true;
+  }
+  if (currentData.socialEnergy !== initialData.socialEnergy) {
+    lifestyleChanges.social_energy_level = currentData.socialEnergy;
+    hasLifestyleChanges = true;
+    hasTopLevelChanges = true;
+  }
+  if (
+    JSON.stringify(currentData.hobbies) !== JSON.stringify(initialData.hobbies)
+  ) {
+    lifestyleChanges.hobbies = currentData.hobbies;
+    hasLifestyleChanges = true;
+    hasTopLevelChanges = true;
+  }
+  if (hasLifestyleChanges) {
+    payload.lifestyle = lifestyleChanges;
+  }
+
+  // Check social links
+  const socialLinksChanges: TProfileUpdatePayload["social_links"] = {};
+  if (currentData.instagramUrl !== initialData.instagramUrl) {
+    socialLinksChanges.instagram = currentData.instagramUrl || "";
+    hasSocialLinksChanges = true;
+  }
+  if (hasSocialLinksChanges) {
+    payload.social_links = socialLinksChanges;
+  }
+
+  // Check top-level fields (primary_love_language)
+  if (currentData.primaryLoveLanguage !== initialData.primaryLoveLanguage) {
+    payload.primary_love_language = currentData.primaryLoveLanguage;
+    hasTopLevelChanges = true;
+  }
+
+  // Add top-level fields if they changed (for backward compatibility)
+  if (hasTopLevelChanges) {
+    if (
+      JSON.stringify(currentData.communicationStyles) !==
+      JSON.stringify(initialData.communicationStyles)
+    ) {
+      payload.communication_styles = currentData.communicationStyles;
+    }
+    if (currentData.attachmentStyle !== initialData.attachmentStyle) {
+      payload.attachment_style = currentData.attachmentStyle;
+    }
+    if (
+      JSON.stringify(currentData.dealBreakers) !==
+      JSON.stringify(initialData.dealBreakers)
+    ) {
+      payload.deal_breakers = currentData.dealBreakers;
+    }
+    if (currentData.workSchedule !== initialData.workSchedule) {
+      payload.work_schedule = currentData.workSchedule;
+    }
+    if (currentData.dateBudget !== initialData.dateBudget) {
+      payload.date_budget = currentData.dateBudget;
+    }
+    if (currentData.socialEnergy !== initialData.socialEnergy) {
+      payload.social_energy = currentData.socialEnergy;
+    }
+    if (
+      JSON.stringify(currentData.hobbies) !==
+      JSON.stringify(initialData.hobbies)
+    ) {
+      payload.hobbies = currentData.hobbies;
+    }
+  }
+
+  return payload;
 }
 
 /**
  * Transform form data to task input args format
  * Converts arrays and booleans to string/number format expected by API
+ * @deprecated Use formDataToUpdatePayload instead for proper partial updates
  */
 export function formDataToTaskInputArgs(
   data: TProfileFormData,
@@ -67,9 +203,5 @@ export function formDataToTaskInputArgs(
     date_budget: data.dateBudget,
     social_energy: data.socialEnergy,
     hobbies: JSON.stringify(data.hobbies),
-    instagram_linked: data.instagramLinked ? 1 : 0,
-    facebook_linked: data.facebookLinked ? 1 : 0,
-    threads_linked: data.threadsLinked ? 1 : 0,
   };
 }
-
