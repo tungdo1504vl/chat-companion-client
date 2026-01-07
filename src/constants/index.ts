@@ -6,6 +6,7 @@ export const PUBLIC_ROUTES = {
 export const PROTECTED_ROUTES = {
   CONVERSATIONS: "/conversations",
   ONBOARDING: "/onboarding",
+  ASSISTANT: "/assistant",
 } as const;
 
 export const ALL_ROUTES = {

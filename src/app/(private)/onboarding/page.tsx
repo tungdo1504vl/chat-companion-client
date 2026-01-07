@@ -1,40 +1,63 @@
-'use client';
+"use client";
 
-import { COUNTRY_LIST } from '@/constants/data';
-import { OnboardingForm } from '@/features/onboarding/components';
-import { useOnboarding } from '@/features/onboarding/hooks/use-onboarding';
-import { TOnboardingFormData } from '@/features/onboarding/types';
-import { TCommonPayload } from '@/services';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { OnboardingForm } from "@/features/onboarding/components";
+import { useOnboarding } from "@/features/onboarding/hooks/use-onboarding";
+import { TOnboardingFormData } from "@/features/onboarding/types";
+import { TCommonPayload } from "@/services";
+import { useSession } from "@/libs/better-auth/client";
+import { PROTECTED_ROUTES } from "@/constants";
+import { convertTo24HourFormat } from "@/utils";
 
 export default function OnboardingPage() {
+  const router = useRouter();
+  const { data: session } = useSession();
   const mutateOnboarding = useOnboarding();
-  
+
+  // Check if onboarding is already complete and redirect to assistant
+  useEffect(() => {
+    if (session?.user?.hasCompletedOnboarding) {
+      router.push(PROTECTED_ROUTES.ASSISTANT);
+    }
+  }, [session?.user?.hasCompletedOnboarding, router]);
+
   const handleSubmit = async (formData: TOnboardingFormData) => {
     const birthDay = `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`;
-    const birthTime = `${formData.birthHour}:${formData.birthMinute}:00`;
-    const countryName = COUNTRY_LIST.find(
-      (item) => item.code === formData.country
-    )?.name;
-    
+
+    // Convert 12-hour format to 24-hour format when birth time is known
+    // If birth time is unknown, default to 12:30 PM (12:30:00 in 24-hour format)
+    const birthTime =
+      formData.birthTimeKnown && formData.birthPeriod
+        ? convertTo24HourFormat(
+            formData.birthHour,
+            formData.birthMinute,
+            formData.birthPeriod
+          )
+        : "12:30:00";
+
     const payload: TCommonPayload = {
-      task_type: 'user_profile_validate',
+      task_type: "user_profile_validate",
       input_args: {
         name: formData.name,
         gender: formData.genderAtBirth,
         dob: birthDay,
         time_of_birth: birthTime,
-        country_of_birth: countryName || '',
+        country_of_birth: formData.country || "",
         city_of_birth: formData.city,
       },
-      priority: 'high',
+      priority: "high",
     };
-    
+
     await mutateOnboarding.mutateAsync(payload);
   };
 
   return (
     <div className="container mx-auto max-w-2xl py-8 px-4">
-      <OnboardingForm onSubmit={handleSubmit} />
+      <OnboardingForm
+        onSubmit={handleSubmit}
+        isLoading={mutateOnboarding.isPending}
+      />
     </div>
   );
 }

@@ -12,9 +12,15 @@ interface UseCitiesParams {
   country: string;
   query: string;
   limit?: number;
+  enabled?: boolean;
 }
 
-export const useCities = ({ country, query, limit = 50 }: UseCitiesParams) => {
+export const useCities = ({
+  country,
+  query,
+  limit = 50,
+  enabled = true,
+}: UseCitiesParams) => {
   const { data: session } = useSession();
   const userId = session?.user?.id ?? "";
 
@@ -33,7 +39,12 @@ export const useCities = ({ country, query, limit = 50 }: UseCitiesParams) => {
         return [];
       }
 
-      return response.result.cities?.map((city): ComboboxOption => {
+      // Remove duplicate cities using Set
+      const uniqueCities = Array.from(
+        new Set(response.result.cities?.filter(Boolean))
+      );
+
+      return uniqueCities.map((city): ComboboxOption => {
         // Handle different possible response formats
         const value = city;
         const label = city;
@@ -45,7 +56,10 @@ export const useCities = ({ country, query, limit = 50 }: UseCitiesParams) => {
         };
       });
     },
-    enabled: Boolean(country && userId), // Only fetch when country and userId are available
+    enabled: Boolean(
+      enabled && country && userId
+      // Allow fetching even with empty query to show initial cities
+    ),
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 

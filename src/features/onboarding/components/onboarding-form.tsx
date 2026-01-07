@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,103 +18,70 @@ import {
   minutes,
   periods,
   genders,
+  VIETNAM_CITIES,
 } from "../const";
-import { COUNTRY_LIST } from "@/constants/data";
 import { onboardingFormSchema } from "../validate-schema";
 import { TOnboardingFormProps } from "../types";
-import { useCities } from "../hooks/use-cities";
-import { useDebounce } from "../hooks/use-debounce";
-import type { TOnboardingFormData } from "../types";
 
 interface CityFieldStepProps {
-  readonly values: TOnboardingFormData;
   readonly isLoading: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly form: any;
+  readonly form: any; // tanstack-form types are complex; form is properly typed via useForm
 }
 
-function CityFieldStep({ values, isLoading, form }: CityFieldStepProps) {
-  const [cityQuery, setCityQuery] = useState("");
-  const debouncedQuery = useDebounce(cityQuery, 500);
-
-  const { data: cityOptions, isLoading: isCitiesLoading } = useCities({
-    country: values.country,
-    query: debouncedQuery,
-    limit: 50,
-  });
-
-  const isCityFieldDisabled = isLoading || !values.country;
+function CityFieldStep({ isLoading, form }: CityFieldStepProps) {
+  // Use reactive form values with useStore - only re-render when city changes
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Country Display - Read-only */}
       <form.Field name="country">
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {(field: any) => (
+        {(field: {
+          name: string;
+          state: {
+            value: string;
+            meta: { errors: Array<{ message?: string }> };
+          };
+        }) => (
           <Field className="flex flex-col gap-2">
             <FieldLabel htmlFor={field.name}>Country of Birth</FieldLabel>
-            <Select
-              value={field.state.value}
-              onValueChange={(value) => {
-                field.handleChange(value);
-                // Reset city when country changes
-                form.setFieldValue("city", "");
-                setCityQuery("");
-              }}
-              options={COUNTRY_LIST.map((country) => ({
-                value: country.name,
-                label: country.name,
-              }))}
-              placeholder="Select a country"
-              disabled={isLoading}
-            />
+            <div className="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground">
+              Việt Nam
+            </div>
             <FieldError errors={field.state.meta.errors} />
           </Field>
         )}
       </form.Field>
       <form.Field name="city">
-        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-        {(field: any) => (
-          <Field className="flex flex-col gap-2">
-            <FieldLabel htmlFor={field.name}>City of Birth</FieldLabel>
-            <Combobox
-              value={field.state.value}
-              onValueChange={(value) => {
-                field.handleChange(value);
-                // Update search query to match selected value
-                const selectedCity = cityOptions.find(
-                  (opt) => opt.value === value
-                );
-                if (selectedCity) {
-                  setCityQuery(selectedCity.label);
-                } else if (!value) {
-                  setCityQuery("");
-                }
-              }}
-              searchValue={cityQuery}
-              onSearchChange={(search) => {
-                setCityQuery(search);
-                // Clear selected value if user is typing a new search
-                if (search !== field.state.value) {
-                  field.handleChange("");
-                }
-              }}
-              options={cityOptions}
-              placeholder={(() => {
-                if (!values.country) return "Select a country first";
-                return "Search and select a city";
-              })()}
-              searchPlaceholder="Search cities..."
-              emptyText={(() => {
-                if (debouncedQuery.length > 0) return "No cities found";
-                return "Start typing to search cities";
-              })()}
-              disabled={isCityFieldDisabled}
-              isLoading={isCitiesLoading}
-              allowClear
-            />
-            <FieldError errors={field.state.meta.errors} />
-          </Field>
-        )}
+        {(field: {
+          name: string;
+          state: {
+            value: string;
+            meta: { errors: Array<{ message?: string }> };
+          };
+          handleChange: (value: string) => void;
+          handleBlur: () => void;
+        }) => {
+          return (
+            <Field className="flex flex-col gap-2">
+              <FieldLabel htmlFor={field.name}>City of Birth</FieldLabel>
+              <Combobox
+                value={field.state.value}
+                onValueChange={(value) => {
+                  field.handleChange(value);
+                  field.handleBlur();
+                }}
+                options={VIETNAM_CITIES}
+                placeholder="Search and select a city"
+                searchPlaceholder="Search cities..."
+                disabled={isLoading}
+                allowClear
+                searchMode="client"
+              />
+              <FieldError errors={field.state.meta.errors} />
+            </Field>
+          );
+        }}
       </form.Field>
     </div>
   );
@@ -130,7 +97,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
     validators: {
       // @tanstack/react-form supports Zod schema directly but types are not fully compatible
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onBlur: onboardingFormSchema as unknown as any,
+      onBlur: onboardingFormSchema as any,
     },
   });
 
@@ -176,7 +143,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
       return dateValid;
     }
     if (currentStep === 3) {
-      return values.country.trim() !== "" && values.city.trim() !== "";
+      return values.city.trim() !== "";
     }
     return true;
   };
@@ -364,13 +331,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
         );
 
       case 3:
-        return (
-          <CityFieldStep
-            values={values}
-            isLoading={Boolean(isLoading)}
-            form={form}
-          />
-        );
+        return <CityFieldStep isLoading={Boolean(isLoading)} form={form} />;
 
       default:
         return null;

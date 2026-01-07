@@ -35,10 +35,10 @@ export async function proxy(request: NextRequest) {
 
   const hasSession = hasSessionCookie(request);
 
-  // Public routes: redirect authenticated users away
+  // Public routes: redirect authenticated users to onboarding
   if (PUBLIC_PATHS.has(pathname as "/login" | "/signup")) {
     return hasSession
-      ? NextResponse.redirect(new URL(PROTECTED_ROUTES.ONBOARDING, request.url))
+      ? NextResponse.redirect(new URL(ONBOARDING_PATH, request.url))
       : NextResponse.next();
   }
 

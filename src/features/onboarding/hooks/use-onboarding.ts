@@ -1,6 +1,6 @@
 import { useMutation } from "@/libs/react-query";
 import { userService, TCommonPayload } from "@/services";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useSession } from "@/libs/better-auth/client";
 import { PROTECTED_ROUTES } from "@/constants";
 import { toast } from "sonner";
@@ -9,7 +9,6 @@ import type { UserProfileAnalysisResponse } from "@/stores/types";
 
 export const useOnboarding = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { refetch: refetchSession, data: session } = useSession();
   const setProfileAnalysis = useProfileAnalysisStore(
     (state) => state.setProfileAnalysis
@@ -38,7 +37,14 @@ export const useOnboarding = () => {
 
       return response;
     },
+    onMutate: () => {
+      // Show loading toast when mutation starts
+      toast.loading("Processing your profile...");
+    },
     onSuccess: async (response) => {
+      // Dismiss loading toast
+      toast.dismiss();
+
       // Store profile analysis result in the store
       if (response.result && response.status === "completed") {
         try {
@@ -52,21 +58,25 @@ export const useOnboarding = () => {
       // Refresh session to get updated user data
       await refetchSession();
 
-      toast.success("Onboarding completed successfully");
+      toast.success("Onboarding completed successfully", {
+        className: "bg-green-500 text-white",
+      });
 
-      // Redirect to intended destination or default to conversations
-      const redirectPath =
-        searchParams.get("redirect") || PROTECTED_ROUTES.CONVERSATIONS;
-      router.push(redirectPath);
+      // Redirect to assistant page after successful onboarding
+      router.push(PROTECTED_ROUTES.ASSISTANT);
       router.refresh();
     },
     onError: (error) => {
+      // Dismiss loading toast
+      toast.dismiss();
+
       console.error("Onboarding error:", error);
       toast.error("Failed to complete onboarding", {
         description:
           error instanceof Error
             ? error.message
             : "An unexpected error occurred",
+        className: "bg-red-500 text-white",
       });
     },
   });

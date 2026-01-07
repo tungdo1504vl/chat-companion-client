@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import { CheckIcon, ChevronsUpDownIcon, XIcon } from "lucide-react";
 
 import { cn } from "@/libs/tailwind/utils";
 import { Button } from "@/components/ui/button";
@@ -18,87 +18,49 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Spinner } from "@/components/ui/spinner";
 
 export interface ComboboxOption {
-  id?: string;
+  id: string;
   value: string;
   label: string;
 }
 
 export interface ComboboxProps {
-  readonly options: ComboboxOption[];
-  readonly value?: string;
-  readonly onValueChange?: (value: string) => void;
-  readonly placeholder?: string;
-  readonly searchPlaceholder?: string;
-  readonly emptyText?: string;
-  readonly className?: string;
-  readonly disabled?: boolean;
-  readonly allowClear?: boolean;
-  readonly triggerClassName?: string;
-  readonly popoverClassName?: string;
-  readonly searchValue?: string;
-  readonly onSearchChange?: (search: string) => void;
-  readonly isLoading?: boolean;
+  value?: string;
+  onValueChange?: (value: string) => void;
+  options: ComboboxOption[];
+  placeholder?: string;
+  searchPlaceholder?: string;
+  disabled?: boolean;
+  allowClear?: boolean;
+  className?: string;
+  searchMode?: "client";
 }
 
 export function Combobox({
-  options,
   value,
   onValueChange,
+  options,
   placeholder = "Select option...",
   searchPlaceholder = "Search...",
-  emptyText = "No option found.",
-  className,
   disabled = false,
   allowClear = false,
-  triggerClassName,
-  popoverClassName,
-  searchValue,
-  onSearchChange,
-  isLoading = false,
-}: ComboboxProps) {
+  className,
+  searchMode = "client",
+}: Readonly<ComboboxProps>) {
   const [open, setOpen] = React.useState(false);
-  const [internalValue, setInternalValue] = React.useState("");
-  const [internalSearchValue, setInternalSearchValue] = React.useState("");
-
-  // Use controlled value if provided, otherwise use internal state
-  const currentValue = value ?? internalValue;
-  const setValue = React.useCallback(
-    (newValue: string) => {
-      if (value === undefined) {
-        setInternalValue(newValue);
-      }
-      onValueChange?.(newValue);
-    },
-    [value, onValueChange]
-  );
-
-  const selectedOption = options.find(
-    (option) => option.value === currentValue
-  );
+  const selectedOption = options.find((opt) => opt.value === value);
 
   const handleSelect = (selectedValue: string) => {
-    // The Command component passes the value directly, so we can use it as-is
-    const newValue = selectedValue === currentValue ? "" : selectedValue;
-    setValue(newValue);
+    const newValue = selectedValue === value ? "" : selectedValue;
+    onValueChange?.(newValue);
     setOpen(false);
   };
 
-  const handleClear = (e: React.MouseEvent) => {
+  const handleClear = (e: React.MouseEvent<SVGSVGElement>) => {
     e.stopPropagation();
-    setValue("");
-  };
-
-  // Handle controlled vs uncontrolled search value
-  const currentSearchValue = searchValue ?? internalSearchValue;
-
-  const handleSearchChange = (search: string) => {
-    if (searchValue === undefined) {
-      setInternalSearchValue(search);
-    }
-    onSearchChange?.(search);
+    e.preventDefault();
+    onValueChange?.("");
   };
 
   return (
@@ -111,68 +73,56 @@ export function Combobox({
           disabled={disabled}
           className={cn(
             "w-full justify-between font-normal",
-            !currentValue && "text-muted-foreground",
-            triggerClassName
+            !value && "text-muted-foreground",
+            className
           )}
         >
-          <span className="truncate">
-            {selectedOption?.label ?? placeholder}
+          <span className="truncate flex-1 text-left">
+            {selectedOption ? selectedOption.label : placeholder}
           </span>
-          <div className="flex items-center gap-1">
-            {allowClear && currentValue && (
-              <X
-                className="h-4 w-4 shrink-0 opacity-50 hover:opacity-100"
+          <div className="flex items-center gap-1 shrink-0">
+            {allowClear && value && (
+              <XIcon
+                className="h-4 w-4 opacity-50 hover:opacity-100 cursor-pointer"
                 onClick={handleClear}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onValueChange?.("");
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label="Clear selection"
               />
             )}
-            <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+            <ChevronsUpDownIcon className="h-4 w-4 shrink-0 opacity-50" />
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className={cn(
-          "w-[var(--radix-popover-trigger-width)] p-0",
-          popoverClassName
-        )}
-        align="start"
-      >
-        <Command className={className} shouldFilter={!searchValue}>
-          <CommandInput
-            value={currentSearchValue}
-            onValueChange={handleSearchChange}
-            placeholder={searchPlaceholder}
-            className="h-9"
-          />
+      <PopoverContent className="p-0" align="start">
+        <Command>
+          <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
-            {isLoading ? (
-              <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
-                <Spinner className="h-4 w-4" />
-                <span>Loading...</span>
-              </div>
-            ) : (
-              <>
-                <CommandEmpty>{emptyText}</CommandEmpty>
-                <CommandGroup>
-                  {options.map((option) => (
-                    <CommandItem
-                      key={option.id ?? option.value}
-                      value={option.value}
-                      onSelect={handleSelect}
-                    >
-                      {option.label}
-                      <Check
-                        className={cn(
-                          "ml-auto h-4 w-4",
-                          currentValue === option.value
-                            ? "opacity-100"
-                            : "opacity-0"
-                        )}
-                      />
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </>
-            )}
+            <CommandEmpty>No option found.</CommandEmpty>
+            <CommandGroup>
+              {options.map((option) => (
+                <CommandItem
+                  key={option.id}
+                  value={option.value}
+                  onSelect={handleSelect}
+                >
+                  <CheckIcon
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === option.value ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {option.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
           </CommandList>
         </Command>
       </PopoverContent>
