@@ -11,3 +11,12 @@ export function createTaskParams(
     priority: priority || 'high',
   };
 }
+
+export const getInitials = (name: string) => {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+};

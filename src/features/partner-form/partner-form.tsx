@@ -63,7 +63,11 @@ export default function PartnerForm(props: Readonly<TPartnerFormProps>) {
       return values.keyQuestion.trim() !== '' && values.ultimateGoal !== '';
     }
     // Step 4 is optional, so always return true
-    return true;
+    return (
+      values.partnerPersonality.trim() !== '' &&
+      values.majorPastEvents.trim() !== '' &&
+      values.currentFeelings.trim() !== ''
+    );
   };
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -77,6 +81,25 @@ export default function PartnerForm(props: Readonly<TPartnerFormProps>) {
       case 1:
         return (
           <div className="flex flex-col gap-6">
+            {/* Partner's Name */}
+            <form.Field name="partnerName">
+              {(field) => (
+                <Field className="flex flex-col gap-2">
+                  <FieldLabel htmlFor={field.name}>Partner Name</FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="text"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    disabled={isLoading}
+                    placeholder="Partner name"
+                  />
+                  <FieldError errors={field.state.meta.errors} />
+                </Field>
+              )}
+            </form.Field>
             {/* Partner's Gender */}
             <form.Field name="partnerGender">
               {(field) => (
