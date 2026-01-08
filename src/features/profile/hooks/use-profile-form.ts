@@ -41,6 +41,14 @@ export const useProfileForm = () => {
     }
   }, [formData, isFetching]);
 
+  // Reset initial values after successful update
+  useEffect(() => {
+    if (isSuccess && formData) {
+      initialValuesRef.current = { ...formData };
+      previousFormDataRef.current = JSON.stringify(formData);
+    }
+  }, [isSuccess, formData]);
+
   const handleSubmit = async (data: TProfileFormData) => {
     // Pass both current and initial values for change detection
     await updateProfileAsync(data, initialValuesRef.current);

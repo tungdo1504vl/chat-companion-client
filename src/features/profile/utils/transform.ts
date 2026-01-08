@@ -7,7 +7,8 @@ import { defaultProfileFormValues } from "../const";
 
 /**
  * Transform API profile response to form data format
- * Handles null/undefined cases gracefully by falling back to defaults
+ * Returns empty values for missing optional fields instead of defaults
+ * to avoid assuming user preferences
  */
 export function profileToFormData(
   profile: TUserProfile | null | undefined
@@ -17,22 +18,16 @@ export function profileToFormData(
   }
 
   return {
-    primaryLoveLanguage:
-      profile.primary_love_language ||
-      defaultProfileFormValues.primaryLoveLanguage,
-    communicationStyles:
-      profile.communication_styles ||
-      defaultProfileFormValues.communicationStyles,
-    attachmentStyle:
-      profile.attachment_style || defaultProfileFormValues.attachmentStyle,
-    dealBreakers:
-      profile.deal_breakers || defaultProfileFormValues.dealBreakers,
-    workSchedule:
-      profile.work_schedule || defaultProfileFormValues.workSchedule,
+    // Optional fields - return empty values if missing
+    primaryLoveLanguage: profile.primary_love_language || "",
+    communicationStyles: profile.communication_styles || [],
+    attachmentStyle: profile.attachment_style || "",
+    workSchedule: profile.work_schedule || "",
+    socialEnergy: profile.social_energy || "",
+    // Required fields - use defaults only for fields that need them
+    dealBreakers: profile.deal_breakers || [],
     dateBudget: profile.date_budget ?? defaultProfileFormValues.dateBudget,
-    socialEnergy:
-      profile.social_energy || defaultProfileFormValues.socialEnergy,
-    hobbies: profile.hobbies || defaultProfileFormValues.hobbies,
+    hobbies: profile.hobbies || [],
     instagramUrl: profile.social_links?.instagram || "",
   };
 }

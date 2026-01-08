@@ -20,17 +20,17 @@ const urlSchema = z.string().refine(
 
 export const profileFormSchema = z
   .object({
-    primaryLoveLanguage: z.string().min(1, "Primary love language is required"),
-    communicationStyles: z
-      .array(z.string())
-      .min(1, "At least one communication style is required"),
-    attachmentStyle: z.string().min(1, "Attachment style is required"),
+    // Optional fields - allow empty strings/arrays
+    primaryLoveLanguage: z.string().optional(),
+    communicationStyles: z.array(z.string()).min(0).optional(),
+    attachmentStyle: z.string().optional(),
+    // Required fields
     dealBreakers: z
       .array(z.string().min(1, "Deal-breaker cannot be empty"))
       .min(1, "At least one deal-breaker is required"),
-    workSchedule: z.string().min(1, "Work schedule is required"),
+    workSchedule: z.string().optional(),
     dateBudget: z.number().min(10).max(1000),
-    socialEnergy: z.string().min(1, "Social energy level is required"),
+    socialEnergy: z.string().optional(),
     hobbies: z
       .array(z.string().min(1, "Hobby cannot be empty"))
       .min(1, "At least one hobby is required"),

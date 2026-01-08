@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
 import ReactTagsInput from "react-tagsinput";
 import { BrainCog, Coffee, Share2 } from "lucide-react";
@@ -23,7 +23,47 @@ import {
   socialEnergyLevels,
 } from "../const";
 import { profileFormSchema } from "../validate-schema";
-import { TProfileFormProps } from "../types";
+import { TProfileFormProps, TProfileFormData } from "../types";
+
+/**
+ * Deep equality comparison for form values
+ * Handles arrays, objects, and primitives
+ */
+function deepEqual(a: TProfileFormData, b: TProfileFormData): boolean {
+  // Quick reference check
+  if (a === b) return true;
+
+  // Compare arrays
+  const compareArrays = (arr1: unknown[], arr2: unknown[]): boolean => {
+    if (arr1.length !== arr2.length) return false;
+    return arr1.every((val, idx) => val === arr2[idx]);
+  };
+
+  // Compare each field
+  if (
+    a.primaryLoveLanguage !== b.primaryLoveLanguage ||
+    a.attachmentStyle !== b.attachmentStyle ||
+    a.workSchedule !== b.workSchedule ||
+    a.socialEnergy !== b.socialEnergy ||
+    a.dateBudget !== b.dateBudget ||
+    a.instagramUrl !== b.instagramUrl
+  ) {
+    return false;
+  }
+
+  // Compare array fields
+  if (!compareArrays(a.communicationStyles, b.communicationStyles)) {
+    return false;
+  }
+  if (!compareArrays(a.dealBreakers, b.dealBreakers)) {
+    return false;
+  }
+  if (!compareArrays(a.hobbies, b.hobbies)) {
+    return false;
+  }
+
+  return true;
+}
 
 export default function ProfileForm(props: Readonly<TProfileFormProps>) {
   const { onSubmit, isLoading, defaultValues } = props;
@@ -33,6 +73,13 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
       !!(
         defaultValues?.instagramUrl && defaultValues.instagramUrl.trim() !== ""
       )
+  );
+
+  // Track initial values for change detection
+  const initialValuesRef = useRef<TProfileFormData>(
+    defaultValues
+      ? { ...defaultProfileFormValues, ...defaultValues }
+      : defaultProfileFormValues
   );
 
   const form = useForm({
@@ -55,10 +102,12 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
       const currentValuesString = JSON.stringify(defaultValues);
       // Only reset if values actually changed
       if (previousValuesRef.current !== currentValuesString) {
-        form.reset({
+        const newInitialValues = {
           ...defaultProfileFormValues,
           ...defaultValues,
-        });
+        };
+        form.reset(newInitialValues);
+        initialValuesRef.current = newInitialValues;
         previousValuesRef.current = currentValuesString;
         // Sync Instagram input visibility with URL presence
         setShowInstagramInput(
@@ -71,7 +120,15 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
     }
   }, [defaultValues, form]);
 
-  const canSubmit = useStore(form.store, (state) => state.canSubmit);
+  // Track form values for change detection
+  const formValues = useStore(form.store, (state) => state.values);
+
+  // Compute hasChanges using deep equality comparison
+  const hasChanges = useMemo(() => {
+    return !deepEqual(formValues, initialValuesRef.current);
+  }, [formValues]);
+
+  const isValid = useStore(form.store, (state) => state.isValid);
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -112,7 +169,7 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                     field.handleBlur();
                   }}
                   options={loveLanguages}
-                  placeholder="Select love language"
+                  placeholder="Select your primary love language"
                   disabled={isLoading}
                 />
                 <FieldError errors={field.state.meta.errors} />
@@ -124,6 +181,11 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
             {(field) => (
               <Field className="flex flex-col gap-2">
                 <FieldLabel>Communication Style</FieldLabel>
+                {field.state.value.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    Select one or more communication styles
+                  </p>
+                )}
                 <CheckboxGroup
                   value={field.state.value}
                   onValueChange={(value) => {
@@ -154,7 +216,7 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                     field.handleBlur();
                   }}
                   options={attachmentStyles}
-                  placeholder="Select attachment style"
+                  placeholder="Select your attachment style"
                   disabled={isLoading}
                 />
                 <FieldError errors={field.state.meta.errors} />
@@ -402,6 +464,17 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
           variant="outline"
           className="flex-1"
           disabled={isLoading}
+          onClick={() => {
+            // Reset form to initial values
+            form.reset(initialValuesRef.current);
+            // Reset Instagram input visibility
+            setShowInstagramInput(
+              !!(
+                initialValuesRef.current.instagramUrl &&
+                initialValuesRef.current.instagramUrl.trim() !== ""
+              )
+            );
+          }}
         >
           Cancel
         </Button>
@@ -409,7 +482,7 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
           type="submit"
           variant="default"
           className="flex-1 bg-primary"
-          disabled={!canSubmit || isLoading}
+          disabled={!hasChanges || !isValid || isLoading}
         >
           <span className="mr-2">💾</span>
           {isLoading ? "Saving..." : "Save Changes"}

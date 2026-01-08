@@ -9,12 +9,14 @@ import {
   ProfileHeader,
 } from "@/features/profile/components";
 import { useProfileForm } from "@/features/profile/hooks/use-profile-form";
+import { useUserProfile } from "@/features/profile/hooks/use-user-profile";
 
 export default function ProfilePage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("settings");
 
   const { formData, isLoading, handleSubmit } = useProfileForm();
+  const { user } = useUserProfile();
 
   const handleBackClick = () => {
     router.back();
@@ -59,7 +61,10 @@ export default function ProfilePage() {
 
             {/* Birth Chart Tab */}
             <TabsContent value="birth-chart" className="mt-6">
-              <BirthChart />
+              <BirthChart
+                natalChart={user?.natal_chart ?? null}
+                insights={user?.insights ?? null}
+              />
             </TabsContent>
           </Tabs>
         </div>
