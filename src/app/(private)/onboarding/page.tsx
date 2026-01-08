@@ -1,26 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { OnboardingForm } from "@/features/onboarding/components";
 import { useOnboarding } from "@/features/onboarding/hooks/use-onboarding";
 import { TOnboardingFormData } from "@/features/onboarding/types";
 import { TCommonPayload } from "@/services";
-import { useSession } from "@/libs/better-auth/client";
-import { PROTECTED_ROUTES } from "@/constants";
 import { convertTo24HourFormat } from "@/utils";
 
 export default function OnboardingPage() {
-  const router = useRouter();
-  const { data: session } = useSession();
   const mutateOnboarding = useOnboarding();
-
-  // Check if onboarding is already complete and redirect to assistant
-  useEffect(() => {
-    if (session?.user?.hasCompletedOnboarding) {
-      router.push(PROTECTED_ROUTES.ASSISTANT);
-    }
-  }, [session?.user?.hasCompletedOnboarding, router]);
 
   const handleSubmit = async (formData: TOnboardingFormData) => {
     const birthDay = `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`;

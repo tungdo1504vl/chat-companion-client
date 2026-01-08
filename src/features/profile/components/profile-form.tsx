@@ -1,16 +1,19 @@
-'use client';
+"use client";
 
-import { useForm, useStore } from '@tanstack/react-form';
-import ReactTagsInput from 'react-tagsinput';
-import { BrainCog, Coffee, Share2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Select } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/commons/radio-group';
+import { useEffect, useRef, useState, useMemo } from "react";
+import { useForm, useStore } from "@tanstack/react-form";
+import ReactTagsInput from "react-tagsinput";
+import { BrainCog, Coffee, Share2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { Select } from "@/components/commons/select";
+import { RadioGroup, RadioGroupItem } from "@/components/commons/radio-group";
 import {
   CheckboxGroup,
   CheckboxGroupItem,
-} from '@/components/commons/checkbox-group';
+} from "@/components/commons/checkbox-group";
 import {
   defaultProfileFormValues,
   loveLanguages,
@@ -18,12 +21,66 @@ import {
   communicationStyles,
   workSchedules,
   socialEnergyLevels,
-} from '../const';
-import { profileFormSchema } from '../validate-schema';
-import { TProfileFormProps } from '../types';
+} from "../const";
+import { profileFormSchema } from "../validate-schema";
+import { TProfileFormProps, TProfileFormData } from "../types";
+
+/**
+ * Deep equality comparison for form values
+ * Handles arrays, objects, and primitives
+ */
+function deepEqual(a: TProfileFormData, b: TProfileFormData): boolean {
+  // Quick reference check
+  if (a === b) return true;
+
+  // Compare arrays
+  const compareArrays = (arr1: unknown[], arr2: unknown[]): boolean => {
+    if (arr1.length !== arr2.length) return false;
+    return arr1.every((val, idx) => val === arr2[idx]);
+  };
+
+  // Compare each field
+  if (
+    a.primaryLoveLanguage !== b.primaryLoveLanguage ||
+    a.attachmentStyle !== b.attachmentStyle ||
+    a.workSchedule !== b.workSchedule ||
+    a.socialEnergy !== b.socialEnergy ||
+    a.dateBudget !== b.dateBudget ||
+    a.instagramUrl !== b.instagramUrl
+  ) {
+    return false;
+  }
+
+  // Compare array fields
+  if (!compareArrays(a.communicationStyles, b.communicationStyles)) {
+    return false;
+  }
+  if (!compareArrays(a.dealBreakers, b.dealBreakers)) {
+    return false;
+  }
+  if (!compareArrays(a.hobbies, b.hobbies)) {
+    return false;
+  }
+
+  return true;
+}
 
 export default function ProfileForm(props: Readonly<TProfileFormProps>) {
   const { onSubmit, isLoading, defaultValues } = props;
+  const previousValuesRef = useRef<string | undefined>(undefined);
+  const [showInstagramInput, setShowInstagramInput] = useState(
+    () =>
+      !!(
+        defaultValues?.instagramUrl && defaultValues.instagramUrl.trim() !== ""
+      )
+  );
+
+  // Track initial values for change detection
+  const initialValuesRef = useRef<TProfileFormData>(
+    defaultValues
+      ? { ...defaultProfileFormValues, ...defaultValues }
+      : defaultProfileFormValues
+  );
 
   const form = useForm({
     defaultValues: {
@@ -39,13 +96,45 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
     },
   });
 
-  const canSubmit = useStore(form.store, (state) => state.canSubmit);
+  // Reset form when defaultValues change (e.g., when profile data is fetched)
+  useEffect(() => {
+    if (defaultValues) {
+      const currentValuesString = JSON.stringify(defaultValues);
+      // Only reset if values actually changed
+      if (previousValuesRef.current !== currentValuesString) {
+        const newInitialValues = {
+          ...defaultProfileFormValues,
+          ...defaultValues,
+        };
+        form.reset(newInitialValues);
+        initialValuesRef.current = newInitialValues;
+        previousValuesRef.current = currentValuesString;
+        // Sync Instagram input visibility with URL presence
+        setShowInstagramInput(
+          !!(
+            defaultValues.instagramUrl &&
+            defaultValues.instagramUrl.trim() !== ""
+          )
+        );
+      }
+    }
+  }, [defaultValues, form]);
+
+  // Track form values for change detection
+  const formValues = useStore(form.store, (state) => state.values);
+
+  // Compute hasChanges using deep equality comparison
+  const hasChanges = useMemo(() => {
+    return !deepEqual(formValues, initialValuesRef.current);
+  }, [formValues]);
+
+  const isValid = useStore(form.store, (state) => state.isValid);
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Validate form before submitting
-    await form.validateAllFields('submit');
+    await form.validateAllFields("submit");
 
     // Check if form is valid
     if (!form.state.isValid) {
@@ -75,9 +164,12 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                 <FieldLabel>Primary Love Language</FieldLabel>
                 <Select
                   value={field.state.value}
-                  onValueChange={(value) => field.handleChange(value)}
+                  onValueChange={(value) => {
+                    field.handleChange(value);
+                    field.handleBlur();
+                  }}
                   options={loveLanguages}
-                  placeholder="Select love language"
+                  placeholder="Select your primary love language"
                   disabled={isLoading}
                 />
                 <FieldError errors={field.state.meta.errors} />
@@ -89,6 +181,11 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
             {(field) => (
               <Field className="flex flex-col gap-2">
                 <FieldLabel>Communication Style</FieldLabel>
+                {field.state.value.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    Select one or more communication styles
+                  </p>
+                )}
                 <CheckboxGroup
                   value={field.state.value}
                   onValueChange={(value) => {
@@ -114,9 +211,12 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                 <FieldLabel>Attachment Style</FieldLabel>
                 <Select
                   value={field.state.value}
-                  onValueChange={(value) => field.handleChange(value)}
+                  onValueChange={(value) => {
+                    field.handleChange(value);
+                    field.handleBlur();
+                  }}
                   options={attachmentStyles}
-                  placeholder="Select attachment style"
+                  placeholder="Select your attachment style"
                   disabled={isLoading}
                 />
                 <FieldError errors={field.state.meta.errors} />
@@ -137,13 +237,13 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                     }}
                     disabled={isLoading}
                     inputProps={{
-                      placeholder: 'Add a deal-breaker (e.g., Smoking)',
-                      className: 'react-tagsinput-input',
+                      placeholder: "Add a deal-breaker (e.g., Smoking)",
+                      className: "react-tagsinput-input",
                       onBlur: () => field.handleBlur(),
                     }}
                     tagProps={{
-                      className: 'react-tagsinput-tag text-white',
-                      classNameRemove: 'react-tagsinput-remove',
+                      className: "react-tagsinput-tag text-white",
+                      classNameRemove: "react-tagsinput-remove",
                     }}
                   />
                 </div>
@@ -167,7 +267,10 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                 <div className="bg-gray-100 rounded-md p-px">
                   <RadioGroup
                     value={field.state.value}
-                    onValueChange={(value) => field.handleChange(value)}
+                    onBlur={() => field.handleBlur()}
+                    onValueChange={(value) => {
+                      field.handleChange(value);
+                    }}
                     disabled={isLoading}
                     className="flex gap-2"
                   >
@@ -196,15 +299,16 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                     <span className="font-medium">${field.state.value}</span>
                     <span>High</span>
                   </div>
-                  <input
-                    type="range"
-                    min="10"
-                    max="1000"
+                  <Slider
+                    min={10}
+                    max={1000}
                     step={10}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(Number(e.target.value))}
+                    value={[field.state.value]}
+                    onValueChange={(values) => {
+                      field.handleChange(values[0]);
+                      field.handleBlur();
+                    }}
                     disabled={isLoading}
-                    className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary disabled:opacity-50"
                   />
                 </div>
                 <FieldError errors={field.state.meta.errors} />
@@ -219,7 +323,10 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                 <div className="bg-gray-100 rounded-md p-px">
                   <RadioGroup
                     value={field.state.value}
-                    onValueChange={(value) => field.handleChange(value)}
+                    onValueChange={(value) => {
+                      field.handleChange(value);
+                      field.handleBlur();
+                    }}
                     disabled={isLoading}
                     className="flex gap-2"
                   >
@@ -248,14 +355,14 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                     }}
                     disabled={isLoading}
                     inputProps={{
-                      placeholder: 'Add a hobby',
-                      className: 'react-tagsinput-input',
+                      placeholder: "Add a hobby",
+                      className: "react-tagsinput-input",
                       onBlur: () => field.handleBlur(),
                     }}
                     tagProps={{
                       className:
-                        'react-tagsinput-tag bg-primary text-primary-foreground',
-                      classNameRemove: 'react-tagsinput-remove',
+                        "react-tagsinput-tag bg-primary text-primary-foreground",
+                      classNameRemove: "react-tagsinput-remove",
                     }}
                   />
                 </div>
@@ -272,85 +379,81 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
             <h3 className="text-base font-semibold">Social Signals</h3>
           </div>
 
-          <div className="space-y-3">
-            <form.Field name="instagramLinked">
-              {(field) => (
-                <div className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded bg-gradient-to-br from-orange-400 to-purple-600 flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">IG</span>
-                    </div>
-                    <span className="font-medium">Instagram</span>
-                  </div>
-                  {field.state.value ? (
-                    <span className="text-sm text-green-600">✓ Linked</span>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="link"
-                      className="text-blue-600 p-0 h-auto"
-                      onClick={() => field.handleChange(true)}
-                      disabled={isLoading}
-                    >
-                      Connect
-                    </Button>
-                  )}
-                </div>
-              )}
-            </form.Field>
+          {/* Instagram */}
+          <form.Subscribe selector={(state) => state.values.instagramUrl}>
+            {(instagramUrl) => {
+              const hasUrl = instagramUrl && instagramUrl.trim() !== "";
+              const shouldShowInput = hasUrl || showInstagramInput;
 
-            <form.Field name="facebookLinked">
-              {(field) => (
-                <div className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded bg-blue-600 flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">f</span>
+              return (
+                <form.Field
+                  name="instagramUrl"
+                  listeners={{
+                    onChange: ({ value }) => {
+                      // Auto-hide input if URL is cleared
+                      if (!value || value.trim() === "") {
+                        setShowInstagramInput(false);
+                      }
+                    },
+                  }}
+                >
+                  {(field) => (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="h-8 w-8 rounded bg-gradient-to-br from-orange-400 to-purple-600 flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">
+                              IG
+                            </span>
+                          </div>
+                          <span className="font-medium">Instagram</span>
+                        </div>
+                        {hasUrl ? (
+                          <span className="text-sm text-green-600">
+                            ✓ Linked
+                          </span>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="link"
+                            className="text-blue-600 p-0 h-auto"
+                            onClick={() => {
+                              setShowInstagramInput(true);
+                              // Focus the input after it appears
+                              setTimeout(() => {
+                                const input =
+                                  document.querySelector<HTMLInputElement>(
+                                    'input[name="instagramUrl"]'
+                                  );
+                                input?.focus();
+                              }, 0);
+                            }}
+                            disabled={isLoading}
+                          >
+                            Connect
+                          </Button>
+                        )}
+                      </div>
+                      {shouldShowInput && (
+                        <Field className="flex flex-col gap-2">
+                          <Input
+                            type="url"
+                            name="instagramUrl"
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            onBlur={field.handleBlur}
+                            placeholder="https://instagram.com/username"
+                            disabled={isLoading}
+                          />
+                          <FieldError errors={field.state.meta.errors} />
+                        </Field>
+                      )}
                     </div>
-                    <span className="font-medium">Facebook</span>
-                  </div>
-                  {field.state.value ? (
-                    <span className="text-sm text-green-600">✓ Linked</span>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="link"
-                      className="text-blue-600 p-0 h-auto"
-                      onClick={() => field.handleChange(true)}
-                      disabled={isLoading}
-                    >
-                      Connect
-                    </Button>
                   )}
-                </div>
-              )}
-            </form.Field>
-
-            <form.Field name="threadsLinked">
-              {(field) => (
-                <div className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-black flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">@</span>
-                    </div>
-                    <span className="font-medium">Threads</span>
-                  </div>
-                  {field.state.value ? (
-                    <span className="text-sm text-green-600">✓ Linked</span>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="link"
-                      className="text-blue-600 p-0 h-auto"
-                      onClick={() => field.handleChange(true)}
-                      disabled={isLoading}
-                    >
-                      Connect
-                    </Button>
-                  )}
-                </div>
-              )}
-            </form.Field>
-          </div>
+                </form.Field>
+              );
+            }}
+          </form.Subscribe>
         </div>
       </div>
 
@@ -361,6 +464,17 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
           variant="outline"
           className="flex-1"
           disabled={isLoading}
+          onClick={() => {
+            // Reset form to initial values
+            form.reset(initialValuesRef.current);
+            // Reset Instagram input visibility
+            setShowInstagramInput(
+              !!(
+                initialValuesRef.current.instagramUrl &&
+                initialValuesRef.current.instagramUrl.trim() !== ""
+              )
+            );
+          }}
         >
           Cancel
         </Button>
@@ -368,10 +482,10 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
           type="submit"
           variant="default"
           className="flex-1 bg-primary"
-          disabled={!canSubmit || isLoading}
+          disabled={!hasChanges || !isValid || isLoading}
         >
           <span className="mr-2">💾</span>
-          {isLoading ? 'Saving...' : 'Save Changes'}
+          {isLoading ? "Saving..." : "Save Changes"}
         </Button>
       </div>
     </form>

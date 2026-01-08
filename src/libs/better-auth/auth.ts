@@ -50,6 +50,7 @@ export const auth = betterAuth({
     google: {
       clientId: envServer.GOOGLE_CLIENT_ID,
       clientSecret: envServer.GOOGLE_CLIENT_SECRET,
+      scope: ["email", "profile"],
     },
   },
   user: {

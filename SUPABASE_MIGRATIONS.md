@@ -250,3 +250,4 @@ Better Auth migrations are now managed through Supabase migrations. When you add
 - [Supabase CLI Documentation](https://supabase.com/docs/guides/cli)
 - [Supabase Migrations Guide](https://supabase.com/docs/guides/database/migrations)
 - [Better Auth Documentation](https://www.better-auth.com/docs)
+
