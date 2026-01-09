@@ -5,7 +5,6 @@ import {
   Smile,
   EllipsisVertical,
   InfoIcon,
-  LoaderCircle,
   MessageCircleMoreIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
