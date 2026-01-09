@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 
 const axiosClient: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-  timeout: 15000,
+  timeout: 200000,
   headers: {
     'Content-Type': 'application/json',
   },

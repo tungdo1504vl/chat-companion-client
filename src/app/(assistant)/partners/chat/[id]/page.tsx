@@ -47,7 +47,7 @@ interface Message {
 }
 
 interface TSendMessageOptions {
-  content: string;
+  content?: string;
   isResend: boolean;
 }
 
@@ -85,12 +85,41 @@ export default function PartnerChatPage() {
   // const [, aa] = bb;
   // console.log('queryData:', aa);
 
+  function setNewMessageState(
+    queryKey: string[],
+    newMessage: Message,
+    options?: TSendMessageOptions
+  ) {
+    const { isResend = false } = options || {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [queryResult] = queryClient.getQueriesData<any>({
+      queryKey: queryKey,
+    });
+    const [, queryData] = queryResult;
+    const currentMessages = queryData?.result?.messages;
+    const newMessages = [
+      ...currentMessages,
+      ...(!isResend ? [newMessage] : []),
+    ];
+    const newQueryData = {
+      ...queryData,
+      result: {
+        ...queryData.result,
+        messages: newMessages,
+      },
+    };
+    queryClient.setQueryData(
+      ['compute', TASK_TYPE.RELATIONSHIP_CHAT_HISTORY, partnerId],
+      newQueryData
+    );
+  }
+
   const handleSend = async (
     _userId: string,
     _partnerId: string,
     options?: TSendMessageOptions
   ) => {
-    const { content: messageContent, isResend = false } = options || {};
+    const { content: messageContent } = options || {};
     const queryKey = [
       'compute',
       TASK_TYPE.RELATIONSHIP_CHAT_HISTORY,
@@ -103,6 +132,7 @@ export default function PartnerChatPage() {
       role: MESSAGE_ROLE.USER,
       timestamp: new Date(),
     };
+    setInputValue('');
     try {
       if (userMessage) {
         setLastestMessage(newMessage);
@@ -116,10 +146,11 @@ export default function PartnerChatPage() {
           input_args: inputArgs,
           priority: 'high',
         };
-
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setNewMessageState(queryKey, newMessage);
         const res = await mutateChat.mutateAsync(payload);
 
-        setIsError(Boolean(res.result));
+        setIsError(false);
         if (res.result) {
           queryClient.invalidateQueries({
             queryKey,
@@ -129,30 +160,8 @@ export default function PartnerChatPage() {
     } catch (error) {
       setIsError(true);
       // handle error
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const [queryResult] = queryClient.getQueriesData<any>({
-        queryKey: queryKey,
-      });
-      const [, queryData] = queryResult;
-      const currentMessages = queryData?.result?.messages;
-      const newMessages = [
-        ...currentMessages,
-
-        ...(!isResend ? [newMessage] : []),
-      ];
-      const newQueryData = {
-        ...queryData,
-        result: {
-          ...queryData.result,
-          messages: newMessages,
-        },
-      };
-      queryClient.setQueryData(
-        ['compute', TASK_TYPE.RELATIONSHIP_CHAT_HISTORY, partnerId],
-        newQueryData
-      );
+      setNewMessageState(queryKey, newMessage, { isResend: true });
     }
-    setInputValue('');
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -348,12 +357,14 @@ export default function PartnerChatPage() {
           </div>
         </div>
       </div>
-      <InteractiveModal
-        open={openInteractiveModal}
-        onClose={() => {
-          setOpenInteractiveModal(false);
-        }}
-      />
+      {openInteractiveModal && (
+        <InteractiveModal
+          open={openInteractiveModal}
+          onClose={() => {
+            setOpenInteractiveModal(false);
+          }}
+        />
+      )}
     </>
   );
 }
