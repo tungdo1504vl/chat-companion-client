@@ -1,7 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Smile, EllipsisVertical, InfoIcon, LoaderCircle } from 'lucide-react';
+import {
+  Smile,
+  EllipsisVertical,
+  InfoIcon,
+  LoaderCircle,
+  MessageCircleMoreIcon,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import MobileHeader from '@/components/commons/mobile-header/mobile-header';
@@ -14,6 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { LoadingSkeleton } from '@/components/commons/loading-skeleton';
 
 interface Partner {
   id: string;
@@ -49,9 +56,11 @@ export default function PartnersPage() {
     createTaskParams(TASK_TYPE.PARTNER_PROFILE_LIST, {
       user_id: userId || '',
       include_archived: false,
-    })
+    }),
+    {
+      enabled: Boolean(userId),
+    }
   );
-  console.log('data:', data);
 
   const handleCreatePartner = () => {
     router.push('/partner-create');
@@ -84,11 +93,7 @@ export default function PartnersPage() {
           </div>
         </div>
 
-        {isLoading && (
-          <div className="flex flex-col h-32 items-center justify-center">
-            <LoaderCircle className="h-6 w-6 animate-spin text-gray-500" />
-          </div>
-        )}
+        {isLoading && <LoadingSkeleton />}
 
         {/* Partner Cards */}
         {!isLoading && data?.result?.partners && (
@@ -132,14 +137,28 @@ export default function PartnersPage() {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-36 p-2">
-                    <div
-                      className="flex items-center gap-2 cursor-pointer"
-                      onClick={() => {
-                        //
-                      }}
-                    >
-                      <InfoIcon className="size-5 text-muted-foreground shrink-0" />
-                      <span>View Detail</span>
+                    <div className="flex flex-col gap-1.5">
+                      <div
+                        className="flex items-center gap-2 cursor-pointer"
+                        onClick={() => {
+                          //
+                        }}
+                      >
+                        <InfoIcon className="size-5 text-muted-foreground shrink-0" />
+                        <span>View Detail</span>
+                      </div>
+                      <div
+                        className="flex items-center gap-2 cursor-pointer"
+                        onClick={() => {
+                          const partnerId = partner.partner_id;
+                          if (partnerId) {
+                            router.push(`/partners/chat/${partnerId}`);
+                          }
+                        }}
+                      >
+                        <MessageCircleMoreIcon className="size-5 text-muted-foreground shrink-0" />
+                        <span>Chat</span>
+                      </div>
                     </div>
                   </PopoverContent>
                 </Popover>
@@ -152,7 +171,7 @@ export default function PartnersPage() {
         {data?.result?.partners.length > 0 && !isFetching && (
           <Button
             onClick={handleCreatePartner}
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium mb-8"
+            className="w-full bg-primary mt-5 text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium mb-8"
           >
             Create a partner profile
           </Button>

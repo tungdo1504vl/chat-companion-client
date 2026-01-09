@@ -3,7 +3,10 @@ import { TInputArgs, TTaskType } from '@/types/common';
 export function createTaskParams(
   taskType: TTaskType,
   inputArgs: TInputArgs,
-  priority?: string
+  priority?: string,
+  options?: {
+    enable?: boolean;
+  }
 ) {
   return {
     task_type: taskType,
