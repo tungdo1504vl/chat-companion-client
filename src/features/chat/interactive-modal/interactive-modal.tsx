@@ -199,7 +199,7 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
           {!browserSupportsSpeechRecognition ? (
             <div className="text-center">
               <p className="text-lg text-destructive font-semibold">
-                Trình duyệt của bạn không hỗ trợ tính năng ghi âm
+                Your browser does not support recording feature
               </p>
             </div>
           ) : (
@@ -207,21 +207,21 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
               {listening && (
                 <div className="text-center">
                   <p className="text-2xl font-semibold text-primary animate-pulse">
-                    Đang ghi âm
+                    Recording
                   </p>
                 </div>
               )}
               {!listening && !isLoading && !audioSrc && (
                 <div className="text-center">
                   <p className="text-muted-foreground">
-                    Nhấn vào icon mic để bắt đầu trò chuyện
+                    Click the mic icon to start chatting
                   </p>
                 </div>
               )}
               {isLoading && (
                 <div className="text-center">
                   <p className="text-2xl font-semibold text-primary animate-pulse">
-                    Chờ phản hồi
+                    Waiting for response
                   </p>
                 </div>
               )}
