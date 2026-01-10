@@ -17,6 +17,7 @@ export type UltimateGoal =
 
 export type TPartnerFormData = {
   // Step 1
+  partnerName: string;
   partnerGender: PartnerGender | '';
   partnerAgeRange: PartnerAgeRange | '';
 
@@ -37,4 +38,3 @@ export type TPartnerFormProps = {
   onSubmit?: (data: TPartnerFormData) => void;
   isLoading?: boolean;
 };
-

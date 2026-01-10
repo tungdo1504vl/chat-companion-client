@@ -1,6 +1,7 @@
 import { TPartnerFormData } from './types';
 
 export const defaultPartnerFormValues: TPartnerFormData = {
+  partnerName: '',
   partnerGender: '',
   partnerAgeRange: '',
   situationDescription: '',
@@ -37,4 +38,3 @@ export const ultimateGoals = [
   },
   { value: 'Enter manually', label: 'Enter manually' },
 ];
-

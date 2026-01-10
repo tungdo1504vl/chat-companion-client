@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { PropsWithChildren } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { BarChart3, Clock, Users } from "lucide-react";
-import { cn } from "@/libs/tailwind/utils";
+import { PropsWithChildren } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { BarChart3, Users, User } from 'lucide-react';
+import { cn } from '@/libs/tailwind/utils';
 
 export default function AssistantLayout(props: PropsWithChildren) {
   const { children } = props;
@@ -12,19 +12,19 @@ export default function AssistantLayout(props: PropsWithChildren) {
 
   const navItems = [
     {
-      href: "/assistant",
-      label: "Analyze",
+      href: '/assistant',
+      label: 'Analyze',
       icon: BarChart3,
     },
     {
-      href: "/history",
-      label: "History",
-      icon: Clock,
+      href: '/partners',
+      label: 'Partners',
+      icon: Users,
     },
     {
-      href: "/profile",
-      label: "Profile",
-      icon: Users,
+      href: '/profile',
+      label: 'Profile',
+      icon: User,
     },
   ];
 
@@ -46,17 +46,17 @@ export default function AssistantLayout(props: PropsWithChildren) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors",
+                  'flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors',
                   isActive
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                <Icon className={cn("size-5", isActive && "text-primary")} />
+                <Icon className={cn('size-5', isActive && 'text-primary')} />
                 <span
                   className={cn(
-                    "text-xs font-medium",
-                    isActive && "text-primary"
+                    'text-xs font-medium',
+                    isActive && 'text-primary'
                   )}
                 >
                   {item.label}

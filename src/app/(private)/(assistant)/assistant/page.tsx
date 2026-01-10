@@ -12,6 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/libs/tailwind/utils';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface FeatureCard {
   id: string;
@@ -112,40 +113,42 @@ export default function AssistantPage() {
         {features.map((feature) => {
           const Icon = feature.icon;
           return (
-            <div
-              key={feature.id}
-              className="bg-card border border-border rounded-lg p-4 flex items-start gap-4 cursor-pointer hover:bg-accent/50 transition-colors"
-            >
-              {/* Icon */}
-              <div
-                className={cn('rounded-full p-3 shrink-0', feature.iconBgColor)}
-              >
-                <Icon className="size-5 text-white" />
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2 mb-1">
-                  <h3 className="font-semibold text-sm text-foreground leading-tight">
-                    {feature.title}
-                  </h3>
-                  <ChevronRight className="size-4 text-muted-foreground shrink-0 mt-0.5" />
-                </div>
-                <p className="text-xs text-muted-foreground leading-relaxed mb-2">
-                  {feature.description}
-                </p>
-                <Badge
-                  variant={feature.status === 'new' ? 'default' : 'secondary'}
+            <Link className="block" href="/partners" key={feature.id}>
+              <div className="bg-card border border-border rounded-lg p-4 flex items-start gap-4 cursor-pointer hover:bg-accent/50 transition-colors">
+                {/* Icon */}
+                <div
                   className={cn(
-                    'text-xs',
-                    feature.status === 'new' &&
-                      'bg-pink-500 text-white border-pink-500'
+                    'rounded-full p-3 shrink-0',
+                    feature.iconBgColor
                   )}
                 >
-                  {feature.status === 'new' ? 'New' : 'Up Comming'}
-                </Badge>
+                  <Icon className="size-5 text-white" />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <h3 className="font-semibold text-sm text-foreground leading-tight">
+                      {feature.title}
+                    </h3>
+                    <ChevronRight className="size-4 text-muted-foreground shrink-0 mt-0.5" />
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-2">
+                    {feature.description}
+                  </p>
+                  <Badge
+                    variant={feature.status === 'new' ? 'default' : 'secondary'}
+                    className={cn(
+                      'text-xs',
+                      feature.status === 'new' &&
+                        'bg-pink-500 text-white border-pink-500'
+                    )}
+                  >
+                    {feature.status === 'new' ? 'New' : 'Up Comming'}
+                  </Badge>
+                </div>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

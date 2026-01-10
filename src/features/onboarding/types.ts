@@ -5,9 +5,9 @@ export type TOnboardingFormData = {
   birthDay: string;
   birthHour: string;
   birthMinute: string;
-  birthPeriod: "AM" | "PM";
+  birthPeriod: 'AM' | 'PM';
   birthTimeKnown: boolean;
-  genderAtBirth: "male" | "female";
+  genderAtBirth: 'male' | 'female';
   country: string;
   city: string;
 };

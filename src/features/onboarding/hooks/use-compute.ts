@@ -1,5 +1,6 @@
 import { useMutation } from '@/libs/react-query';
-import { userService, TCommonPayload } from '@/services';
+import { TCommonPayload } from '@/services';
+import userService from '@/services/user.service';
 
 /**
  * Generic compute hook
@@ -13,16 +14,30 @@ export const useCompute = () => {
       // For now, using a generic approach - consider using specific methods instead
       switch (data.task_type) {
         case 'user_profile_analyze':
-          return await userService.analyzeUserProfile(data.input_args, data.priority);
+          return await userService.analyzeUserProfile(
+            data.input_args,
+            data.priority
+          );
         case 'user_profile_validate':
-          return await userService.validateUserProfile(data.input_args, data.priority);
+          return await userService.validateUserProfile(
+            data.input_args,
+            data.priority
+          );
         case 'user_profile_get':
-          return await userService.getUserProfile(data.input_args, data.priority);
+          return await userService.getUserProfile(
+            data.input_args,
+            data.priority
+          );
         case 'user_profile_update':
-          return await userService.updateUserProfile(data.input_args, data.priority);
+          return await userService.updateUserProfile(
+            data.input_args,
+            data.priority
+          );
         default:
           // Fallback: This should be replaced with specific service methods
-          throw new Error(`Unsupported task type: ${data.task_type}. Use specific service methods instead.`);
+          throw new Error(
+            `Unsupported task type: ${data.task_type}. Use specific service methods instead.`
+          );
       }
     },
     onSuccess: async (response) => {},

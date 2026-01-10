@@ -1,10 +1,25 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ChevronDown, Smile } from 'lucide-react';
+import {
+  Smile,
+  EllipsisVertical,
+  InfoIcon,
+  MessageCircleMoreIcon,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import MobileHeader from '@/components/commons/mobile-header/mobile-header';
+import { useComputeGet } from '@/hooks/use-compute-get';
+import { createTaskParams, getInitials } from '@/utils/helpers';
+import { TASK_TYPE } from '@/constants/task';
+import { useSession } from '@/libs/better-auth/client';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { LoadingSkeleton } from '@/components/commons/loading-skeleton';
 
 interface Partner {
   id: string;
@@ -34,21 +49,22 @@ const mockPartners: Partner[] = [
 
 export default function PartnersPage() {
   const router = useRouter();
-  const partners = mockPartners;
-  const hasPartners = partners.length > 0;
+  const { data: session } = useSession();
+  const userId = session?.user.id;
+  const { data, isLoading, isFetching } = useComputeGet(
+    createTaskParams(TASK_TYPE.PARTNER_PROFILE_LIST, {
+      user_id: userId || '',
+      include_archived: false,
+    }),
+    {
+      enabled: Boolean(userId),
+    }
+  );
 
   const handleCreatePartner = () => {
     router.push('/partner-create');
   };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
+  const hasPartners = data?.result?.partners.length > 0;
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -57,7 +73,7 @@ export default function PartnersPage() {
         <MobileHeader title="Strategy for a successful crush" />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pb-4 overflow-x-hidden">
+      <div className="flex-1 overflow-y-auto px-4 overflow-x-hidden">
         {/* Title Section */}
         <div className="relative mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-2">
@@ -76,12 +92,21 @@ export default function PartnersPage() {
           </div>
         </div>
 
+        {isLoading && <LoadingSkeleton />}
+
         {/* Partner Cards */}
-        {hasPartners && (
-          <div className="space-y-3 mb-6">
-            {partners.map((partner) => (
+        {!isLoading && data?.result?.partners && (
+          <div
+            className="space-y-3 z-10"
+            style={{
+              maxHeight: 'calc(100vh - 334px)',
+              overflowY: 'auto',
+            }}
+          >
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {data.result.partners.map((partner: any) => (
               <div
-                key={partner.id}
+                key={partner.partner_id}
                 className="bg-card border border-border rounded-lg p-4 flex items-center gap-4 cursor-pointer hover:bg-accent/50 transition-colors"
               >
                 <Avatar className="size-12 shrink-0">
@@ -89,37 +114,70 @@ export default function PartnersPage() {
                     <AvatarImage src={partner.avatarUrl} alt={partner.name} />
                   ) : null}
                   <AvatarFallback className="bg-muted text-foreground">
-                    {getInitials(partner.name)}
+                    {getInitials(partner.partner_profile?.basic_info?.name)}
                   </AvatarFallback>
                 </Avatar>
 
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-base text-foreground mb-1">
-                    {partner.name}
+                    {partner.partner_profile?.basic_info?.name}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {partner.age} | {partner.location}
+                    {partner.partner_profile?.basic_info?.age}
+                    {partner.partner_profile?.basic_info?.location && ' | '}
+                    {partner.partner_profile?.basic_info?.location}
                   </p>
                 </div>
 
-                <ChevronDown className="size-5 text-muted-foreground shrink-0" />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button className="cursor-pointer" variant="link" size="lg">
+                      <EllipsisVertical className="size-5 text-muted-foreground shrink-0" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-36 p-2">
+                    <div className="flex flex-col gap-1.5">
+                      <div
+                        className="flex items-center gap-2 cursor-pointer"
+                        onClick={() => {
+                          //
+                        }}
+                      >
+                        <InfoIcon className="size-5 text-muted-foreground shrink-0" />
+                        <span>View Detail</span>
+                      </div>
+                      <div
+                        className="flex items-center gap-2 cursor-pointer"
+                        onClick={() => {
+                          const partnerId = partner.partner_id;
+                          if (partnerId) {
+                            router.push(`/partners/chat/${partnerId}`);
+                          }
+                        }}
+                      >
+                        <MessageCircleMoreIcon className="size-5 text-muted-foreground shrink-0" />
+                        <span>Chat</span>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             ))}
           </div>
         )}
 
         {/* Create Partner Button */}
-        {hasPartners && (
+        {data?.result?.partners.length > 0 && !isFetching && (
           <Button
             onClick={handleCreatePartner}
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium mb-8"
+            className="w-full bg-primary mt-5 text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium mb-8"
           >
             Create a partner profile
           </Button>
         )}
 
         {/* Empty State */}
-        {!hasPartners && (
+        {data && !hasPartners && !isLoading && (
           <div className="flex flex-col items-center justify-center py-12">
             <div className="mb-6">
               <h3 className="text-lg font-bold text-foreground mb-2 text-center">
