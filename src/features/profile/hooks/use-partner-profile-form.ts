@@ -85,9 +85,10 @@ export function usePartnerProfileForm(
   //     setError: state.setError,
   //   }));
 
-  // Initialize store on mount
+  // Initialize store on mount or when profile ID changes
   useEffect(() => {
-    if (!savedProfile) {
+    // Initialize if no saved profile exists, or if the profile ID has changed
+    if (!savedProfile || savedProfile.id !== initialProfile.id) {
       initialize(initialProfile);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

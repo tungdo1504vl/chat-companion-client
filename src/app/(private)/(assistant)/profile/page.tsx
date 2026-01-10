@@ -7,9 +7,9 @@ import {
   ProfileForm,
   BirthChart,
   ProfileHeader,
-} from "@/features/profile/components";
-import { useProfileForm } from "@/features/profile/hooks/use-profile-form";
-import { useUserProfile } from "@/features/profile/hooks/use-user-profile";
+} from "@/features/profile/user/components";
+import { useProfileForm } from "@/features/profile/user/hooks/use-profile-form";
+import { useUserProfile } from "@/features/profile/user/hooks/use-user-profile";
 
 export default function ProfilePage() {
   const router = useRouter();

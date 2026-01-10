@@ -1,13 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { CheckSquare, Plus, Cake, Heart, TreePine, Venus, Calendar, X, Edit2 } from "lucide-react";
+import {
+  CheckSquare,
+  Plus,
+  Cake,
+  Heart,
+  TreePine,
+  Venus,
+  Calendar,
+  X,
+  Edit2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { format, parseISO, differenceInDays } from "date-fns";
-import ContentCard from "@/features/profiles/common/content-card/content-card";
+import ContentCard from "@/features/profile/common/content-card/content-card";
 import type { SpecialDay, SpecialDayType } from "../../types";
 import { cn } from "@/libs/tailwind/utils";
 
@@ -32,12 +48,12 @@ function getDaysRemaining(dateString: string): number | null {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     date.setHours(0, 0, 0, 0);
-    
+
     // If the date has passed this year, check next year
     if (date < today) {
       date.setFullYear(date.getFullYear() + 1);
     }
-    
+
     const diffDays = differenceInDays(date, today);
     return diffDays >= 0 ? diffDays : null;
   } catch {
@@ -66,9 +82,7 @@ export function SpecialDaysSection({
   const handleToggleNotification = (dayId: string) => {
     if (!onChange) return;
     const updated = specialDays.map((day) =>
-      day.id === dayId
-        ? { ...day, notifyEnabled: !day.notifyEnabled }
-        : day
+      day.id === dayId ? { ...day, notifyEnabled: !day.notifyEnabled } : day
     );
     onChange(updated);
   };
@@ -200,7 +214,7 @@ export function SpecialDaysSection({
         {specialDays.map((day) => {
           const IconComponent = iconMap[day.icon] || Calendar;
           const daysRemaining = getDaysRemaining(day.date);
-          
+
           return (
             <div
               key={day.id}
@@ -224,7 +238,9 @@ export function SpecialDaysSection({
                       <Input
                         type="date"
                         value={day.date}
-                        onChange={(e) => handleUpdateDate(day.id, e.target.value)}
+                        onChange={(e) =>
+                          handleUpdateDate(day.id, e.target.value)
+                        }
                         className="h-6 text-xs w-auto p-1"
                       />
                     ) : (
@@ -234,7 +250,8 @@ export function SpecialDaysSection({
                     )}
                     {daysRemaining !== null && daysRemaining !== undefined && (
                       <span className="text-xs text-muted-foreground">
-                        {daysRemaining} {daysRemaining === 1 ? "day" : "days"} left
+                        {daysRemaining} {daysRemaining === 1 ? "day" : "days"}{" "}
+                        left
                       </span>
                     )}
                   </div>
@@ -281,4 +298,3 @@ export function SpecialDaysSection({
     </ContentCard>
   );
 }
-

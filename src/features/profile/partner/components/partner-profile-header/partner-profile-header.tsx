@@ -3,7 +3,7 @@
 import { cn } from "@/libs/tailwind/utils";
 import type { PartnerProfile } from "../../types";
 import { MobileHeader } from "@/components/commons/mobile-header";
-import ProfileHeader from "@/features/profiles/common/header/profile-header";
+import ProfileHeader from "@/features/profile/common/header/profile-header";
 
 interface PartnerProfileHeaderProps {
   profile: PartnerProfile;

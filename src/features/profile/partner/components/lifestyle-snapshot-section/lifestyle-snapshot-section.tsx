@@ -25,7 +25,7 @@ import type {
   Hobby,
 } from "../../types";
 import { format, parseISO } from "date-fns";
-import { ContentCard } from "@/features/profiles/common/content-card";
+import { ContentCard } from "@/features/profile/common/content-card";
 
 interface LifestyleSnapshotSectionProps {
   profile: PartnerProfile;

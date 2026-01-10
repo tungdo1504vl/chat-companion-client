@@ -5,7 +5,7 @@ import { PillButtonGroup, type PillButtonOption } from "../pill-button-group";
 import { AiIndicator } from "../ai-indicator";
 import { GOAL_OPTIONS } from "../../const";
 import type { GoalType } from "../../types";
-import ContentCard from "@/features/profiles/common/content-card/content-card";
+import ContentCard from "@/features/profile/common/content-card/content-card";
 
 interface GoalsSectionProps {
   goals: GoalType[];

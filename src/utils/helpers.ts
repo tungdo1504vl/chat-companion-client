@@ -1,4 +1,4 @@
-import { TInputArgs, TTaskType } from '@/types/common';
+import { TInputArgs, TTaskType } from "@/types/common";
 
 export function createTaskParams(
   taskType: TTaskType,
@@ -11,15 +11,15 @@ export function createTaskParams(
   return {
     task_type: taskType,
     input_args: inputArgs,
-    priority: priority || 'high',
+    priority: priority || "high",
   };
 }
 
 export const getInitials = (name: string) => {
   return name
-    .split(' ')
+    .split(" ")
     .map((n) => n[0])
-    .join('')
+    .join("")
     .toUpperCase()
     .slice(0, 2);
 };

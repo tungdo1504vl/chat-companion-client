@@ -3,7 +3,7 @@
 import { Gift, Plus, Camera, Mountain, Coffee, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import ContentCard from "@/features/profiles/common/content-card/content-card";
+import ContentCard from "@/features/profile/common/content-card/content-card";
 import type { GiftIdea } from "../../types";
 import { cn } from "@/libs/tailwind/utils";
 
@@ -26,9 +26,10 @@ export function SmartGiftIdeasSection({
   hobbies = [],
   className,
 }: SmartGiftIdeasSectionProps) {
-  const hobbiesText = hobbies.length > 0 
-    ? hobbies.slice(0, 3).join(", ") + (hobbies.length > 3 ? " & more" : "")
-    : "their interests";
+  const hobbiesText =
+    hobbies.length > 0
+      ? hobbies.slice(0, 3).join(", ") + (hobbies.length > 3 ? " & more" : "")
+      : "their interests";
 
   return (
     <ContentCard className={className}>
@@ -49,7 +50,7 @@ export function SmartGiftIdeasSection({
       <div className="grid grid-cols-2 gap-3 mb-4">
         {giftIdeas.map((gift) => {
           const IconComponent = iconMap[gift.icon] || Gift;
-          
+
           return (
             <div
               key={gift.id}
@@ -59,7 +60,9 @@ export function SmartGiftIdeasSection({
               )}
             >
               <div className="flex items-start justify-between">
-                <IconComponent className={cn("size-5", getIconColorClass(gift.iconColor))} />
+                <IconComponent
+                  className={cn("size-5", getIconColorClass(gift.iconColor))}
+                />
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm font-medium truncate">
@@ -95,4 +98,3 @@ function getIconColorClass(bgColor: string): string {
   if (bgColor.includes("red")) return "text-red-600";
   return "text-foreground";
 }
-

@@ -3,7 +3,7 @@
 import { Star, TrendingUp } from "lucide-react";
 import { cn } from "@/libs/tailwind/utils";
 import type { PartnerProfile } from "../../types";
-import { ContentCard } from "@/features/profiles/common/content-card";
+import { ContentCard } from "@/features/profile/common/content-card";
 
 interface ChemistryInsightSectionProps {
   profile: PartnerProfile;

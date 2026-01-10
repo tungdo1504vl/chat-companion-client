@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PartnerProfileHeader } from "./components";
-import ProfileTab from "@/features/profiles/common/tabs/profile-tab";
+import ProfileTab from "@/features/profile/common/tabs/profile-tab";
 import { MOCK_PARTNER_PROFILE } from "./const";
 import { usePartnerProfileForm } from "../hooks/use-partner-profile-form";
 import type { PartnerProfile } from "./types";

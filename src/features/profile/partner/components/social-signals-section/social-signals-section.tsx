@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AiIndicator } from "../ai-indicator";
 import type { PartnerProfile, SocialSignal } from "../../types";
-import { ContentCard } from "@/features/profiles/common/content-card";
+import { ContentCard } from "@/features/profile/common/content-card";
 
 interface SocialSignalsSectionProps {
   profile: PartnerProfile;

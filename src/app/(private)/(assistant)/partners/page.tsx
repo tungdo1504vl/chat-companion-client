@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import {
   Smile,
   EllipsisVertical,
   InfoIcon,
   MessageCircleMoreIcon,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import MobileHeader from '@/components/commons/mobile-header/mobile-header';
-import { useComputeGet } from '@/hooks/use-compute-get';
-import { createTaskParams, getInitials } from '@/utils/helpers';
-import { TASK_TYPE } from '@/constants/task';
-import { useSession } from '@/libs/better-auth/client';
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import MobileHeader from "@/components/commons/mobile-header/mobile-header";
+import { useComputeGet } from "@/hooks/use-compute-get";
+import { createTaskParams, getInitials } from "@/utils/helpers";
+import { TASK_TYPE } from "@/constants/task";
+import { useSession } from "@/libs/better-auth/client";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { LoadingSkeleton } from '@/components/commons/loading-skeleton';
+} from "@/components/ui/popover";
+import { LoadingSkeleton } from "@/components/commons/loading-skeleton";
 
 interface Partner {
   id: string;
@@ -32,18 +32,18 @@ interface Partner {
 // Mock data - replace with actual API call
 const mockPartners: Partner[] = [
   {
-    id: '1',
-    name: 'Alex Chen',
+    id: "1",
+    name: "Alex Chen",
     age: 28,
-    location: 'New York, NY',
-    avatarUrl: '/images/placeholder-avatar.png',
+    location: "New York, NY",
+    avatarUrl: "/images/placeholder-avatar.png",
   },
   {
-    id: '2',
-    name: 'Maria Rodriguez',
+    id: "2",
+    name: "Maria Rodriguez",
     age: 26,
-    location: 'Los Angeles, CA',
-    avatarUrl: '/images/placeholder-avatar.png',
+    location: "Los Angeles, CA",
+    avatarUrl: "/images/placeholder-avatar.png",
   },
 ];
 
@@ -53,7 +53,7 @@ export default function PartnersPage() {
   const userId = session?.user.id;
   const { data, isLoading, isFetching } = useComputeGet(
     createTaskParams(TASK_TYPE.PARTNER_PROFILE_LIST, {
-      user_id: userId || '',
+      user_id: userId || "",
       include_archived: false,
     }),
     {
@@ -62,7 +62,7 @@ export default function PartnersPage() {
   );
 
   const handleCreatePartner = () => {
-    router.push('/partner-create');
+    router.push("/partner-create");
   };
   const hasPartners = data?.result?.partners.length > 0;
 
@@ -99,8 +99,8 @@ export default function PartnersPage() {
           <div
             className="space-y-3 z-10"
             style={{
-              maxHeight: 'calc(100vh - 334px)',
-              overflowY: 'auto',
+              maxHeight: "calc(100vh - 334px)",
+              overflowY: "auto",
             }}
           >
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -124,7 +124,7 @@ export default function PartnersPage() {
                   </h3>
                   <p className="text-sm text-muted-foreground">
                     {partner.partner_profile?.basic_info?.age}
-                    {partner.partner_profile?.basic_info?.location && ' | '}
+                    {partner.partner_profile?.basic_info?.location && " | "}
                     {partner.partner_profile?.basic_info?.location}
                   </p>
                 </div>
@@ -141,6 +141,7 @@ export default function PartnersPage() {
                         className="flex items-center gap-2 cursor-pointer"
                         onClick={() => {
                           //
+                          router.push(`/partners/${partner.partner_id}`);
                         }}
                       >
                         <InfoIcon className="size-5 text-muted-foreground shrink-0" />

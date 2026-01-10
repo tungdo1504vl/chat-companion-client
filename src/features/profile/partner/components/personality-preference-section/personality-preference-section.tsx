@@ -26,7 +26,7 @@ import type {
   AttachmentTendency,
   AttachmentTendencyData,
 } from "../../types";
-import ContentCard from "@/features/profiles/common/content-card/content-card";
+import ContentCard from "@/features/profile/common/content-card/content-card";
 
 const ATTACHMENT_TENDENCY_OPTIONS: {
   value: AttachmentTendency;
