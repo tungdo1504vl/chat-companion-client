@@ -33,7 +33,26 @@ export async function requireAuth() {
 }
 
 /**
- * Get the auth instance for direct API calls
+ * Get onboarding status for the current user
+ * Returns null if not authenticated, false if not completed, true if completed
  */
-export { auth };
+export async function getOnboardingStatus(): Promise<boolean | null> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return null;
+  }
+  return user.hasCompletedOnboarding ?? false;
+}
 
+/**
+ * Require both authentication and completed onboarding
+ * Throws if not authenticated or onboarding not completed
+ */
+export async function requireOnboarding() {
+  const session = await requireAuth();
+  const user = session.user;
+  if (!user?.hasCompletedOnboarding) {
+    throw new Error("Onboarding not completed");
+  }
+  return session;
+}

@@ -1,13 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useForm, useStore } from '@tanstack/react-form';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Select } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/commons/radio-group';
+import { useState, useEffect } from "react";
+import { useForm, useStore } from "@tanstack/react-form";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Select } from "@/components/commons/select";
+import { Combobox } from "@/components/ui/combobox";
+import { RadioGroup, RadioGroupItem } from "@/components/commons/radio-group";
 import {
   defaultOnboardingFormValues,
   years,
@@ -17,10 +18,74 @@ import {
   minutes,
   periods,
   genders,
-} from '../const';
-import { COUNTRY_LIST } from '@/constants/data';
-import { onboardingFormSchema } from '../validate-schema';
-import { TOnboardingFormProps } from '../types';
+  VIETNAM_CITIES,
+} from "../const";
+import { onboardingFormSchema } from "../validate-schema";
+import { TOnboardingFormProps } from "../types";
+
+interface CityFieldStepProps {
+  readonly isLoading: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly form: any; // tanstack-form types are complex; form is properly typed via useForm
+}
+
+function CityFieldStep({ isLoading, form }: CityFieldStepProps) {
+  // Use reactive form values with useStore - only re-render when city changes
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Country Display - Read-only */}
+      <form.Field name="country">
+        {(field: {
+          name: string;
+          state: {
+            value: string;
+            meta: { errors: Array<{ message?: string }> };
+          };
+        }) => (
+          <Field className="flex flex-col gap-2">
+            <FieldLabel htmlFor={field.name}>Country of Birth</FieldLabel>
+            <div className="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground">
+              Việt Nam
+            </div>
+            <FieldError errors={field.state.meta.errors} />
+          </Field>
+        )}
+      </form.Field>
+      <form.Field name="city">
+        {(field: {
+          name: string;
+          state: {
+            value: string;
+            meta: { errors: Array<{ message?: string }> };
+          };
+          handleChange: (value: string) => void;
+          handleBlur: () => void;
+        }) => {
+          return (
+            <Field className="flex flex-col gap-2">
+              <FieldLabel htmlFor={field.name}>City of Birth</FieldLabel>
+              <Combobox
+                value={field.state.value}
+                onValueChange={(value) => {
+                  field.handleChange(value);
+                  field.handleBlur();
+                }}
+                options={VIETNAM_CITIES}
+                placeholder="Search and select a city"
+                searchPlaceholder="Search cities..."
+                disabled={isLoading}
+                allowClear
+                searchMode="client"
+              />
+              <FieldError errors={field.state.meta.errors} />
+            </Field>
+          );
+        }}
+      </form.Field>
+    </div>
+  );
+}
 
 export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
   const { onSubmit, isLoading } = props;
@@ -32,7 +97,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
     validators: {
       // @tanstack/react-form supports Zod schema directly but types are not fully compatible
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onBlur: onboardingFormSchema as unknown as any,
+      onBlur: onboardingFormSchema as any,
     },
   });
 
@@ -54,30 +119,31 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
     }
   };
 
-  const validateCurrentStep = () => {
+  const validateCurrentStep = (): boolean => {
     if (currentStep === 1) {
-      return values.name.trim() !== '';
+      return values.name.trim() !== "";
     }
     if (currentStep === 2) {
-      const dateValid =
+      const dateValid = Boolean(
         values.birthYear &&
-        values.birthMonth &&
-        values.birthDay &&
-        values.genderAtBirth;
+          values.birthMonth &&
+          values.birthDay &&
+          values.genderAtBirth
+      );
 
       // If time is known, validate time fields; otherwise, only date is required
       if (values.birthTimeKnown) {
-        return (
+        return Boolean(
           dateValid &&
-          values.birthHour &&
-          values.birthMinute &&
-          values.birthPeriod
+            values.birthHour &&
+            values.birthMinute &&
+            values.birthPeriod
         );
       }
       return dateValid;
     }
     if (currentStep === 3) {
-      return values.country.trim() !== '' && values.city.trim() !== '';
+      return values.city.trim() !== "";
     }
     return true;
   };
@@ -172,9 +238,9 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                   <FieldLabel>Time of Birth</FieldLabel>
                   <div className="bg-gray-100 rounded-md p-px">
                     <RadioGroup
-                      value={field.state.value ? 'known' : 'unknown'}
+                      value={field.state.value ? "known" : "unknown"}
                       onValueChange={(value) =>
-                        field.handleChange(value === 'known')
+                        field.handleChange(value === "known")
                       }
                       disabled={isLoading}
                       className="flex gap-2"
@@ -223,7 +289,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                       <Select
                         value={field.state.value}
                         onValueChange={(value) =>
-                          field.handleChange(value as 'AM' | 'PM')
+                          field.handleChange(value as "AM" | "PM")
                         }
                         options={periods}
                         placeholder="AM/PM"
@@ -245,7 +311,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                     <RadioGroup
                       value={field.state.value}
                       onValueChange={(value) =>
-                        field.handleChange(value as 'Male' | 'Female')
+                        field.handleChange(value as "male" | "female")
                       }
                       disabled={isLoading}
                       className="flex gap-2"
@@ -265,50 +331,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
         );
 
       case 3:
-        return (
-          <div className="flex flex-col gap-6">
-            <form.Field name="country">
-              {(field) => (
-                <Field className="flex flex-col gap-2">
-                  <FieldLabel htmlFor={field.name}>Country of Birth</FieldLabel>
-                  <Select
-                    value={field.state.value}
-                    onValueChange={(value) => field.handleChange(value)}
-                    options={COUNTRY_LIST.map((country) => ({
-                      value: country.name,
-                      label: country.name,
-                    }))}
-                    placeholder="Select a country"
-                    disabled={isLoading}
-                  />
-                  <FieldError errors={field.state.meta.errors} />
-                </Field>
-              )}
-            </form.Field>
-            <form.Field name="city">
-              {(field) => (
-                <Field className="flex flex-col gap-2">
-                  <FieldLabel htmlFor={field.name}>City of Birth</FieldLabel>
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="text"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    disabled={isLoading || !values.country}
-                    placeholder={
-                      values.country
-                        ? 'Enter city name'
-                        : 'Select a country first'
-                    }
-                  />
-                  <FieldError errors={field.state.meta.errors} />
-                </Field>
-              )}
-            </form.Field>
-          </div>
-        );
+        return <CityFieldStep isLoading={Boolean(isLoading)} form={form} />;
 
       default:
         return null;
@@ -364,7 +387,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
           <Button
             type="button"
             onClick={handleNext}
-            disabled={isLoading || !validateCurrentStep()}
+            disabled={Boolean(isLoading || !validateCurrentStep())}
             className="flex-1"
           >
             Next
@@ -375,7 +398,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
             disabled={!canSubmit || isLoading}
             className="flex-1"
           >
-            {isLoading ? 'Processing...' : 'Start Analyzing'}
+            {isLoading ? "Processing..." : "Start Analyzing"}
           </Button>
         )}
       </div>

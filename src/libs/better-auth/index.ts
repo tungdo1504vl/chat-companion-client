@@ -1,5 +1,4 @@
 // Server-side exports
-export { auth, getSession, getCurrentUser, requireAuth } from "./server";
+export { auth } from "./auth";
+export { getSession, getCurrentUser, requireAuth } from "./server";
 export type { Session, User } from "./auth";
-
-// Client-side exports (re-exported conditionally)

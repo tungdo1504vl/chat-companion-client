@@ -3,7 +3,7 @@
 import { PropsWithChildren } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Clock, Users } from 'lucide-react';
+import { BarChart3, Users, User } from 'lucide-react';
 import { cn } from '@/libs/tailwind/utils';
 
 export default function AssistantLayout(props: PropsWithChildren) {
@@ -17,14 +17,14 @@ export default function AssistantLayout(props: PropsWithChildren) {
       icon: BarChart3,
     },
     {
-      href: '/history',
-      label: 'History',
-      icon: Clock,
-    },
-    {
       href: '/partners',
       label: 'Partners',
       icon: Users,
+    },
+    {
+      href: '/profile',
+      label: 'Profile',
+      icon: User,
     },
   ];
 

@@ -46,9 +46,6 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
 
   const handleInteractive = useCallback(
     async (text: string) => {
-      console.log('handleInteractive text:', text);
-      // const fakeText = text;
-      const fakeText = 'Suggest dishes that person likes';
       if (!userId || !partnerId) return;
       setIsLoading(true);
       setAudioSrc(null);
@@ -59,7 +56,7 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
             user_id: userId,
             partner_id: partnerId,
             generate_from_chat: false,
-            user_message: fakeText,
+            user_message: text,
           },
           priority: 'high',
         };
