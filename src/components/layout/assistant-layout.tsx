@@ -3,30 +3,19 @@
 import { PropsWithChildren } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Users, User } from 'lucide-react';
 import { cn } from '@/libs/tailwind/utils';
+import { ASSISTANT_NAV_ITEMS, type NavigationItem } from '@/constants/routes';
+
+function isNavItemActive(item: NavigationItem, pathname: string): boolean {
+  if (item.matchPrefix) {
+    return pathname.startsWith(item.href);
+  }
+  return pathname === item.href;
+}
 
 export default function AssistantLayout(props: PropsWithChildren) {
   const { children } = props;
   const pathname = usePathname();
-
-  const navItems = [
-    {
-      href: '/assistant',
-      label: 'Analyze',
-      icon: BarChart3,
-    },
-    {
-      href: '/partners',
-      label: 'Partners',
-      icon: Users,
-    },
-    {
-      href: '/profile',
-      label: 'Profile',
-      icon: User,
-    },
-  ];
 
   return (
     <>
@@ -37,9 +26,9 @@ export default function AssistantLayout(props: PropsWithChildren) {
       {/* Fixed Footer Navigation */}
       <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg bg-background border-t border-border z-50">
         <nav className="flex items-center justify-around h-16 px-4">
-          {navItems.map((item) => {
+          {ASSISTANT_NAV_ITEMS.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive = isNavItemActive(item, pathname);
 
             return (
               <Link

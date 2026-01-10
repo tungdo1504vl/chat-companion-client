@@ -3,7 +3,7 @@ import { TLoginFormData } from "../components/login-form/types";
 import { signIn, useSession } from "@/libs/better-auth/client";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
-import { PROTECTED_ROUTES } from "@/constants";
+import { PROTECTED_ROUTES } from "@/constants/routes";
 import {
   encryptPasswordSafely,
   extractErrorMessage,

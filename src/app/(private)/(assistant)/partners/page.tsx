@@ -2,6 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import {
+  ASSISTANT_ROUTES,
+  buildPartnerDetailRoute,
+  buildPartnerChatRoute,
+} from "@/constants/routes";
+import {
   Smile,
   EllipsisVertical,
   InfoIcon,
@@ -62,7 +67,7 @@ export default function PartnersPage() {
   );
 
   const handleCreatePartner = () => {
-    router.push("/partner-create");
+    router.push(ASSISTANT_ROUTES.PARTNER_CREATE);
   };
   const hasPartners = data?.result?.partners.length > 0;
 
@@ -141,7 +146,9 @@ export default function PartnersPage() {
                         className="flex items-center gap-2 cursor-pointer"
                         onClick={() => {
                           //
-                          router.push(`/partners/${partner.partner_id}`);
+                          router.push(
+                            buildPartnerDetailRoute(partner.partner_id)
+                          );
                         }}
                       >
                         <InfoIcon className="size-5 text-muted-foreground shrink-0" />
@@ -152,7 +159,7 @@ export default function PartnersPage() {
                         onClick={() => {
                           const partnerId = partner.partner_id;
                           if (partnerId) {
-                            router.push(`/partners/chat/${partnerId}`);
+                            router.push(buildPartnerChatRoute(partnerId));
                           }
                         }}
                       >

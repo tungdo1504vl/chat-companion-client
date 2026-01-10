@@ -2,7 +2,7 @@
 
 import { signIn } from "@/libs/better-auth/client";
 import { useSearchParams } from "next/navigation";
-import { PROTECTED_ROUTES } from "@/constants";
+import { PROTECTED_ROUTES } from "@/constants/routes";
 
 export const useSignInGoogle = () => {
   const searchParams = useSearchParams();

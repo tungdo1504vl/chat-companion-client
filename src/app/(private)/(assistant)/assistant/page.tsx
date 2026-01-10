@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/libs/tailwind/utils';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ASSISTANT_ROUTES } from '@/constants/routes';
 
 interface FeatureCard {
   id: string;
@@ -113,7 +114,7 @@ export default function AssistantPage() {
         {features.map((feature) => {
           const Icon = feature.icon;
           return (
-            <Link className="block" href="/partners" key={feature.id}>
+            <Link className="block" href={ASSISTANT_ROUTES.PARTNERS} key={feature.id}>
               <div className="bg-card border border-border rounded-lg p-4 flex items-start gap-4 cursor-pointer hover:bg-accent/50 transition-colors">
                 {/* Icon */}
                 <div

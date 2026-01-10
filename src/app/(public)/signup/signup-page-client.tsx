@@ -3,6 +3,7 @@
 import { useSignUpUser } from "@/features/login-page/hooks/use-sign-up-user";
 import { SignupForm } from "@/features/login-page/components/signup-form";
 import Link from "next/link";
+import { PUBLIC_ROUTES } from "@/constants/routes";
 
 export default function SignupPageClient() {
   const { mutate: signUp, isPending } = useSignUpUser();
@@ -19,7 +20,7 @@ export default function SignupPageClient() {
         <SignupForm onSubmit={signUp} isLoading={isPending} />
         <div className="text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/login" className="text-primary hover:underline font-medium">
+          <Link href={PUBLIC_ROUTES.LOGIN} className="text-primary hover:underline font-medium">
             Sign in
           </Link>
         </div>

@@ -3,7 +3,7 @@ import { TLoginFormData } from "../components/login-form/types";
 import { useMutation } from "@/libs/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { PROTECTED_ROUTES } from "@/constants";
+import { PROTECTED_ROUTES } from "@/constants/routes";
 import {
   encryptPasswordSafely,
   extractErrorMessage,

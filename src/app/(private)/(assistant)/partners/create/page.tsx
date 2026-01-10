@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { ASSISTANT_ROUTES } from '@/constants/routes';
 import { PartnerForm } from '@/features/partner-form';
 import { TPartnerFormData } from '@/features/partner-form/types';
 import { toast } from 'sonner';
@@ -46,8 +47,8 @@ export default function PartnerCreatePage() {
       queryKey: ['compute', TASK_TYPE.PARTNER_PROFILE_LIST],
     });
     toast.success('Successfully');
-    // Navigate to history page after form submission
-    router.push('/partners');
+    // Navigate to partners page after form submission
+    router.push(ASSISTANT_ROUTES.PARTNERS);
   };
 
   return (

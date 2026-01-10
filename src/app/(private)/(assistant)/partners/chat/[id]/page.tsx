@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
+import { ASSISTANT_ROUTES } from '@/constants/routes';
 import { TCommonPayload } from '@/types/common';
 import { LoadingSkeleton } from '@/components/commons/loading-skeleton';
 import { useQueryClient } from '@/libs/react-query';
@@ -203,7 +204,7 @@ export default function PartnerChatPage() {
               size="icon"
               className="shrink-0"
               onClick={() => {
-                router.push('/partners');
+                router.push(ASSISTANT_ROUTES.PARTNERS);
               }}
             >
               <ArrowLeft className="size-5" />

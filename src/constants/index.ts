@@ -1,18 +1,5 @@
-export const PUBLIC_ROUTES = {
-  LOGIN: "/login",
-  SIGNUP: "/signup",
-} as const;
-
-export const PROTECTED_ROUTES = {
-  CONVERSATIONS: "/conversations",
-  ONBOARDING: "/onboarding",
-  ASSISTANT: "/assistant",
-} as const;
-
-export const ALL_ROUTES = {
-  ...PUBLIC_ROUTES,
-  ...PROTECTED_ROUTES,
-} as const;
+// Re-export all routes from routes.ts (single source of truth)
+export * from "./routes";
 
 export * from "./auth";
 export * from "./http-status";

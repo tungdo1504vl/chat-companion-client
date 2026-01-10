@@ -1,9 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/constants";
+import {
+  PROTECTED_ROUTES,
+  PUBLIC_ROUTES,
+  ASSISTANT_ROUTES,
+} from "@/constants/routes";
 
 const PUBLIC_PATHS = new Set([PUBLIC_ROUTES.LOGIN, PUBLIC_ROUTES.SIGNUP]);
 const ONBOARDING_PATH = PROTECTED_ROUTES.ONBOARDING;
 const STATIC_FILE_PATTERN = /\.(svg|png|jpg|jpeg|gif|webp|ico)$/;
+
+// Private routes - all routes under (private) folder
+// These include onboarding, assistant routes, and any future private routes
+const PRIVATE_ROUTE_PATTERNS = [
+  PROTECTED_ROUTES.ONBOARDING,
+  PROTECTED_ROUTES.ASSISTANT,
+  ASSISTANT_ROUTES.PARTNERS, // Matches /partners and /partners/*
+  ASSISTANT_ROUTES.PROFILE,
+  ASSISTANT_ROUTES.HISTORY,
+  PROTECTED_ROUTES.CONVERSATIONS, // Future route
+] as const;
 
 function isSystemPath(pathname: string): boolean {
   return (
@@ -18,6 +33,24 @@ function hasSessionCookie(request: NextRequest): boolean {
   return request.cookies
     .getAll()
     .some((cookie) => cookie.name.startsWith("better-auth"));
+}
+
+function isPrivateRoute(pathname: string): boolean {
+  // Check if pathname matches any private route pattern
+  return PRIVATE_ROUTE_PATTERNS.some((pattern) => {
+    // Exact match for routes like /assistant, /profile, /history, /onboarding
+    if (pathname === pattern) {
+      return true;
+    }
+    // Prefix match for routes like /partners/* (e.g., /partners/create, /partners/123, /partners/chat/123)
+    if (
+      pattern === ASSISTANT_ROUTES.PARTNERS &&
+      pathname.startsWith(`${pattern}/`)
+    ) {
+      return true;
+    }
+    return false;
+  });
 }
 
 function redirectToLogin(request: NextRequest, pathname: string): NextResponse {
@@ -42,15 +75,16 @@ export default async function proxy(request: NextRequest) {
       : NextResponse.next();
   }
 
-  // Onboarding route: require authentication
-  if (pathname === ONBOARDING_PATH) {
+  // Private routes (from (private) folder): require authentication
+  if (isPrivateRoute(pathname)) {
     return hasSession
       ? NextResponse.next()
       : redirectToLogin(request, pathname);
   }
 
-  // Protected routes: require authentication
-  return hasSession ? NextResponse.next() : redirectToLogin(request, pathname);
+  // For any other routes (e.g., root "/"), allow access
+  // You can change this to redirect to login if you want stricter control
+  return NextResponse.next();
 }
 
 export const config = {

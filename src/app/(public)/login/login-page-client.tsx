@@ -5,6 +5,7 @@ import { LoginForm } from "@/features/login-page/components/login-form";
 import { GoogleSignInButton } from "@/features/login-page/components/google-sign-in-button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import { PUBLIC_ROUTES } from "@/constants/routes";
 
 export default function LoginPageClient() {
   const { mutate: signIn, isPending } = useSignIn();
@@ -33,7 +34,7 @@ export default function LoginPageClient() {
         <div className="text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
           <Link
-            href="/signup"
+            href={PUBLIC_ROUTES.SIGNUP}
             className="text-primary hover:underline font-medium"
           >
             Sign up

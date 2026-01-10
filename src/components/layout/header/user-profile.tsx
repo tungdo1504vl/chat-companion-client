@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
-import { PUBLIC_ROUTES } from "@/constants";
+import { PUBLIC_ROUTES } from "@/constants/routes";
 
 /**
  * Generate a consistent color based on a string (user's name or email)

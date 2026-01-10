@@ -3,7 +3,7 @@ import { TOnboardingPayload } from '@/types/common';
 import { userService, TCommonPayload } from '@/services';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/libs/better-auth/client';
-import { PROTECTED_ROUTES } from '@/constants';
+import { PROTECTED_ROUTES } from '@/constants/routes';
 import { toast } from 'sonner';
 import { useProfileAnalysisStore } from '@/stores/profile-analysis.store';
 import type { UserProfileAnalysisResponse } from '@/stores/types';

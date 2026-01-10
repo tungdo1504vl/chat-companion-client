@@ -2,7 +2,7 @@ import ChatLayout from "@/components/layout/chat-layout";
 import { PropsWithChildren } from "react";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/libs/better-auth/server";
-import { PROTECTED_ROUTES } from "@/constants";
+import { PROTECTED_ROUTES } from "@/constants/routes";
 
 export default async function OnboardingLayout(
   props: Readonly<PropsWithChildren>

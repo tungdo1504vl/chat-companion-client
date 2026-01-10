@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { ASSISTANT_ROUTES } from '@/constants/routes';
 
 interface Message {
   id: string;
@@ -53,7 +54,7 @@ export default function HistoryPage() {
             size="icon"
             className="shrink-0"
             onClick={() => {
-              router.push('/assistant');
+              router.push(ASSISTANT_ROUTES.ASSISTANT);
             }}
           >
             <ArrowLeft className="size-5" />
@@ -66,7 +67,7 @@ export default function HistoryPage() {
             size="icon"
             className="shrink-0"
             onClick={() => {
-              router.push('/assistant');
+              router.push(ASSISTANT_ROUTES.ASSISTANT);
             }}
           >
             <Home className="size-5" />
