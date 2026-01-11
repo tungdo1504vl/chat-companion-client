@@ -105,7 +105,7 @@ export function SpecialDaysSection({
     if (!onChange || !newDayName.trim() || !newDayDate) return;
     const newDay: SpecialDay = {
       id: `custom-${Date.now()}`,
-      type: "Custom",
+      type: "custom",
       name: newDayName.trim(),
       date: newDayDate,
       icon: "Calendar",

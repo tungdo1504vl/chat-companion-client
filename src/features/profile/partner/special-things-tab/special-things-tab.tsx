@@ -14,7 +14,7 @@ export default function SpecialThingsTab({
   profile,
   onSpecialDaysChange,
 }: SpecialThingsTabProps) {
-  const birthday = profile.specialDays?.find((day) => day.type === "Birthday");
+  const birthday = profile.specialDays?.find((day) => day.type === "birthday");
 
   return (
     <div className="flex flex-col gap-8">

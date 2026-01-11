@@ -14,7 +14,7 @@ interface DateBudgetSliderProps {
 }
 
 export function DateBudgetSlider({
-  value = "Balanced",
+  value = "balanced",
   onChange,
   disabled = false,
   className,
