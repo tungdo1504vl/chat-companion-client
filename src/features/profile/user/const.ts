@@ -13,11 +13,11 @@ export const defaultProfileFormValues: TProfileFormData = {
 };
 
 export const loveLanguages = [
-  { value: "words", label: "Words of Affirmation" },
-  { value: "acts", label: "Acts of Service" },
-  { value: "gifts", label: "Receiving Gifts" },
-  { value: "time", label: "Quality Time" },
-  { value: "touch", label: "Physical Touch" },
+  { value: "words_of_affirmation", label: "Words of Affirmation" },
+  { value: "acts_of_service", label: "Acts of Service" },
+  { value: "receiving_gifts", label: "Receiving Gifts" },
+  { value: "quality_time", label: "Quality Time" },
+  { value: "physical_touch", label: "Physical Touch" },
 ];
 
 export const attachmentStyles = [
@@ -35,8 +35,8 @@ export const communicationStyles = [
 ];
 
 export const workSchedules = [
-  { value: "9-5", label: "9-5 Standard" },
-  { value: "flexible", label: "Flexible / Remote" },
+  { value: "nine_to_five", label: "9-5 Standard" },
+  { value: "flexible_remote", label: "Flexible / Remote" },
 ];
 
 export const socialEnergyLevels = [

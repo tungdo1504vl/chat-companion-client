@@ -105,16 +105,6 @@ function BirthChart({ natalChart, insights }: BirthChartProps) {
 
   return (
     <div className="w-full space-y-6">
-      {/* Relationship Seeker Badge */}
-      <div className="flex justify-center">
-        <Badge
-          variant="outline"
-          className="bg-pink-100 text-pink-700 border-pink-200 px-3 py-1 rounded-full"
-        >
-          Relationship Seeker
-        </Badge>
-      </div>
-
       {/* AI Chart Analysis Banner */}
       <div className="bg-red-500 rounded-lg p-4 flex items-center justify-between text-white">
         <div className="flex-1">
@@ -124,6 +114,30 @@ function BirthChart({ natalChart, insights }: BirthChartProps) {
         </div>
         <div className="ml-4 bg-white/20 rounded-full p-2">
           <Sparkles className="h-5 w-5 text-white" />
+        </div>
+      </div>
+
+      {/* Chart Insights Section */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <MessageCircle className="h-4 w-4 text-red-500" />
+          <h3 className="text-lg font-semibold">Chart Insights</h3>
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
+          {hasInsights ? (
+            insightsParagraphs.map((paragraph) => (
+              <p
+                key={paragraph.substring(0, 50)}
+                className="text-sm text-gray-700 leading-relaxed"
+              >
+                {paragraph}
+              </p>
+            ))
+          ) : (
+            <p className="text-sm text-gray-500 italic">
+              Insights not available
+            </p>
+          )}
         </div>
       </div>
 
@@ -225,30 +239,6 @@ function BirthChart({ natalChart, insights }: BirthChartProps) {
               : "Birth chart data not available"}
           </div>
         )}
-      </div>
-
-      {/* Chart Insights Section */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <MessageCircle className="h-4 w-4 text-red-500" />
-          <h3 className="text-lg font-semibold">Chart Insights</h3>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
-          {hasInsights ? (
-            insightsParagraphs.map((paragraph) => (
-              <p
-                key={paragraph.substring(0, 50)}
-                className="text-sm text-gray-700 leading-relaxed"
-              >
-                {paragraph}
-              </p>
-            ))
-          ) : (
-            <p className="text-sm text-gray-500 italic">
-              Insights not available
-            </p>
-          )}
-        </div>
       </div>
     </div>
   );

@@ -1,12 +1,12 @@
-import axiosClient from '@/libs/axios';
-import { TOnboardingPayload, TCommonPayload } from '@/types/common';
-import { createTaskRequest } from './base.service';
-import { TCommonResponse, TTaskInputArgs, TTaskType } from './types';
+import axiosClient from "@/libs/axios";
+import { TCommonPayload } from "@/types/common";
+import { createTaskRequest } from "./base.service";
+import { TCommonResponse, TTaskInputArgs, TTaskType } from "./types";
 
 /**
  * Default endpoint for task submission
  */
-const DEFAULT_ENDPOINT = '/internal/v1/tasks/compute';
+const DEFAULT_ENDPOINT = "/internal/v1/tasks/compute";
 
 /**
  * Helper function to create a task request with default endpoint
@@ -15,7 +15,7 @@ const DEFAULT_ENDPOINT = '/internal/v1/tasks/compute';
 const createTask = <TResult = unknown>(
   taskType: TTaskType,
   inputArgs: TTaskInputArgs,
-  priority: string = 'medium'
+  priority: string = "medium"
 ): Promise<TCommonResponse<TResult>> => {
   return createTaskRequest<TResult>(
     taskType,
@@ -39,24 +39,24 @@ const userService = {
    */
   getPartnerProfile<TResult = unknown>(
     inputArgs: TTaskInputArgs,
-    priority: string = 'medium'
+    priority: string = "medium"
   ): Promise<TCommonResponse<TResult>> {
-    return createTask<TResult>('partner_profile_get', inputArgs, priority);
+    return createTask<TResult>("partner_profile_get", inputArgs, priority);
   },
   compute(payload: TCommonPayload): Promise<TCommonResponse> {
-    return axiosClient.post('/internal/v1/tasks/compute', payload);
+    return axiosClient.post("/internal/v1/tasks/compute", payload);
   },
   stream(payload: TCommonPayload): Promise<TCommonResponse> {
-    return axiosClient.post('/internal/v1/tasks/stream', payload);
+    return axiosClient.post("/internal/v1/tasks/stream", payload);
   },
   /**
    * List all partner profiles
    */
   listPartnerProfiles<TResult = unknown>(
     inputArgs: TTaskInputArgs,
-    priority: string = 'medium'
+    priority: string = "medium"
   ): Promise<TCommonResponse<TResult>> {
-    return createTask<TResult>('partner_profile_list', inputArgs, priority);
+    return createTask<TResult>("partner_profile_list", inputArgs, priority);
   },
 
   /**
@@ -64,9 +64,9 @@ const userService = {
    */
   createPartnerProfile<TResult = unknown>(
     inputArgs: TTaskInputArgs,
-    priority: string = 'medium'
+    priority: string = "medium"
   ): Promise<TCommonResponse<TResult>> {
-    return createTask<TResult>('partner_profile_create', inputArgs, priority);
+    return createTask<TResult>("partner_profile_create", inputArgs, priority);
   },
 
   /**
@@ -74,9 +74,9 @@ const userService = {
    */
   getPartnerProfileInsights<TResult = unknown>(
     inputArgs: TTaskInputArgs,
-    priority: string = 'medium'
+    priority: string = "medium"
   ): Promise<TCommonResponse<TResult>> {
-    return createTask<TResult>('partner_profile_insights', inputArgs, priority);
+    return createTask<TResult>("partner_profile_insights", inputArgs, priority);
   },
 
   /**
@@ -84,9 +84,9 @@ const userService = {
    */
   listPartnerInsights<TResult = unknown>(
     inputArgs: TTaskInputArgs,
-    priority: string = 'medium'
+    priority: string = "medium"
   ): Promise<TCommonResponse<TResult>> {
-    return createTask<TResult>('partner_insights_list', inputArgs, priority);
+    return createTask<TResult>("partner_insights_list", inputArgs, priority);
   },
 
   /**
@@ -94,9 +94,9 @@ const userService = {
    */
   getPartnerGiftIdeas<TResult = unknown>(
     inputArgs: TTaskInputArgs,
-    priority: string = 'medium'
+    priority: string = "medium"
   ): Promise<TCommonResponse<TResult>> {
-    return createTask<TResult>('partner_gift_ideas', inputArgs, priority);
+    return createTask<TResult>("partner_gift_ideas", inputArgs, priority);
   },
 
   // ============================================
@@ -108,9 +108,9 @@ const userService = {
    */
   getUserProfile<TResult = unknown>(
     inputArgs: TTaskInputArgs,
-    priority: string = 'medium'
+    priority: string = "medium"
   ): Promise<TCommonResponse<TResult>> {
-    return createTask<TResult>('user_profile_get', inputArgs, priority);
+    return createTask<TResult>("user_profile_get", inputArgs, priority);
   },
 
   /**
@@ -118,9 +118,9 @@ const userService = {
    */
   updateUserProfile<TResult = unknown>(
     inputArgs: TTaskInputArgs,
-    priority: string = 'medium'
+    priority: string = "medium"
   ): Promise<TCommonResponse<TResult>> {
-    return createTask<TResult>('user_profile_update', inputArgs, priority);
+    return createTask<TResult>("user_profile_update", inputArgs, priority);
   },
 
   /**
@@ -128,9 +128,9 @@ const userService = {
    */
   validateUserProfile<TResult = unknown>(
     inputArgs: TTaskInputArgs,
-    priority: string = 'medium'
+    priority: string = "medium"
   ): Promise<TCommonResponse<TResult>> {
-    return createTask<TResult>('user_profile_validate', inputArgs, priority);
+    return createTask<TResult>("user_profile_validate", inputArgs, priority);
   },
 
   /**
@@ -138,9 +138,9 @@ const userService = {
    */
   analyzeUserProfile<TResult = unknown>(
     inputArgs: TTaskInputArgs,
-    priority: string = 'medium'
+    priority: string = "medium"
   ): Promise<TCommonResponse<TResult>> {
-    return createTask<TResult>('user_profile_analyze', inputArgs, priority);
+    return createTask<TResult>("user_profile_analyze", inputArgs, priority);
   },
 
   /**
@@ -148,9 +148,9 @@ const userService = {
    */
   getLocations<TResult = unknown>(
     inputArgs: TTaskInputArgs,
-    priority: string = 'medium'
+    priority: string = "medium"
   ): Promise<TCommonResponse<TResult>> {
-    return createTask<TResult>('location_city_list', inputArgs, priority);
+    return createTask<TResult>("location_city_list", inputArgs, priority);
   },
 };
 
