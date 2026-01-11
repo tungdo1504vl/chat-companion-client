@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowLeft, MoreVertical, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "@/libs/better-auth/client";
+import { PageHeader } from "@/components/commons/page-header";
 
 interface ProfileHeaderProps {
   readonly onBackClick?: () => void;
@@ -24,25 +25,11 @@ export default function ProfileHeader({
   return (
     <>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9"
-          onClick={onBackClick}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <h1 className="text-lg font-semibold">My Profile</h1>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9"
-          onClick={onMenuClick}
-        >
-          <MoreVertical className="h-4 w-4" />
-        </Button>
-      </div>
+      <PageHeader
+        title="My Profile"
+        onBackClick={onBackClick}
+        onMenuClick={onMenuClick}
+      />
 
       {/* Profile Info */}
       <div className="flex flex-col items-center space-y-3 mb-6 px-4 pt-6">

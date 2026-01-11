@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import MobileHeader from "@/components/commons/mobile-header/mobile-header";
+import { PageHeader } from "@/components/commons/page-header";
 import { useComputeGet } from "@/hooks/use-compute-get";
 import { createTaskParams, getInitials } from "@/utils/helpers";
 import { TASK_TYPE } from "@/constants/task";
@@ -74,9 +74,7 @@ export default function PartnersPage() {
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="px-4 pt-4 pb-2">
-        <MobileHeader title="Strategy for a successful crush" />
-      </div>
+      <PageHeader title="Strategy for a successful crush" />
 
       <div className="flex-1 overflow-y-auto px-4 overflow-x-hidden">
         {/* Title Section */}

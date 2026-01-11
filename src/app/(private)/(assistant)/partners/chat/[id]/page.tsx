@@ -7,14 +7,13 @@ import { useSession } from '@/libs/better-auth/client';
 import { createTaskParams } from '@/utils/helpers';
 import { useState } from 'react';
 import {
-  ArrowLeft,
-  EllipsisVertical,
   Heart,
   Home,
   LoaderCircle,
   Send,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/commons/page-header';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { ASSISTANT_ROUTES } from '@/constants/routes';
@@ -197,53 +196,49 @@ export default function PartnerChatPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-purple-100 via-blue-100 to-pink-100 -z-10" />
 
         {/* Header */}
-        <div className="px-4 pt-4 pb-2 bg-transparent z-10">
-          <div className="w-full flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="shrink-0"
-              onClick={() => {
-                router.push(ASSISTANT_ROUTES.PARTNERS);
-              }}
-            >
-              <ArrowLeft className="size-5" />
-            </Button>
-            <h1 className="flex-1 text-center text-lg font-semibold">
-              Strategy for a successful crush
-            </h1>
-            {/* Chat popover menu */}
-            <Popover open={openPopover} onOpenChange={setOpenPopover}>
-              <PopoverTrigger asChild>
-                <Button className="cursor-pointer" variant="link" size="lg">
-                  <EllipsisVertical className="size-5 text-muted-foreground shrink-0" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-42 p-2">
-                <div className="flex flex-col gap-1.5">
-                  <div
-                    className="flex items-center gap-2 cursor-pointer"
-                    onClick={() => {
-                      //
-                    }}
-                  >
-                    <Home className="size-5" />
-                    <span>Back to home</span>
-                  </div>
-                  <div
-                    className="flex items-center gap-2 cursor-pointer"
-                    onClick={() => {
-                      setOpenInteractiveModal(true);
-                      setOpenPopover(false);
-                    }}
-                  >
-                    <Heart className="size-5" />
-                    <span>Interactive</span>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
+        <div className="bg-transparent z-10 relative">
+          <PageHeader
+            title="Strategy for a successful crush"
+            onBackClick={() => {
+              router.push(ASSISTANT_ROUTES.PARTNERS);
+            }}
+            onMenuClick={() => {
+              setOpenPopover(true);
+            }}
+          />
+          <Popover open={openPopover} onOpenChange={setOpenPopover}>
+            <PopoverTrigger asChild>
+              <div
+                className="absolute top-3 right-3 w-9 h-9 opacity-0 pointer-events-none"
+                aria-hidden="true"
+              />
+            </PopoverTrigger>
+            <PopoverContent className="w-42 p-2" align="end">
+              <div className="flex flex-col gap-1.5">
+                <button
+                  type="button"
+                  className="flex items-center gap-2 cursor-pointer w-full text-left"
+                  onClick={() => {
+                    //
+                  }}
+                >
+                  <Home className="size-5" />
+                  <span>Back to home</span>
+                </button>
+                <button
+                  type="button"
+                  className="flex items-center gap-2 cursor-pointer w-full text-left"
+                  onClick={() => {
+                    setOpenInteractiveModal(true);
+                    setOpenPopover(false);
+                  }}
+                >
+                  <Heart className="size-5" />
+                  <span>Interactive</span>
+                </button>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Chat Messages */}

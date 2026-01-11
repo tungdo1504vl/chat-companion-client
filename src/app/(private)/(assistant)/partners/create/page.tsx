@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { ASSISTANT_ROUTES } from '@/constants/routes';
-import { PartnerForm } from '@/features/partner-form';
-import { TPartnerFormData } from '@/features/partner-form/types';
-import { toast } from 'sonner';
-import { TCommonPayload } from '@/types/common';
-import { useCommonCompute } from '@/hooks/use-compute';
-import { useSession } from '@/libs/better-auth/client';
-import { TASK_TYPE } from '@/constants/task';
-import { useQueryClient } from '@/libs/react-query';
+import { useRouter } from "next/navigation";
+import { ASSISTANT_ROUTES } from "@/constants/routes";
+import { PartnerForm } from "@/features/partner-form";
+import { PageHeader } from "@/components/commons/page-header";
+import { TPartnerFormData } from "@/features/partner-form/types";
+import { toast } from "sonner";
+import { TCommonPayload } from "@/types/common";
+import { useCommonCompute } from "@/hooks/use-compute";
+import { useSession } from "@/libs/better-auth/client";
+import { TASK_TYPE } from "@/constants/task";
+import { useQueryClient } from "@/libs/react-query";
 
 export default function PartnerCreatePage() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function PartnerCreatePage() {
   const userId = session?.user.id;
 
   const handleSubmit = async (formData: TPartnerFormData) => {
-    console.log('Partner form data:', formData);
+    console.log("Partner form data:", formData);
     if (!userId) return;
     const partner_profile = {
       basic_info: {
@@ -39,21 +40,24 @@ export default function PartnerCreatePage() {
         user_id: session?.user.id,
         partner_profile: partner_profile,
       },
-      priority: 'high',
+      priority: "high",
     };
     const res = await mutatePartner.mutateAsync(payload);
-    console.log('res:', res);
+    console.log("res:", res);
     await queryClient.invalidateQueries({
-      queryKey: ['compute', TASK_TYPE.PARTNER_PROFILE_LIST],
+      queryKey: ["compute", TASK_TYPE.PARTNER_PROFILE_LIST],
     });
-    toast.success('Successfully');
+    toast.success("Successfully");
     // Navigate to partners page after form submission
     router.push(ASSISTANT_ROUTES.PARTNERS);
   };
 
   return (
-    <div className="container mx-auto max-w-2xl py-8 px-4">
-      <PartnerForm onSubmit={handleSubmit} />
+    <div className="flex flex-col min-h-screen">
+      <PageHeader title="Create Partner" onBackClick={() => router.back()} />
+      <div className="container mx-auto max-w-2xl py-8 px-4">
+        <PartnerForm onSubmit={handleSubmit} />
+      </div>
     </div>
   );
 }

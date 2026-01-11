@@ -4,7 +4,8 @@ import { lazy, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PartnerProfileHeader } from "./components";
+import { PageHeader } from "@/components/commons/page-header";
+import ProfileHeader from "@/features/profile/common/header/profile-header";
 import ProfileTab from "@/features/profile/common/tabs/profile-tab";
 import { MOCK_PARTNER_PROFILE } from "./const";
 import { usePartnerProfileForm } from "../hooks/use-partner-profile-form";
@@ -128,8 +129,12 @@ export function PartnerProfileClient({
     <div className="flex flex-col min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background border-b">
+        <PageHeader
+          title="Partner Profile"
+          onBackClick={() => router.back()}
+        />
         <div className="container mx-auto max-w-2xl px-4 py-4">
-          <PartnerProfileHeader profile={displayProfile} />
+          <ProfileHeader profile={displayProfile} />
         </div>
       </div>
 
