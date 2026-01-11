@@ -61,14 +61,11 @@ export const useGetPartnerProfile = (
         apiResponse = result as PartnerProfileApiResponse;
       }
 
-      console.log("apiResponse", apiResponse);
       // Transform API response to PartnerProfile
       return apiResponseToPartnerProfile(apiResponse);
     },
     enabled: Boolean(partnerId && currentUserId),
   });
-
-  console.log("profile", profile);
 
   return {
     profile,

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { OnboardingForm } from "@/features/onboarding/components";
 import { useOnboarding } from "@/features/onboarding/hooks/use-onboarding";
 import { TOnboardingFormData } from "@/features/onboarding/types";
@@ -12,16 +11,11 @@ import { TopProgressBar } from "@/features/partner-form/components/top-progress-
 import { ProgressIndicator } from "@/features/partner-form/components/progress-indicator";
 
 export default function OnboardingPage() {
-  const router = useRouter();
   const mutateOnboarding = useOnboarding();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
   const progress = (currentStep / totalSteps) * 100;
   const stepTitles = ["Personal Information", "Birth Details", "Location"];
-
-  const handleBackClick = () => {
-    router.back();
-  };
 
   const handleSubmit = async (formData: TOnboardingFormData) => {
     const birthDay = `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`;
@@ -55,7 +49,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="flex flex-col h-full bg-background">
-      <PageHeader title="Onboarding" onBackClick={handleBackClick} />
+      <PageHeader title="Onboarding" />
       <TopProgressBar progress={progress} />
       <div className="border-b bg-background px-4 py-3">
         <div className="container mx-auto max-w-2xl">

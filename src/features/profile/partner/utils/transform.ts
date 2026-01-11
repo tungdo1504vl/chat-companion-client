@@ -468,7 +468,10 @@ export function apiResponseToPartnerProfile(
     name: basicInfo.name || "",
     nickname: basicInfo.nickname,
     age: basicInfo.age ?? 0,
-    location: basicInfo.location || "",
+    location:
+      basicInfo.city_of_birth && basicInfo.country_of_birth
+        ? `${basicInfo.city_of_birth}, ${basicInfo.country_of_birth}`
+        : "",
     avatarUrl: basicInfo.avatar_url,
     stage: convertStageType(
       basicInfo.relationship_stage ||

@@ -69,12 +69,19 @@ export default function PartnersPage() {
   const handleCreatePartner = () => {
     router.push(ASSISTANT_ROUTES.PARTNER_CREATE);
   };
+
+  const handleBack = () => {
+    router.back();
+  };
   const hasPartners = data?.result?.partners.length > 0;
 
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <PageHeader title="Strategy for a successful crush" />
+      <PageHeader
+        title="Strategy for a successful crush"
+        onBackClick={handleBack}
+      />
 
       <div className="flex-1 overflow-y-auto px-4 overflow-x-hidden">
         {/* Title Section */}
