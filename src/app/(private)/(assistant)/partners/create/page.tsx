@@ -159,9 +159,6 @@ export default function PartnerCreatePage() {
       <TopProgressBar progress={progress} />
       <div className="container mx-auto max-w-2xl py-8 px-4">
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-2">
-            {STEP_TITLES[currentStep - 1]}
-          </h2>
           <ProgressIndicator
             currentStep={currentStep}
             totalSteps={totalSteps}

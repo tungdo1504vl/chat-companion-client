@@ -238,7 +238,7 @@ export default function PartnerForm(props: Readonly<TPartnerFormProps>) {
                   <FieldLabel className="text-muted-foreground">
                     Time of Birth
                   </FieldLabel>
-                  <div className="bg-gray-100 rounded-md p-px">
+                  <div className=" rounded-md p-px">
                     <RadioGroup
                       value={field.state.value ? "known" : "unknown"}
                       onValueChange={(value) => {
