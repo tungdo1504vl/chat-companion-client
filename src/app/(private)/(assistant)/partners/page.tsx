@@ -134,8 +134,10 @@ export default function PartnersPage() {
                   </h3>
                   <p className="text-sm text-muted-foreground">
                     {partner.partner_profile?.basic_info?.age}
-                    {partner.partner_profile?.basic_info?.location && " | "}
-                    {partner.partner_profile?.basic_info?.location}
+                    {partner.partner_profile?.basic_info?.city_of_birth &&
+                    partner.partner_profile?.basic_info?.country_of_birth
+                      ? ` - ${partner.partner_profile?.basic_info?.city_of_birth}, ${partner.partner_profile?.basic_info?.country_of_birth}`
+                      : ""}
                   </p>
                 </div>
 
