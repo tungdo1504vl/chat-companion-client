@@ -3,14 +3,14 @@ import type { ComboboxOption } from '@/components/ui/combobox';
 
 export const defaultOnboardingFormValues: TOnboardingFormData = {
   name: '',
-  birthYear: '2000',
-  birthMonth: '01',
-  birthDay: '31',
+  birthYear: '',
+  birthMonth: '',
+  birthDay: '',
   birthHour: '12',
   birthMinute: '30',
   birthPeriod: 'PM',
   birthTimeKnown: false,
-  genderAtBirth: 'male',
+  genderAtBirth: '',
   country: 'VN',
   city: '',
 };

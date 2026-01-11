@@ -7,12 +7,14 @@ export type TOnboardingFormData = {
   birthMinute: string;
   birthPeriod: 'AM' | 'PM';
   birthTimeKnown: boolean;
-  genderAtBirth: 'male' | 'female';
+  genderAtBirth: 'male' | 'female' | '';
   country: string;
   city: string;
+  birthDate?: Date; // Internal use for date picker
 };
 
 export type TOnboardingFormProps = {
   onSubmit?: (data: TOnboardingFormData) => void;
   isLoading?: boolean;
+  onStepChange?: (step: number) => void;
 };
