@@ -219,3 +219,69 @@
   background-repeat: no-repeat;
   background-position: center;
 }
+
+/* Toast Notification Styles - Color-coded by type */
+/* Success Toast - Green */
+[data-sonner-toast][data-type="success"] {
+  @apply bg-green-50 dark:bg-green-950/50 text-green-900 dark:text-green-100 border-green-200 dark:border-green-800;
+}
+
+[data-sonner-toast][data-type="success"] [data-title] {
+  @apply text-green-900 dark:text-green-100;
+}
+
+[data-sonner-toast][data-type="success"] [data-description] {
+  @apply text-green-800 dark:text-green-200;
+}
+
+/* Error Toast - Red */
+[data-sonner-toast][data-type="error"] {
+  @apply bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-100 border-red-200 dark:border-red-800;
+}
+
+[data-sonner-toast][data-type="error"] [data-title] {
+  @apply text-red-900 dark:text-red-100;
+}
+
+[data-sonner-toast][data-type="error"] [data-description] {
+  @apply text-red-800 dark:text-red-200;
+}
+
+/* Info Toast - Blue */
+[data-sonner-toast][data-type="info"] {
+  @apply bg-blue-50 dark:bg-blue-950/50 text-blue-900 dark:text-blue-100 border-blue-200 dark:border-blue-800;
+}
+
+[data-sonner-toast][data-type="info"] [data-title] {
+  @apply text-blue-900 dark:text-blue-100;
+}
+
+[data-sonner-toast][data-type="info"] [data-description] {
+  @apply text-blue-800 dark:text-blue-200;
+}
+
+/* Warning Toast - Yellow */
+[data-sonner-toast][data-type="warning"] {
+  @apply bg-yellow-50 dark:bg-yellow-950/50 text-yellow-900 dark:text-yellow-100 border-yellow-200 dark:border-yellow-800;
+}
+
+[data-sonner-toast][data-type="warning"] [data-title] {
+  @apply text-yellow-900 dark:text-yellow-100;
+}
+
+[data-sonner-toast][data-type="warning"] [data-description] {
+  @apply text-yellow-800 dark:text-yellow-200;
+}
+
+/* Loading/InProgress Toast - Blue (same as info) */
+[data-sonner-toast][data-type="loading"] {
+  @apply bg-blue-50 dark:bg-blue-950/50 text-blue-900 dark:text-blue-100 border-blue-200 dark:border-blue-800;
+}
+
+[data-sonner-toast][data-type="loading"] [data-title] {
+  @apply text-blue-900 dark:text-blue-100;
+}
+
+[data-sonner-toast][data-type="loading"] [data-description] {
+  @apply text-blue-800 dark:text-blue-200;
+}

@@ -25,7 +25,14 @@ export const useSignUpUser = () => {
         password: encryptedPassword,
       });
     },
+    onMutate: () => {
+      // Show loading toast when mutation starts
+      toast.loading("Creating account...");
+    },
     onSuccess: async (response) => {
+      // Dismiss loading toast
+      toast.dismiss();
+
       if (response && "error" in response && response.error) {
         const errorMessage = getAuthErrorMessage(
           response.error,
@@ -44,6 +51,9 @@ export const useSignUpUser = () => {
       router.refresh();
     },
     onError: (error) => {
+      // Dismiss loading toast
+      toast.dismiss();
+
       toast.error(AUTH_FAILURE_MESSAGES.SIGN_UP, {
         description: extractErrorMessage(
           error,

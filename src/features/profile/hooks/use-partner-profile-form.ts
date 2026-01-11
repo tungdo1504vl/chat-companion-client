@@ -216,8 +216,24 @@ export function usePartnerProfileForm(
     if (!draftProfile || !savedProfile || !hasUnsavedChanges) return;
 
     setError(null);
+
+    // Show loading toast when save starts
+    const loadingToastId = toast.loading("Saving profile...");
+
     // Pass both draft and saved profiles to compute diff and send only changed fields
-    updateMutation.mutate({ draft: draftProfile, saved: savedProfile });
+    updateMutation.mutate(
+      { draft: draftProfile, saved: savedProfile },
+      {
+        onSuccess: () => {
+          // Dismiss loading toast - success toast will be shown by updateMutation.onSuccess
+          toast.dismiss(loadingToastId);
+        },
+        onError: () => {
+          // Dismiss loading toast - error toast will be shown by updateMutation.onError
+          toast.dismiss(loadingToastId);
+        },
+      }
+    );
   };
 
   // Reset handler

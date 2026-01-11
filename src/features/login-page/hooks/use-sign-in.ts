@@ -25,7 +25,14 @@ export const useSignIn = () => {
         password: encryptedPassword,
       });
     },
+    onMutate: () => {
+      // Show loading toast when mutation starts
+      toast.loading("Signing in...");
+    },
     onSuccess: async (response) => {
+      // Dismiss loading toast
+      toast.dismiss();
+
       if (response && "error" in response && response.error) {
         const errorMessage = getAuthErrorMessage(
           response.error,
@@ -48,6 +55,9 @@ export const useSignIn = () => {
       router.refresh();
     },
     onError: (error) => {
+      // Dismiss loading toast
+      toast.dismiss();
+
       toast.error(AUTH_FAILURE_MESSAGES.SIGN_IN, {
         description: extractErrorMessage(
           error,
