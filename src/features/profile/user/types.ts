@@ -13,6 +13,7 @@ export type TProfileFormData = {
 export type TProfileFormProps = {
   onSubmit?: (data: TProfileFormData) => void;
   isLoading?: boolean;
+  isSuccess?: boolean;
   defaultValues?: Partial<TProfileFormData>;
 };
 
@@ -173,11 +174,29 @@ export interface TUnifiedUser {
 
 /**
  * Profile update payload structure matching API expectations
+ * All fields are nested under profile_update to match the user profile structure
  * Only includes fields that have changed
  */
 export interface TProfileUpdatePayload {
   user_id: string;
   profile_update?: {
+    personality?: {
+      love_languages?: string[];
+      communication_styles?: string[];
+      attachment_style?: string;
+      deal_breakers?: string[];
+    };
+    lifestyle?: {
+      work_schedule?: string;
+      date_budget?: number;
+      social_energy_level?: string;
+      hobbies?: string[];
+    };
+    social_links?: {
+      instagram?: string;
+    };
+    primary_love_language?: string;
+    // Basic info fields (for future use)
     name?: string;
     avatar_url?: string;
     gender?: TGender;
@@ -186,27 +205,4 @@ export interface TProfileUpdatePayload {
     country_of_birth?: string;
     city_of_birth?: string;
   };
-  personality?: {
-    love_languages?: string[];
-    communication_styles?: string[];
-    attachment_style?: string;
-    deal_breakers?: string[];
-  };
-  lifestyle?: {
-    work_schedule?: string;
-    date_budget?: number;
-    social_energy_level?: string;
-    hobbies?: string[];
-  };
-  social_links?: {
-    instagram?: string;
-  };
-  primary_love_language?: string;
-  communication_styles?: string[];
-  attachment_style?: string;
-  deal_breakers?: string[];
-  work_schedule?: string;
-  date_budget?: number;
-  social_energy?: string;
-  hobbies?: string[];
 }

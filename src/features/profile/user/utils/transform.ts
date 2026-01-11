@@ -9,6 +9,7 @@ import { defaultProfileFormValues } from "../const";
  * Transform API profile response to form data format
  * Returns empty values for missing optional fields instead of defaults
  * to avoid assuming user preferences
+ * Prioritizes nested structure (personality, lifestyle) over top-level fields
  */
 export function profileToFormData(
   profile: TUserProfile | null | undefined
@@ -17,17 +18,48 @@ export function profileToFormData(
     return defaultProfileFormValues;
   }
 
+  // Prioritize nested structure over top-level fields
+  // Use nested values if available, otherwise fall back to top-level
+  const communicationStyles =
+    profile.personality?.communication_styles?.length > 0
+      ? profile.personality.communication_styles
+      : profile.communication_styles || [];
+
+  const attachmentStyle =
+    profile.personality?.attachment_style || profile.attachment_style || "";
+
+  const dealBreakers =
+    profile.personality?.deal_breakers?.length > 0
+      ? profile.personality.deal_breakers
+      : profile.deal_breakers || [];
+
+  const workSchedule =
+    profile.lifestyle?.work_schedule || profile.work_schedule || "";
+
+  const dateBudget =
+    profile.lifestyle?.date_budget !== undefined
+      ? profile.lifestyle.date_budget
+      : profile.date_budget ?? defaultProfileFormValues.dateBudget;
+
+  const socialEnergy =
+    profile.lifestyle?.social_energy_level || profile.social_energy || "";
+
+  const hobbies =
+    profile.lifestyle?.hobbies?.length > 0
+      ? profile.lifestyle.hobbies
+      : profile.hobbies || [];
+
   return {
     // Optional fields - return empty values if missing
     primaryLoveLanguage: profile.primary_love_language || "",
-    communicationStyles: profile.communication_styles || [],
-    attachmentStyle: profile.attachment_style || "",
-    workSchedule: profile.work_schedule || "",
-    socialEnergy: profile.social_energy || "",
+    communicationStyles,
+    attachmentStyle,
+    workSchedule,
+    socialEnergy,
     // Required fields - use defaults only for fields that need them
-    dealBreakers: profile.deal_breakers || [],
-    dateBudget: profile.date_budget ?? defaultProfileFormValues.dateBudget,
-    hobbies: profile.hobbies || [],
+    dealBreakers,
+    dateBudget,
+    hobbies,
     instagramUrl: profile.social_links?.instagram || "",
   };
 }
@@ -54,7 +86,7 @@ export function formDataToProfileUpdate(
 /**
  * Transform form data to update payload format
  * Only includes fields that have changed compared to initial values
- * Builds payload according to API spec with nested structures
+ * All fields are nested under profile_update to match the user profile structure
  */
 export function formDataToUpdatePayload(
   currentData: TProfileFormData,
@@ -65,115 +97,106 @@ export function formDataToUpdatePayload(
     user_id: userId,
   };
 
-  // Track if any fields in each section changed
-  let hasPersonalityChanges = false;
-  let hasLifestyleChanges = false;
-  let hasSocialLinksChanges = false;
-  let hasTopLevelChanges = false;
+  // Build profile_update object with all changed fields
+  const profileUpdate: {
+    personality?: {
+      love_languages?: string[];
+      communication_styles?: string[];
+      attachment_style?: string;
+      deal_breakers?: string[];
+    };
+    lifestyle?: {
+      work_schedule?: string;
+      date_budget?: number;
+      social_energy_level?: string;
+      hobbies?: string[];
+    };
+    social_links?: {
+      instagram?: string;
+    };
+    primary_love_language?: string;
+  } = {};
+
+  // Track if any changes were made
+  let hasChanges = false;
 
   // Check personality fields
-  const personalityChanges: TProfileUpdatePayload["personality"] = {};
+  const personalityChanges: {
+    love_languages?: string[];
+    communication_styles?: string[];
+    attachment_style?: string;
+    deal_breakers?: string[];
+  } = {};
+
   if (
     JSON.stringify(currentData.communicationStyles) !==
     JSON.stringify(initialData.communicationStyles)
   ) {
     personalityChanges.communication_styles = currentData.communicationStyles;
-    hasPersonalityChanges = true;
-    hasTopLevelChanges = true;
+    hasChanges = true;
   }
   if (currentData.attachmentStyle !== initialData.attachmentStyle) {
     personalityChanges.attachment_style = currentData.attachmentStyle;
-    hasPersonalityChanges = true;
-    hasTopLevelChanges = true;
+    hasChanges = true;
   }
   if (
     JSON.stringify(currentData.dealBreakers) !==
     JSON.stringify(initialData.dealBreakers)
   ) {
     personalityChanges.deal_breakers = currentData.dealBreakers;
-    hasPersonalityChanges = true;
-    hasTopLevelChanges = true;
+    hasChanges = true;
   }
-  if (hasPersonalityChanges) {
-    payload.personality = personalityChanges;
+  if (Object.keys(personalityChanges).length > 0) {
+    profileUpdate.personality = personalityChanges;
   }
 
   // Check lifestyle fields
-  const lifestyleChanges: TProfileUpdatePayload["lifestyle"] = {};
+  const lifestyleChanges: {
+    work_schedule?: string;
+    date_budget?: number;
+    social_energy_level?: string;
+    hobbies?: string[];
+  } = {};
+
   if (currentData.workSchedule !== initialData.workSchedule) {
     lifestyleChanges.work_schedule = currentData.workSchedule;
-    hasLifestyleChanges = true;
-    hasTopLevelChanges = true;
+    hasChanges = true;
   }
   if (currentData.dateBudget !== initialData.dateBudget) {
     lifestyleChanges.date_budget = currentData.dateBudget;
-    hasLifestyleChanges = true;
-    hasTopLevelChanges = true;
+    hasChanges = true;
   }
   if (currentData.socialEnergy !== initialData.socialEnergy) {
     lifestyleChanges.social_energy_level = currentData.socialEnergy;
-    hasLifestyleChanges = true;
-    hasTopLevelChanges = true;
+    hasChanges = true;
   }
   if (
     JSON.stringify(currentData.hobbies) !== JSON.stringify(initialData.hobbies)
   ) {
     lifestyleChanges.hobbies = currentData.hobbies;
-    hasLifestyleChanges = true;
-    hasTopLevelChanges = true;
+    hasChanges = true;
   }
-  if (hasLifestyleChanges) {
-    payload.lifestyle = lifestyleChanges;
+  if (Object.keys(lifestyleChanges).length > 0) {
+    profileUpdate.lifestyle = lifestyleChanges;
   }
 
   // Check social links
-  const socialLinksChanges: TProfileUpdatePayload["social_links"] = {};
   if (currentData.instagramUrl !== initialData.instagramUrl) {
-    socialLinksChanges.instagram = currentData.instagramUrl || "";
-    hasSocialLinksChanges = true;
-  }
-  if (hasSocialLinksChanges) {
-    payload.social_links = socialLinksChanges;
+    profileUpdate.social_links = {
+      instagram: currentData.instagramUrl || "",
+    };
+    hasChanges = true;
   }
 
-  // Check top-level fields (primary_love_language)
+  // Check primary_love_language
   if (currentData.primaryLoveLanguage !== initialData.primaryLoveLanguage) {
-    payload.primary_love_language = currentData.primaryLoveLanguage;
-    hasTopLevelChanges = true;
+    profileUpdate.primary_love_language = currentData.primaryLoveLanguage;
+    hasChanges = true;
   }
 
-  // Add top-level fields if they changed (for backward compatibility)
-  if (hasTopLevelChanges) {
-    if (
-      JSON.stringify(currentData.communicationStyles) !==
-      JSON.stringify(initialData.communicationStyles)
-    ) {
-      payload.communication_styles = currentData.communicationStyles;
-    }
-    if (currentData.attachmentStyle !== initialData.attachmentStyle) {
-      payload.attachment_style = currentData.attachmentStyle;
-    }
-    if (
-      JSON.stringify(currentData.dealBreakers) !==
-      JSON.stringify(initialData.dealBreakers)
-    ) {
-      payload.deal_breakers = currentData.dealBreakers;
-    }
-    if (currentData.workSchedule !== initialData.workSchedule) {
-      payload.work_schedule = currentData.workSchedule;
-    }
-    if (currentData.dateBudget !== initialData.dateBudget) {
-      payload.date_budget = currentData.dateBudget;
-    }
-    if (currentData.socialEnergy !== initialData.socialEnergy) {
-      payload.social_energy = currentData.socialEnergy;
-    }
-    if (
-      JSON.stringify(currentData.hobbies) !==
-      JSON.stringify(initialData.hobbies)
-    ) {
-      payload.hobbies = currentData.hobbies;
-    }
+  // Only add profile_update if there are changes
+  if (hasChanges) {
+    payload.profile_update = profileUpdate;
   }
 
   return payload;

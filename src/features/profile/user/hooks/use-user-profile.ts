@@ -17,6 +17,7 @@ export const useUserProfile = () => {
     data: profileResponse,
     isLoading: isProfileLoading,
     error,
+    refetch,
   } = useQuery<TCommonResponse<TUserProfileResponse>>({
     queryKey: ["user-profile", userId],
     queryFn: () =>
@@ -46,5 +47,6 @@ export const useUserProfile = () => {
     user,
     isLoading: isSessionLoading || isProfileLoading,
     error: error ?? null,
+    refetch,
   };
 };

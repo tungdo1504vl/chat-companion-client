@@ -27,13 +27,11 @@ export const profileFormSchema = z
     // Required fields
     dealBreakers: z
       .array(z.string().min(1, "Deal-breaker cannot be empty"))
-      .min(1, "At least one deal-breaker is required"),
+      .optional(),
     workSchedule: z.string().optional(),
     dateBudget: z.number().min(10).max(1000),
     socialEnergy: z.string().optional(),
-    hobbies: z
-      .array(z.string().min(1, "Hobby cannot be empty"))
-      .min(1, "At least one hobby is required"),
+    hobbies: z.array(z.string().min(1, "Hobby cannot be empty")).optional(),
     instagramUrl: urlSchema,
   })
   .strict();

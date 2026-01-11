@@ -38,7 +38,7 @@ export const CheckboxGroupItem = React.forwardRef<
         <Label
           htmlFor={itemId}
           className={cn(
-            'flex items-center justify-center px-6 py-2.5 rounded-full border-2 cursor-pointer transition-all',
+            'flex items-center justify-center px-6 py-2.5 rounded-full border-2 cursor-pointer transition-colors duration-[120ms] ease-out',
             'peer-data-[state=checked]:bg-primary/10 peer-data-[state=checked]:border-primary/10 peer-data-[state=checked]:text-primary',
             'peer-data-[state=unchecked]:bg-transparent peer-data-[state=unchecked]:border-transparent',
             'hover:border-primary',

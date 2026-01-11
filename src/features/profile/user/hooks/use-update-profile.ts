@@ -38,55 +38,18 @@ export const useUpdateProfile = () => {
       );
 
       // Convert payload to task input args format
-      // The API expects a flat structure, so we need to serialize nested objects
-      const inputArgs: TTaskInputArgs = {
+      // All fields are nested under profile_update to match the user profile structure
+      const inputArgs: Record<string, unknown> = {
         user_id: updatePayload.user_id,
       };
 
-      // Add nested objects as JSON strings if they exist
+      // Add profile_update with all nested fields in original format
       if (updatePayload.profile_update) {
-        inputArgs.profile_update = JSON.stringify(updatePayload.profile_update);
-      }
-      if (updatePayload.personality) {
-        inputArgs.personality = JSON.stringify(updatePayload.personality);
-      }
-      if (updatePayload.lifestyle) {
-        inputArgs.lifestyle = JSON.stringify(updatePayload.lifestyle);
-      }
-      if (updatePayload.social_links) {
-        inputArgs.social_links = JSON.stringify(updatePayload.social_links);
-      }
-
-      // Add top-level fields if they exist
-      if (updatePayload.primary_love_language !== undefined) {
-        inputArgs.primary_love_language = updatePayload.primary_love_language;
-      }
-      if (updatePayload.communication_styles !== undefined) {
-        inputArgs.communication_styles = JSON.stringify(
-          updatePayload.communication_styles
-        );
-      }
-      if (updatePayload.attachment_style !== undefined) {
-        inputArgs.attachment_style = updatePayload.attachment_style;
-      }
-      if (updatePayload.deal_breakers !== undefined) {
-        inputArgs.deal_breakers = JSON.stringify(updatePayload.deal_breakers);
-      }
-      if (updatePayload.work_schedule !== undefined) {
-        inputArgs.work_schedule = updatePayload.work_schedule;
-      }
-      if (updatePayload.date_budget !== undefined) {
-        inputArgs.date_budget = updatePayload.date_budget;
-      }
-      if (updatePayload.social_energy !== undefined) {
-        inputArgs.social_energy = updatePayload.social_energy;
-      }
-      if (updatePayload.hobbies !== undefined) {
-        inputArgs.hobbies = JSON.stringify(updatePayload.hobbies);
+        inputArgs.profile_update = updatePayload.profile_update;
       }
 
       return userService.updateUserProfile<TUserProfileResponse>(
-        inputArgs,
+        inputArgs as unknown as TTaskInputArgs,
         "medium"
       );
     },

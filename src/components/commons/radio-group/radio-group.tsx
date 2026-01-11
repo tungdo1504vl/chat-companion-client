@@ -34,7 +34,7 @@ export const RadioGroupItem = React.forwardRef<
       />
       <Label
         htmlFor={itemId}
-        className="flex items-center justify-center px-6 py-2.5 rounded-full border-2 cursor-pointer transition-all whitespace-nowrap
+        className="flex items-center justify-center px-6 py-2.5 rounded-full border-2 cursor-pointer transition-colors duration-[120ms] ease-out whitespace-nowrap
                  peer-data-[state=checked]:bg-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-primary-foreground
                  peer-data-[state=unchecked]:bg-transparent peer-data-[state=unchecked]:border-gray-300 peer-data-[state=unchecked]:text-foreground
                  hover:border-primary"

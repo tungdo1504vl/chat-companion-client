@@ -10,7 +10,12 @@ import { TProfileFormData } from "../types";
  * Tracks initial form values for change detection
  */
 export const useProfileForm = () => {
-  const { user, isLoading: isFetching, error: fetchError } = useUserProfile();
+  const {
+    user,
+    isLoading: isFetching,
+    error: fetchError,
+    refetch,
+  } = useUserProfile();
   const {
     updateProfileAsync,
     isLoading: isUpdating,
@@ -64,5 +69,6 @@ export const useProfileForm = () => {
     handleSubmit,
     isSuccess,
     reset,
+    refetch,
   };
 };
