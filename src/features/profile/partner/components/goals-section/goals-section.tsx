@@ -21,8 +21,8 @@ export function GoalsSection({
   className,
 }: GoalsSectionProps) {
   const options: PillButtonOption<GoalType>[] = GOAL_OPTIONS.map((goal) => ({
-    value: goal,
-    label: goal,
+    value: goal.value,
+    label: goal.label,
   }));
 
   return (

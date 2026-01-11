@@ -70,6 +70,16 @@ const userService = {
   },
 
   /**
+   * Update a partner profile
+   */
+  updatePartnerProfile<TResult = unknown>(
+    inputArgs: TTaskInputArgs,
+    priority: string = "high"
+  ): Promise<TCommonResponse<TResult>> {
+    return createTask<TResult>("partner_profile_update", inputArgs, priority);
+  },
+
+  /**
    * Get insights for a partner profile
    */
   getPartnerProfileInsights<TResult = unknown>(

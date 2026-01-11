@@ -50,14 +50,14 @@ const SOCIAL_ENERGY_OPTIONS = [
 // Helper to convert partner profile work rhythm to user profile format
 const convertWorkRhythmToUserFormat = (value?: WorkRhythm): string => {
   if (!value) return "";
-  // Map partner profile values to user profile values
+  // Map partner profile values (snake_case) to user profile values
   const mapping: Record<string, string> = {
-    "9–5": "nine_to_five",
-    "Busy / Set Hours": "nine_to_five",
-    Flexible: "flexible_remote",
-    Remote: "flexible_remote",
+    nine_to_five: "nine_to_five",
+    busy_set_hours: "nine_to_five",
+    flexible: "flexible_remote",
+    remote: "flexible_remote",
   };
-  return mapping[value] || "";
+  return mapping[value] || value;
 };
 
 // Helper to convert user profile work schedule to partner profile format
@@ -65,8 +65,8 @@ const convertWorkScheduleToPartnerFormat = (
   value: string
 ): WorkRhythm | undefined => {
   const mapping: Record<string, WorkRhythm> = {
-    nine_to_five: "9–5",
-    flexible_remote: "Flexible",
+    nine_to_five: "nine_to_five",
+    flexible_remote: "flexible",
   };
   return mapping[value];
 };
@@ -74,13 +74,13 @@ const convertWorkScheduleToPartnerFormat = (
 // Helper to convert partner profile social energy to user profile format
 const convertSocialEnergyToUserFormat = (value?: SocialEnergyLevel): string => {
   if (!value) return "";
-  // Map partner profile values to user profile values
+  // Map partner profile values (snake_case) to user profile values
   const mapping: Record<string, string> = {
-    Introvert: "low",
-    Ambivert: "balanced",
-    Extrovert: "high",
+    introvert: "low",
+    balanced: "balanced",
+    extrovert: "high",
   };
-  return mapping[value] || value.toLowerCase();
+  return mapping[value] || value;
 };
 
 // Helper to convert user profile social energy to partner profile format
@@ -88,9 +88,9 @@ const convertSocialEnergyToPartnerFormat = (
   value: string
 ): SocialEnergyLevel | undefined => {
   const mapping: Record<string, SocialEnergyLevel> = {
-    low: "Introvert",
-    balanced: "Ambivert",
-    high: "Extrovert",
+    low: "introvert",
+    balanced: "balanced",
+    high: "extrovert",
   };
   return mapping[value];
 };
@@ -99,18 +99,18 @@ const convertSocialEnergyToPartnerFormat = (
 const convertDateBudgetToNumber = (budget?: DateBudget): number => {
   if (!budget) return 50; // Default to middle
   const mapping: Record<DateBudget, number> = {
-    Low: 50,
-    Balanced: 150,
-    High: 500,
+    low: 50,
+    balanced: 150,
+    high: 500,
   };
   return mapping[budget] || 150;
 };
 
 // Helper to convert number to date budget string
 const convertNumberToDateBudget = (value: number): DateBudget => {
-  if (value <= 50) return "Low";
-  if (value <= 150) return "Balanced";
-  return "High";
+  if (value <= 50) return "low";
+  if (value <= 150) return "balanced";
+  return "high";
 };
 
 export function LifestyleSnapshotSection({
@@ -125,8 +125,13 @@ export function LifestyleSnapshotSection({
   const [hobbyPopoverOpen, setHobbyPopoverOpen] = useState(false);
 
   const availableHobbies = HOBBY_OPTIONS.filter(
-    (hobby) => !profile.hobbies.includes(hobby)
+    (hobby) => !profile.hobbies.includes(hobby.value)
   );
+
+  const getHobbyLabel = (value: Hobby): string => {
+    const option = HOBBY_OPTIONS.find((opt) => opt.value === value);
+    return option?.label || value;
+  };
 
   const handleToggleFavorite = (hobby: Hobby) => {
     if (!onFavoriteHobbiesChange) return;
@@ -353,7 +358,7 @@ export function LifestyleSnapshotSection({
                   className="rounded-full flex items-center gap-1"
                 >
                   <Hash className="size-3" />
-                  {hobby}
+                  {getHobbyLabel(hobby)}
                   {onFavoriteHobbiesChange && (
                     <button
                       type="button"
@@ -398,12 +403,12 @@ export function LifestyleSnapshotSection({
                   <div className="flex flex-col gap-1">
                     {availableHobbies.map((hobby) => (
                       <button
-                        key={hobby}
+                        key={hobby.value}
                         type="button"
-                        onClick={() => handleAddHobby(hobby)}
+                        onClick={() => handleAddHobby(hobby.value)}
                         className="text-left px-2 py-1.5 text-sm rounded hover:bg-accent"
                       >
-                        {hobby}
+                        {hobby.label}
                       </button>
                     ))}
                   </div>

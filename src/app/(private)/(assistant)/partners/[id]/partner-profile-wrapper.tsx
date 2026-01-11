@@ -1,7 +1,7 @@
 "use client";
 
 import { PartnerProfileClient } from "@/features/profile/partner/partner-profile-client";
-import { usePartnerProfile } from "@/features/profile/partner/hooks/use-partner-profile";
+import { useGetPartnerProfile } from "@/features/profile/partner/hooks/use-partner-profile";
 import { MOCK_PARTNER_PROFILE } from "@/features/profile/partner/const";
 
 type PartnerProfileWrapperProps = Readonly<{
@@ -13,16 +13,7 @@ export function PartnerProfileWrapper({
   partnerId,
   userId,
 }: PartnerProfileWrapperProps) {
-  const { profile, isLoading, error } = usePartnerProfile(partnerId, userId);
-
-  // Show loading state (optional - you might want a proper loading component)
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">Loading partner profile...</p>
-      </div>
-    );
-  }
+  const { profile, isLoading, error } = useGetPartnerProfile(partnerId, userId);
 
   // Show error state
   if (error) {

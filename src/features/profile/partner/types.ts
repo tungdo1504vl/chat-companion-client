@@ -1,88 +1,88 @@
-export type GoalType = "For Fun" | "Long-term" | "Date to Marry" | "Unclear";
+export type GoalType = "for_fun" | "long_term" | "date_to_marry" | "unclear";
 
 export type LoveLanguage =
-  | "Words of Affirmation"
-  | "Quality Time"
-  | "Acts of Service"
-  | "Receiving Gifts"
-  | "Physical Touch";
+  | "words_of_affirmation"
+  | "quality_time"
+  | "acts_of_service"
+  | "receiving_gifts"
+  | "physical_touch";
 
 export type CommunicationStyle =
-  | "Direct"
-  | "Playful"
-  | "Soft & Caring"
-  | "Avoid Conflict"
-  | "Logical"
-  | "Emotional"
-  | "Deep Talks"
-  | "Daily Texting"
-  | "Calls Only";
+  | "direct"
+  | "playful"
+  | "soft_caring"
+  | "avoid_conflict"
+  | "logical"
+  | "emotional"
+  | "deep_talks"
+  | "daily_texting"
+  | "calls_only";
 
 export type AttachmentTendency =
-  | "Secure"
-  | "Anxious"
-  | "Avoidant"
-  | "Secure-Leaning Anxious"
-  | "Secure-Leaning Avoidant"
-  | "Anxious-Avoidant"
-  | "Not sure"
-  | "Exploring";
+  | "secure"
+  | "anxious"
+  | "avoidant"
+  | "secure_leaning_anxious"
+  | "secure_leaning_avoidant"
+  | "anxious_avoidant"
+  | "not_sure"
+  | "exploring";
 
 export type DealBreaker =
-  | "Smoking"
-  | "Bad Hygiene"
-  | "Dishonesty"
-  | "Ghosting / prolonged silence"
-  | "Lack of respect"
-  | "Excessive jealousy"
-  | "Unclear relationship intentions"
-  | "Misaligned long-term goals"
-  | "Fundamentally different core values"
-  | "Unwillingness to commit"
-  | "Controlling / manipulative behavior"
-  | "Disrespect for personal boundaries";
+  | "smoking"
+  | "bad_hygiene"
+  | "dishonesty"
+  | "ghosting_prolonged_silence"
+  | "lack_of_respect"
+  | "excessive_jealousy"
+  | "unclear_relationship_intentions"
+  | "misaligned_long_term_goals"
+  | "fundamentally_different_core_values"
+  | "unwillingness_to_commit"
+  | "controlling_manipulative_behavior"
+  | "disrespect_for_personal_boundaries";
 
-export type WorkRhythm = "Busy / Set Hours" | "Flexible" | "Remote" | "9–5";
+export type WorkRhythm = "busy_set_hours" | "flexible" | "remote" | "nine_to_five";
 
-export type SocialEnergyLevel = "Introvert" | "Ambivert" | "Extrovert";
+export type SocialEnergyLevel = "introvert" | "balanced" | "extrovert";
 
-export type DateBudget = "Low" | "Balanced" | "High"; // Maps to $, $$, $$$
+export type DateBudget = "low" | "balanced" | "high"; // Maps to $, $$, $$$
 
 export type Hobby =
-  | "Travel"
-  | "Food & Cafe"
-  | "Cooking"
-  | "Baking"
-  | "Fitness"
-  | "Gym"
-  | "Yoga"
-  | "Hiking"
-  | "Outdoor"
-  | "Photography"
-  | "Music"
-  | "Concert"
-  | "Movies"
-  | "Netflix"
-  | "Reading"
-  | "Gaming";
+  | "travel"
+  | "food_cafe"
+  | "cooking"
+  | "baking"
+  | "fitness"
+  | "gym"
+  | "yoga"
+  | "hiking"
+  | "outdoor"
+  | "photography"
+  | "music"
+  | "concert"
+  | "movies"
+  | "netflix"
+  | "reading"
+  | "gaming";
 
-export type InterestLevel = "Low" | "Medium" | "High";
+export type InterestLevel = "low" | "medium" | "high";
 
-export type MoodTrend = "Excited" | "Calm" | "Stressed" | "Happy" | "Neutral";
+export type MoodTrend = "excited" | "calm" | "stressed" | "happy" | "neutral";
 
 export type StageType =
-  | "Dating"
-  | "Dating Exclusively"
-  | "In a Relationship"
-  | "Engaged"
-  | "Married";
+  | "dating"
+  | "dating_exclusively"
+  | "in_a_relationship"
+  | "engaged"
+  | "married";
 
 export type SpecialDayType =
-  | "Birthday"
-  | "Our Start Date"
-  | "Christmas"
-  | "Int'l Women's Day"
-  | "Custom";
+  | "birthday"
+  | "our_start_date"
+  | "christmas"
+  | "intl_womens_day"
+  | "custom";
 
 export interface SpecialDay {
   id: string;
@@ -266,6 +266,7 @@ export interface AttachmentTendencyApi {
 /**
  * API response type matching the actual backend structure
  * This represents the exact structure returned from the API
+ * Note: This is the nested partner_profile object structure
  */
 export interface PartnerProfileApiResponse {
   partner_id: string;
@@ -311,4 +312,13 @@ export interface PartnerProfileApiResponse {
   gift_ideas?: GiftIdeaApi[];
   social_energy_level?: string;
   social_energy_level_is_ai_generated?: boolean;
+}
+
+/**
+ * Wrapper type for the full API response
+ * The API returns: { partner_id: string, partner_profile: PartnerProfileApiResponse }
+ */
+export interface PartnerProfileApiWrapper {
+  partner_id: string;
+  partner_profile: PartnerProfileApiResponse;
 }

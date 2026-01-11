@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { usePartnerProfileStore } from "../partner/store/hooks";
 import { profilesEqual } from "../partner/store/partner-profile-store";
-import { savePartnerProfile } from "../partner/api/partner-profile-api";
+import { useUpdatePartnerProfile } from "../partner/hooks/use-update-partner-profile";
 import type {
   PartnerProfile,
   GoalType,
@@ -77,15 +77,34 @@ export function usePartnerProfileForm(
   const updateFieldFromStore = usePartnerProfileStore(
     (state) => state.updateField
   );
-  //   const actions = usePartnerProfileStore((state) => ({
-  //     initialize: state.initialize,
-  //     updateField: state.updateField,
-  //     setSavedProfile: state.setSavedProfile,
-  //     resetToSaved: state.resetToSaved,
-  //     setIsSaving: state.setIsSaving,
-  //     setError: state.setError,
-  //   }));
 
+  // Use the update mutation hook
+  const updateMutation = useUpdatePartnerProfile({
+    onSuccess: (data) => {
+      // Update the saved profile in the store with the draft profile
+      // The API response might contain the updated profile, but we'll use the draft
+      // since we already have it transformed correctly
+      if (draftProfile) {
+        setSavedProfile(draftProfile);
+      }
+      toast.success("Profile saved successfully");
+    },
+    onError: (err) => {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to save profile";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    },
+  });
+
+  // Sync mutation's isPending with store's isSaving
+  useEffect(() => {
+    if (updateMutation.isPending !== isSaving) {
+      setIsSaving(updateMutation.isPending);
+    }
+  }, [updateMutation.isPending, isSaving, setIsSaving]);
+
+  console.log("initialProfile", initialProfile);
   // Initialize store on mount or when profile ID changes
   useEffect(() => {
     // Initialize if no saved profile exists, or if the profile ID has changed
@@ -191,25 +210,14 @@ export function usePartnerProfileForm(
     },
   };
 
-  // Save handler
+  // Save handler - uses the update mutation hook
+  // Sends only changed fields by comparing draft with saved profile
   const handleSave = async () => {
-    if (!draftProfile || !hasUnsavedChanges) return;
+    if (!draftProfile || !savedProfile || !hasUnsavedChanges) return;
 
-    setIsSaving(true);
     setError(null);
-
-    try {
-      const response = await savePartnerProfile(draftProfile);
-      setSavedProfile(response.profile);
-      toast.success(response.message || "Profile saved successfully");
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to save profile";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsSaving(false);
-    }
+    // Pass both draft and saved profiles to compute diff and send only changed fields
+    updateMutation.mutate({ draft: draftProfile, saved: savedProfile });
   };
 
   // Reset handler
@@ -221,7 +229,8 @@ export function usePartnerProfileForm(
   return {
     draftProfile,
     savedProfile,
-    isSaving,
+    // Use mutation's isPending for accurate saving state
+    isSaving: updateMutation.isPending || isSaving,
     hasUnsavedChanges,
     error,
     updateHandlers,

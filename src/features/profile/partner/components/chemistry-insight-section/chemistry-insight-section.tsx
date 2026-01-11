@@ -14,16 +14,46 @@ export function ChemistryInsightSection({
   profile,
   className,
 }: ChemistryInsightSectionProps) {
+  const getInterestLevelLabel = (level?: string) => {
+    switch (level) {
+      case "high":
+        return "High";
+      case "medium":
+        return "Medium";
+      case "low":
+        return "Low";
+      default:
+        return level || "";
+    }
+  };
+
   const getInterestLevelColor = (level?: string) => {
     switch (level) {
-      case "High":
+      case "high":
         return "text-green-600";
-      case "Medium":
+      case "medium":
         return "text-yellow-600";
-      case "Low":
+      case "low":
         return "text-red-600";
       default:
         return "text-muted-foreground";
+    }
+  };
+
+  const getMoodTrendLabel = (trend?: string) => {
+    switch (trend) {
+      case "excited":
+        return "Excited";
+      case "calm":
+        return "Calm";
+      case "stressed":
+        return "Stressed";
+      case "happy":
+        return "Happy";
+      case "neutral":
+        return "Neutral";
+      default:
+        return trend || "";
     }
   };
 
@@ -51,7 +81,7 @@ export function ChemistryInsightSection({
                     getInterestLevelColor(profile.interestLevel)
                   )}
                 >
-                  {profile.interestLevel}
+                  {getInterestLevelLabel(profile.interestLevel)}
                 </span>
                 {profile.interestLevelConfidence && (
                   <span className="text-sm text-muted-foreground">
@@ -75,7 +105,7 @@ export function ChemistryInsightSection({
               <div className="flex items-center gap-2">
                 <TrendingUp className="size-5 text-primary" />
                 <span className="text-lg font-semibold text-primary">
-                  {profile.moodTrend}
+                  {getMoodTrendLabel(profile.moodTrend)}
                 </span>
               </div>
             </div>

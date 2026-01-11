@@ -33,14 +33,14 @@ const ATTACHMENT_TENDENCY_OPTIONS: {
   value: AttachmentTendency;
   label: string;
 }[] = [
-  { value: "Secure", label: "Secure" },
-  { value: "Anxious", label: "Anxious" },
-  { value: "Avoidant", label: "Avoidant" },
-  { value: "Secure-Leaning Anxious", label: "Secure-Leaning Anxious" },
-  { value: "Secure-Leaning Avoidant", label: "Secure-Leaning Avoidant" },
-  { value: "Anxious-Avoidant", label: "Anxious-Avoidant" },
-  { value: "Not sure", label: "Not sure" },
-  { value: "Exploring", label: "Exploring" },
+  { value: "secure", label: "Secure" },
+  { value: "anxious", label: "Anxious" },
+  { value: "avoidant", label: "Avoidant" },
+  { value: "secure_leaning_anxious", label: "Secure-Leaning Anxious" },
+  { value: "secure_leaning_avoidant", label: "Secure-Leaning Avoidant" },
+  { value: "anxious_avoidant", label: "Anxious-Avoidant" },
+  { value: "not_sure", label: "Not sure" },
+  { value: "exploring", label: "Exploring" },
 ];
 
 interface PersonalityPreferenceSectionProps {
@@ -112,8 +112,20 @@ export function PersonalityPreferenceSection({
   };
 
   const availableDealBreakers = DEAL_BREAKER_OPTIONS.filter(
-    (db) => !profile.dealBreakers.includes(db)
+    (db) => !profile.dealBreakers.includes(db.value)
   );
+
+  const getDealBreakerLabel = (value: DealBreaker): string => {
+    const option = DEAL_BREAKER_OPTIONS.find((opt) => opt.value === value);
+    return option?.label || value;
+  };
+
+  const getAttachmentTendencyLabel = (value: AttachmentTendency): string => {
+    const option = ATTACHMENT_TENDENCY_OPTIONS.find(
+      (opt) => opt.value === value
+    );
+    return option?.label || value;
+  };
 
   return (
     <Card className={className}>
@@ -185,7 +197,9 @@ export function PersonalityPreferenceSection({
               <div className="rounded-lg border bg-card p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="font-medium">
-                    {profile.attachmentTendency.tendency}
+                    {getAttachmentTendencyLabel(
+                      profile.attachmentTendency.tendency
+                    )}
                   </span>
                   {profile.attachmentTendency.label && (
                     <Badge variant="outline" className="text-xs">
@@ -212,7 +226,7 @@ export function PersonalityPreferenceSection({
                 variant="destructive"
                 className="rounded-full flex items-center gap-1"
               >
-                {dealBreaker}
+                {getDealBreakerLabel(dealBreaker)}
                 {onDealBreakersChange && (
                   <button
                     type="button"
@@ -242,12 +256,12 @@ export function PersonalityPreferenceSection({
                   <div className="flex flex-col gap-1">
                     {availableDealBreakers.map((dealBreaker) => (
                       <button
-                        key={dealBreaker}
+                        key={dealBreaker.value}
                         type="button"
-                        onClick={() => handleAddDealBreaker(dealBreaker)}
+                        onClick={() => handleAddDealBreaker(dealBreaker.value)}
                         className="text-left px-2 py-1.5 text-sm rounded hover:bg-accent"
                       >
-                        {dealBreaker}
+                        {dealBreaker.label}
                       </button>
                     ))}
                   </div>
