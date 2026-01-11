@@ -1,11 +1,8 @@
 "use client";
 
-import { Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "@/libs/better-auth/client";
 import { PageHeader } from "@/components/commons/page-header";
+import { ProfileInfo } from "@/features/profile/common/header";
 
 interface ProfileHeaderProps {
   readonly onBackClick?: () => void;
@@ -22,6 +19,14 @@ export default function ProfileHeader({
 }: Readonly<ProfileHeaderProps>) {
   const { data: session } = useSession();
 
+  const userName = session?.user?.name || "";
+  const userImage = session?.user?.image || undefined;
+  const initials = userName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
+
   return (
     <>
       {/* Header */}
@@ -32,37 +37,14 @@ export default function ProfileHeader({
       />
 
       {/* Profile Info */}
-      <div className="flex flex-col items-center space-y-3 mb-6 px-4 pt-6">
-        <div className="relative">
-          {isLoading ? (
-            <Skeleton className="h-24 w-24 rounded-full" />
-          ) : (
-            <Avatar className="h-24 w-24 border-2 border-primary">
-              <AvatarImage
-                src={session?.user?.image || "/images/placeholder-avatar.png"}
-                alt="Profile"
-              />
-              <AvatarFallback>{session?.user?.name}</AvatarFallback>
-            </Avatar>
-          )}
-          {!isLoading && (
-            <Button
-              variant="default"
-              size="icon"
-              className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary"
-              onClick={onAvatarEditClick}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-        <div className="text-center space-y-1">
-          {isLoading ? (
-            <Skeleton className="h-8 w-32" />
-          ) : (
-            <h2 className="text-2xl font-bold">{session?.user?.name}</h2>
-          )}
-        </div>
+      <div className="px-4">
+        <ProfileInfo
+          name={userName}
+          avatarUrl={userImage}
+          initials={initials}
+          isLoading={isLoading}
+          onAvatarEditClick={onAvatarEditClick}
+        />
       </div>
     </>
   );

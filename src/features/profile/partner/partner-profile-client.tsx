@@ -1,12 +1,12 @@
 "use client";
 
-import { lazy, useState, useMemo, useCallback } from "react";
+import { lazy, useState, useCallback, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/commons/page-header";
-import ProfileHeader from "@/features/profile/common/header/profile-header";
-import ProfileTab from "@/features/profile/common/tabs/profile-tab";
+import { ProfileInfo } from "@/features/profile/common/header";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { MOCK_PARTNER_PROFILE } from "./const";
 import { usePartnerProfileForm } from "../hooks/use-partner-profile-form";
 import type { PartnerProfile } from "./types";
@@ -79,75 +79,121 @@ export function PartnerProfileClient({
   // Use draftProfile or fallback to initialProfile
   const displayProfile = draftProfile ?? initialProfile;
 
-  const tabs = useMemo(
-    () => [
-      {
-        label: "Overview",
-        value: "overview",
-        content: (
-          <PartnerProfileOverview
-            profile={displayProfile}
-            onGoalsChange={updateHandlers.onGoalsChange}
-            onLoveLanguageChange={updateHandlers.onLoveLanguageChange}
-            onCommunicationStylesChange={
-              updateHandlers.onCommunicationStylesChange
-            }
-            onAttachmentTendencyChange={
-              updateHandlers.onAttachmentTendencyChange
-            }
-            onDealBreakersChange={updateHandlers.onDealBreakersChange}
-            onAppreciatedThingsChange={updateHandlers.onAppreciatedThingsChange}
-            onWorkRhythmChange={updateHandlers.onWorkRhythmChange}
-            onSocialEnergyChange={updateHandlers.onSocialEnergyChange}
-            onDateBudgetChange={updateHandlers.onDateBudgetChange}
-            onHobbiesChange={updateHandlers.onHobbiesChange}
-            onFavoriteHobbiesChange={updateHandlers.onFavoriteHobbiesChange}
-            onSocialSignalsChange={updateHandlers.onSocialSignalsChange}
-          />
-        ),
-      },
-      {
-        label: "Insights History",
-        value: "insights-history",
-        content: <InsightsHistoryTab />,
-      },
-      {
-        label: "Special Things",
-        value: "special-things",
-        content: (
-          <SpecialThingsTab
-            profile={displayProfile}
-            onSpecialDaysChange={updateHandlers.onSpecialDaysChange}
-          />
-        ),
-      },
-    ],
-    [displayProfile, updateHandlers]
-  );
+  // Get initials for avatar fallback
+  const initials = displayProfile.name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background border-b">
-        <PageHeader
-          title="Partner Profile"
-          onBackClick={() => router.back()}
-        />
-        <div className="container mx-auto max-w-2xl px-4 py-4">
-          <ProfileHeader profile={displayProfile} />
-        </div>
-      </div>
-
-      {/* Tabs & Content */}
+    <div className="flex flex-col h-full bg-background">
+      {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="container mx-auto max-w-2xl px-4">
-          <div className="sticky top-0 z-10 border-b bg-background">
-            <ProfileTab
-              tabs={tabs}
-              activeTab={activeTab}
-              onTabChange={handleTabChange}
-            />
-          </div>
+        {/* Header */}
+        <PageHeader title="Partner Profile" onBackClick={() => router.back()} />
+        {/* Profile Info */}
+        <ProfileInfo
+          name={displayProfile.name}
+          avatarUrl={displayProfile.avatarUrl}
+          initials={initials}
+          age={displayProfile.age}
+          location={displayProfile.location}
+          stage={displayProfile.stage}
+          isPremium={displayProfile.isPremium}
+        />
+        <div className="px-4 pb-6">
+          {/* Tabs */}
+          <Tabs
+            value={activeTab}
+            onValueChange={handleTabChange}
+            className="w-full"
+          >
+            <TabsList className="w-full grid grid-cols-3 bg-muted">
+              <TabsTrigger
+                value="overview"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Overview
+              </TabsTrigger>
+              <TabsTrigger
+                value="insights-history"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Insights
+              </TabsTrigger>
+              <TabsTrigger
+                value="special-things"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Special Things
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Overview Tab */}
+            <TabsContent value="overview" className="mt-6 overflow-y-auto">
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center py-12">
+                    <p className="text-muted-foreground">Loading...</p>
+                  </div>
+                }
+              >
+                <PartnerProfileOverview
+                  profile={displayProfile}
+                  onGoalsChange={updateHandlers.onGoalsChange}
+                  onLoveLanguageChange={updateHandlers.onLoveLanguageChange}
+                  onCommunicationStylesChange={
+                    updateHandlers.onCommunicationStylesChange
+                  }
+                  onAttachmentTendencyChange={
+                    updateHandlers.onAttachmentTendencyChange
+                  }
+                  onDealBreakersChange={updateHandlers.onDealBreakersChange}
+                  onAppreciatedThingsChange={
+                    updateHandlers.onAppreciatedThingsChange
+                  }
+                  onWorkRhythmChange={updateHandlers.onWorkRhythmChange}
+                  onSocialEnergyChange={updateHandlers.onSocialEnergyChange}
+                  onDateBudgetChange={updateHandlers.onDateBudgetChange}
+                  onHobbiesChange={updateHandlers.onHobbiesChange}
+                  onFavoriteHobbiesChange={
+                    updateHandlers.onFavoriteHobbiesChange
+                  }
+                  onSocialSignalsChange={updateHandlers.onSocialSignalsChange}
+                />
+              </Suspense>
+            </TabsContent>
+
+            {/* Insights History Tab */}
+            <TabsContent value="insights-history" className="mt-6">
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center py-12">
+                    <p className="text-muted-foreground">Loading...</p>
+                  </div>
+                }
+              >
+                <InsightsHistoryTab />
+              </Suspense>
+            </TabsContent>
+
+            {/* Special Things Tab */}
+            <TabsContent value="special-things" className="mt-6">
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center py-12">
+                    <p className="text-muted-foreground">Loading...</p>
+                  </div>
+                }
+              >
+                <SpecialThingsTab
+                  profile={displayProfile}
+                  onSpecialDaysChange={updateHandlers.onSpecialDaysChange}
+                />
+              </Suspense>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
 

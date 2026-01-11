@@ -19,7 +19,7 @@ export default function AssistantLayout(props: PropsWithChildren) {
 
   return (
     <>
-      <div className="max-w-lg mx-auto h-screen flex flex-col bg-background fixed top-0">
+      <div className="max-w-lg mx-auto h-screen flex flex-col bg-background fixed top-0 left-1/2 -translate-x-1/2 w-full">
         <div className="flex-1 overflow-y-auto pb-20">{children}</div>
       </div>
 
