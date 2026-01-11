@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Settings, Star, Plus, X } from "lucide-react";
+import { BrainCog, Plus, X } from "lucide-react";
 import { Select } from "@/components/commons/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +26,8 @@ import type {
   AttachmentTendency,
   AttachmentTendencyData,
 } from "../../types";
-import ContentCard from "@/features/profile/common/content-card/content-card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Field, FieldLabel } from "@/components/ui/field";
 
 const ATTACHMENT_TENDENCY_OPTIONS: {
   value: AttachmentTendency;
@@ -115,66 +116,63 @@ export function PersonalityPreferenceSection({
   );
 
   return (
-    <ContentCard className={className}>
-      <div className="flex items-center gap-2 mb-4">
-        <Settings className="size-5 text-muted-foreground" />
-        <h3 className="text-base font-semibold">Personality & Preference</h3>
-      </div>
-
-      <div className="flex flex-col gap-6">
+    <Card className={className}>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <BrainCog className="h-5 w-5 text-muted-foreground" />
+          <div>
+            <h3 className="text-lg font-semibold">Personality & Preference</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              How you connect and communicate
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-5">
         {/* Love Language */}
-        {profile.loveLanguage && (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">Love Language</label>
-              {profile.loveLanguageIsAiGenerated && <AiIndicator size="sm" />}
-            </div>
-            <Select
-              value={profile.loveLanguage}
-              options={LOVE_LANGUAGE_OPTIONS}
-              onValueChange={(value) => {
-                onLoveLanguageChange?.(value as LoveLanguage);
-              }}
-              disabled={!onLoveLanguageChange}
-            />
-          </div>
-        )}
-
+        <Field className="flex flex-col gap-2">
+          <FieldLabel className="flex items-center gap-2">
+            Love Language
+            {profile.loveLanguageIsAiGenerated && <AiIndicator size="sm" />}
+          </FieldLabel>
+          <Select
+            value={profile.loveLanguage}
+            options={LOVE_LANGUAGE_OPTIONS}
+            onValueChange={(value) => {
+              onLoveLanguageChange?.(value as LoveLanguage);
+            }}
+            disabled={!onLoveLanguageChange}
+          />
+        </Field>
         {/* Communication Style */}
-        {profile.communicationStyles.length > 0 && (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">Communication Style</label>
-              {profile.communicationStylesIsAiGenerated && (
-                <AiIndicator size="sm" />
-              )}
-            </div>
-            <PillButtonGroup
-              options={communicationStyleOptions}
-              value={profile.communicationStyles}
-              multiple={true}
-              onValueChange={(value) => {
-                if (Array.isArray(value)) {
-                  onCommunicationStylesChange?.(value as CommunicationStyle[]);
-                }
-              }}
-              disabled={!onCommunicationStylesChange}
-            />
-          </div>
-        )}
-
+        <Field className="flex flex-col gap-2">
+          <FieldLabel className="flex items-center gap-2">
+            Communication Style
+            {profile.communicationStylesIsAiGenerated && (
+              <AiIndicator size="sm" />
+            )}
+          </FieldLabel>
+          <PillButtonGroup
+            options={communicationStyleOptions}
+            value={profile.communicationStyles}
+            multiple={true}
+            onValueChange={(value) => {
+              if (Array.isArray(value)) {
+                onCommunicationStylesChange?.(value as CommunicationStyle[]);
+              }
+            }}
+            disabled={!onCommunicationStylesChange}
+          />
+        </Field>
         {/* Attachment Tendency */}
         {profile.attachmentTendency && (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <Star className="size-4 text-muted-foreground" />
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Attachment Tendency
-              </h4>
+          <Field className="flex flex-col gap-2">
+            <FieldLabel className="flex items-center gap-2">
+              Attachment Tendency
               {profile.attachmentTendency.isAiGenerated && (
                 <AiIndicator size="sm" />
               )}
-            </div>
+            </FieldLabel>
             {onAttachmentTendencyChange ? (
               <Select
                 value={profile.attachmentTendency.tendency}
@@ -202,14 +200,11 @@ export function PersonalityPreferenceSection({
                 )}
               </div>
             )}
-          </div>
+          </Field>
         )}
-
         {/* Deal-breakers */}
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Deal-Breakers</label>
-          </div>
+        <Field className="flex flex-col gap-2">
+          <FieldLabel>Deal-breakers</FieldLabel>
           <div className="flex flex-wrap gap-2">
             {profile.dealBreakers.map((dealBreaker) => (
               <Badge
@@ -260,19 +255,15 @@ export function PersonalityPreferenceSection({
               </Popover>
             )}
           </div>
-        </div>
-
+        </Field>
         {/* Things They Appreciate */}
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <Star className="size-4 text-muted-foreground" />
-            <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Things They Appreciate
-            </h4>
+        <Field className="flex flex-col gap-2">
+          <FieldLabel className="flex items-center gap-2">
+            Things They Appreciate
             {profile.appreciatedThingsIsAiGenerated && (
               <AiIndicator size="sm" />
             )}
-          </div>
+          </FieldLabel>
           <div className="flex flex-wrap gap-2">
             {profile.appreciatedThings.map((item, index) => (
               <Badge
@@ -320,8 +311,8 @@ export function PersonalityPreferenceSection({
               </div>
             )}
           </div>
-        </div>
-      </div>
-    </ContentCard>
+        </Field>
+      </CardContent>
+    </Card>
   );
 }

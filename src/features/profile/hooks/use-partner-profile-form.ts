@@ -42,6 +42,7 @@ export interface UsePartnerProfileFormReturn {
     onHobbiesChange: (hobbies: Hobby[]) => void;
     onFavoriteHobbiesChange: (favorites: Hobby[]) => void;
     onSocialSignalsChange: (signals: SocialSignal[]) => void;
+    onInstagramUrlChange: (url: string) => void;
     onSpecialDaysChange: (days: SpecialDay[] | undefined) => void;
   };
 
@@ -179,6 +180,10 @@ export function usePartnerProfileForm(
         })),
       };
       updateField("socialSignals", updated.socialSignals);
+    },
+
+    onInstagramUrlChange: (url: string) => {
+      updateField("instagramUrl", url);
     },
 
     onSpecialDaysChange: (days: SpecialDay[] | undefined) => {

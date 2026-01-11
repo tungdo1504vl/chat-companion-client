@@ -1,98 +1,107 @@
 "use client";
 
-import { Share2, PawPrint, Coffee as CoffeeIcon, X } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { useId } from "react";
+import { Share2 } from "lucide-react";
+import { siInstagram } from "simple-icons";
 import { Button } from "@/components/ui/button";
-import { AiIndicator } from "../ai-indicator";
-import type { PartnerProfile, SocialSignal } from "../../types";
-import { ContentCard } from "@/features/profile/common/content-card";
+import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Field, FieldLabel } from "@/components/ui/field";
 
 interface SocialSignalsSectionProps {
-  profile: PartnerProfile;
-  onSocialSignalsChange?: (signals: SocialSignal[]) => void;
+  instagramUrl?: string;
+  onInstagramUrlChange?: (url: string) => void;
   className?: string;
 }
 
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  paw: PawPrint,
-  coffee: CoffeeIcon,
-};
-
-export function SocialSignalsSection({
-  profile,
-  onSocialSignalsChange,
-  className,
-}: SocialSignalsSectionProps) {
-  const handleRemoveSignal = (index: number) => {
-    if (!onSocialSignalsChange) return;
-    const updated = profile.socialSignals.filter((_, i) => i !== index);
-    onSocialSignalsChange(updated);
-  };
+/**
+ * Instagram icon component using simple-icons
+ * Renders the Instagram brand icon with Instagram's gradient colors
+ */
+function InstagramIcon({ className }: Readonly<{ className?: string }>) {
+  const viewBoxRegex = /viewBox="([^"]*)"/;
+  const viewBoxMatch = viewBoxRegex.exec(siInstagram.svg);
+  const viewBox = viewBoxMatch ? viewBoxMatch[1] : "0 0 24 24";
+  const gradientId = useId();
 
   return (
-    <ContentCard className={className}>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Share2 className="size-5 text-muted-foreground" />
-          <h3 className="text-base font-semibold">Social Signals</h3>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Social media icons placeholder */}
-          <div className="size-6 rounded-full bg-primary/20" />
-          <div className="size-6 rounded-full bg-muted" />
-        </div>
-      </div>
+    <svg
+      className={className}
+      viewBox={viewBox}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="Instagram"
+    >
+      <defs>
+        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#833AB4" />
+          <stop offset="50%" stopColor="#FD1D1D" />
+          <stop offset="100%" stopColor="#FCB045" />
+        </linearGradient>
+      </defs>
+      <path d={siInstagram.path} fill={`url(#${gradientId})`} />
+    </svg>
+  );
+}
 
-      <div className="flex flex-col gap-4">
-        {profile.socialSignals.map((signal, index) => {
-          const IconComponent = signal.icon
-            ? iconMap[signal.icon] || null
-            : null;
+export function SocialSignalsSection({
+  instagramUrl = "",
+  onInstagramUrlChange,
+  className,
+}: SocialSignalsSectionProps) {
+  const hasUrl = instagramUrl && instagramUrl.trim() !== "";
 
-          return (
-            <div key={index} className="flex items-start gap-3">
-              {IconComponent && (
-                <IconComponent className="size-5 text-muted-foreground mt-0.5 shrink-0" />
-              )}
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="text-sm font-medium">{signal.title}</h4>
-                  {signal.isAiGenerated && <AiIndicator size="sm" />}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {signal.description}
-                </p>
-              </div>
-              {onSocialSignalsChange && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleRemoveSignal(index)}
-                  className="h-6 w-6 p-0 shrink-0"
-                >
-                  <X className="size-4" />
-                </Button>
-              )}
-            </div>
-          );
-        })}
-
-        {/* Additional tags */}
-        {profile.socialSignalTags && profile.socialSignalTags.length > 0 && (
-          <div className="flex flex-wrap gap-2 pt-2">
-            {profile.socialSignalTags.map((tag, index) => (
-              <Badge
-                key={index}
-                variant="outline"
-                className="rounded-full uppercase text-xs"
-              >
-                {tag}
-              </Badge>
-            ))}
+  return (
+    <Card className={className}>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <Share2 className="h-5 w-5 text-muted-foreground" />
+          <div>
+            <h3 className="text-lg font-semibold">Social Signals</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Connect your social presence
+            </p>
           </div>
-        )}
-      </div>
-    </ContentCard>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        {/* Instagram */}
+        <Field className="flex flex-col gap-2">
+          <div className="flex items-center justify-between mb-1">
+            <FieldLabel className="flex items-center gap-2">
+              <InstagramIcon className="h-5 w-5 shrink-0" />
+              Instagram
+            </FieldLabel>
+            {hasUrl && (
+              <span className="text-sm text-green-600 dark:text-green-400">
+                ✓ Linked
+              </span>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Input
+              type="url"
+              name="instagramUrl"
+              value={instagramUrl}
+              onChange={(e) => onInstagramUrlChange?.(e.target.value)}
+              placeholder="https://instagram.com/username"
+              disabled={!onInstagramUrlChange}
+              className="flex-1"
+            />
+            {hasUrl && onInstagramUrlChange && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => onInstagramUrlChange("")}
+                disabled={!onInstagramUrlChange}
+              >
+                Remove
+              </Button>
+            )}
+          </div>
+        </Field>
+      </CardContent>
+    </Card>
   );
 }

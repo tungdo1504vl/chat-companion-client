@@ -160,7 +160,7 @@ export function PartnerProfileClient({
                   onFavoriteHobbiesChange={
                     updateHandlers.onFavoriteHobbiesChange
                   }
-                  onSocialSignalsChange={updateHandlers.onSocialSignalsChange}
+                  onInstagramUrlChange={updateHandlers.onInstagramUrlChange}
                 />
               </Suspense>
             </TabsContent>

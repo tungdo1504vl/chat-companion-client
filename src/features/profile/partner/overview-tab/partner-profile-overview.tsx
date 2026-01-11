@@ -3,7 +3,6 @@ import {
   PersonalityPreferenceSection,
   LifestyleSnapshotSection,
   SocialSignalsSection,
-  ChemistryInsightSection,
 } from "../components";
 import type {
   PartnerProfile,
@@ -15,7 +14,6 @@ import type {
   SocialEnergyLevel,
   DateBudget,
   Hobby,
-  SocialSignal,
   AttachmentTendencyData,
 } from "../types";
 
@@ -32,7 +30,7 @@ type PartnerProfileOverviewProps = Readonly<{
   onDateBudgetChange?: (budget: DateBudget) => void;
   onHobbiesChange?: (hobbies: Hobby[]) => void;
   onFavoriteHobbiesChange?: (favorites: Hobby[]) => void;
-  onSocialSignalsChange?: (signals: SocialSignal[]) => void;
+  onInstagramUrlChange?: (url: string) => void;
 }>;
 
 export default function PartnerProfileOverview({
@@ -48,10 +46,10 @@ export default function PartnerProfileOverview({
   onDateBudgetChange,
   onHobbiesChange,
   onFavoriteHobbiesChange,
-  onSocialSignalsChange,
+  onInstagramUrlChange,
 }: PartnerProfileOverviewProps) {
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       {/* Goals Section */}
       <GoalsSection
         goals={profile.goals}
@@ -81,12 +79,9 @@ export default function PartnerProfileOverview({
 
       {/* Social Signals Section */}
       <SocialSignalsSection
-        profile={profile}
-        onSocialSignalsChange={onSocialSignalsChange}
+        instagramUrl={profile.instagramUrl || ""}
+        onInstagramUrlChange={onInstagramUrlChange}
       />
-
-      {/* Chemistry & Insight Section */}
-      <ChemistryInsightSection profile={profile} />
     </div>
   );
 }

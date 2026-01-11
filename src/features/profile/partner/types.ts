@@ -166,6 +166,7 @@ export interface PartnerProfile {
   // Social Signals
   socialSignals: SocialSignal[];
   socialSignalTags?: string[]; // Additional tags like "WEEKEND HIKER", "CAMERA SHY"
+  instagramUrl?: string; // Instagram profile URL
 
   // Chemistry & Insights
   interestLevel?: InterestLevel;

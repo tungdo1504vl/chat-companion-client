@@ -10,13 +10,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { AiIndicator } from "../ai-indicator";
-import { PillButtonGroup, type PillButtonOption } from "../pill-button-group";
-import { DateBudgetSlider } from "../date-budget-slider";
-import {
-  WORK_RHYTHM_OPTIONS,
-  SOCIAL_ENERGY_OPTIONS,
-  HOBBY_OPTIONS,
-} from "../../const";
+import { RadioGroup, RadioGroupItem } from "@/components/commons/radio-group";
+import { Slider } from "@/components/ui/slider";
+import { HOBBY_OPTIONS } from "../../const";
 import type {
   PartnerProfile,
   WorkRhythm,
@@ -25,7 +21,8 @@ import type {
   Hobby,
 } from "../../types";
 import { format, parseISO } from "date-fns";
-import { ContentCard } from "@/features/profile/common/content-card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Field, FieldLabel } from "@/components/ui/field";
 
 interface LifestyleSnapshotSectionProps {
   profile: PartnerProfile;
@@ -37,6 +34,85 @@ interface LifestyleSnapshotSectionProps {
   className?: string;
 }
 
+// Work Schedule options matching User Profile
+const WORK_SCHEDULE_OPTIONS = [
+  { value: "nine_to_five", label: "9-5 Standard" },
+  { value: "flexible_remote", label: "Flexible / Remote" },
+] as const;
+
+// Social Energy options matching User Profile
+const SOCIAL_ENERGY_OPTIONS = [
+  { value: "low", label: "Low" },
+  { value: "balanced", label: "Balanced" },
+  { value: "high", label: "High" },
+] as const;
+
+// Helper to convert partner profile work rhythm to user profile format
+const convertWorkRhythmToUserFormat = (value?: WorkRhythm): string => {
+  if (!value) return "";
+  // Map partner profile values to user profile values
+  const mapping: Record<string, string> = {
+    "9–5": "nine_to_five",
+    "Busy / Set Hours": "nine_to_five",
+    Flexible: "flexible_remote",
+    Remote: "flexible_remote",
+  };
+  return mapping[value] || "";
+};
+
+// Helper to convert user profile work schedule to partner profile format
+const convertWorkScheduleToPartnerFormat = (
+  value: string
+): WorkRhythm | undefined => {
+  const mapping: Record<string, WorkRhythm> = {
+    nine_to_five: "9–5",
+    flexible_remote: "Flexible",
+  };
+  return mapping[value];
+};
+
+// Helper to convert partner profile social energy to user profile format
+const convertSocialEnergyToUserFormat = (value?: SocialEnergyLevel): string => {
+  if (!value) return "";
+  // Map partner profile values to user profile values
+  const mapping: Record<string, string> = {
+    Introvert: "low",
+    Ambivert: "balanced",
+    Extrovert: "high",
+  };
+  return mapping[value] || value.toLowerCase();
+};
+
+// Helper to convert user profile social energy to partner profile format
+const convertSocialEnergyToPartnerFormat = (
+  value: string
+): SocialEnergyLevel | undefined => {
+  const mapping: Record<string, SocialEnergyLevel> = {
+    low: "Introvert",
+    balanced: "Ambivert",
+    high: "Extrovert",
+  };
+  return mapping[value];
+};
+
+// Helper to convert date budget string to number (for display)
+const convertDateBudgetToNumber = (budget?: DateBudget): number => {
+  if (!budget) return 50; // Default to middle
+  const mapping: Record<DateBudget, number> = {
+    Low: 50,
+    Balanced: 150,
+    High: 500,
+  };
+  return mapping[budget] || 150;
+};
+
+// Helper to convert number to date budget string
+const convertNumberToDateBudget = (value: number): DateBudget => {
+  if (value <= 50) return "Low";
+  if (value <= 150) return "Balanced";
+  return "High";
+};
+
 export function LifestyleSnapshotSection({
   profile,
   onWorkRhythmChange,
@@ -47,18 +123,6 @@ export function LifestyleSnapshotSection({
   className,
 }: LifestyleSnapshotSectionProps) {
   const [hobbyPopoverOpen, setHobbyPopoverOpen] = useState(false);
-
-  const workRhythmOptions: PillButtonOption<WorkRhythm>[] =
-    WORK_RHYTHM_OPTIONS.map((rhythm) => ({
-      value: rhythm.value,
-      label: rhythm.label,
-    }));
-
-  const socialEnergyOptions: PillButtonOption<SocialEnergyLevel>[] =
-    SOCIAL_ENERGY_OPTIONS.map((energy) => ({
-      value: energy.value,
-      label: energy.label,
-    }));
 
   const availableHobbies = HOBBY_OPTIONS.filter(
     (hobby) => !profile.hobbies.includes(hobby)
@@ -132,70 +196,85 @@ export function LifestyleSnapshotSection({
   const daysUntilPeriod = getDaysUntilPeriod();
 
   return (
-    <ContentCard className={className}>
-      <div className="flex items-center gap-2 mb-4">
-        <Coffee className="size-5 text-muted-foreground" />
-        <h3 className="text-base font-semibold">Lifestyle Snapshot</h3>
-      </div>
-
-      <div className="flex flex-col gap-6">
-        {/* Work Rhythm */}
-        {profile.workRhythm && (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">Work Rhythm</label>
-              {profile.workRhythmIsAiGenerated && <AiIndicator size="sm" />}
-            </div>
-            <PillButtonGroup
-              options={workRhythmOptions}
-              value={profile.workRhythm}
-              multiple={false}
-              onValueChange={(value) => {
-                if (!Array.isArray(value)) {
-                  onWorkRhythmChange?.(value as WorkRhythm);
-                }
-              }}
-              disabled={!onWorkRhythmChange}
-            />
+    <Card className={className}>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <Coffee className="h-5 w-5 text-muted-foreground" />
+          <div>
+            <h3 className="text-lg font-semibold">Lifestyle Snapshot</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Your daily rhythms and preferences
+            </p>
           </div>
-        )}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        {/* Work Schedule */}
+        <Field className="flex flex-col gap-2">
+          <FieldLabel className="flex items-center gap-2">
+            Work Schedule
+            {profile.workRhythmIsAiGenerated && <AiIndicator size="sm" />}
+          </FieldLabel>
+          <RadioGroup
+            value={convertWorkRhythmToUserFormat(profile.workRhythm)}
+            onValueChange={(value) => {
+              const converted = convertWorkScheduleToPartnerFormat(value);
+              if (converted) {
+                onWorkRhythmChange?.(converted);
+              }
+            }}
+            disabled={!onWorkRhythmChange}
+            className="flex gap-2"
+          >
+            {WORK_SCHEDULE_OPTIONS.map((schedule) => (
+              <RadioGroupItem key={schedule.value} value={schedule.value}>
+                {schedule.label}
+              </RadioGroupItem>
+            ))}
+          </RadioGroup>
+        </Field>
 
         {/* Social Energy Battery */}
-        {profile.socialEnergyLevel && (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">
-                Social Energy Battery
-              </label>
-              {profile.socialEnergyLevelIsAiGenerated && (
-                <AiIndicator size="sm" />
-              )}
-            </div>
-            <PillButtonGroup
-              options={socialEnergyOptions}
-              value={profile.socialEnergyLevel}
-              multiple={false}
-              onValueChange={(value) => {
-                if (!Array.isArray(value)) {
-                  onSocialEnergyChange?.(value as SocialEnergyLevel);
-                }
-              }}
-              disabled={!onSocialEnergyChange}
-            />
-          </div>
-        )}
+        <Field className="flex flex-col gap-2">
+          <FieldLabel className="flex items-center gap-2">
+            Social Energy Battery
+            {profile.socialEnergyLevelIsAiGenerated && (
+              <AiIndicator size="sm" />
+            )}
+          </FieldLabel>
+          <p className="text-sm text-muted-foreground">
+            Your preference for social interaction frequency
+          </p>
+          <RadioGroup
+            value={convertSocialEnergyToUserFormat(profile.socialEnergyLevel)}
+            onValueChange={(value) => {
+              const converted = convertSocialEnergyToPartnerFormat(value);
+              if (converted) {
+                onSocialEnergyChange?.(converted);
+              }
+            }}
+            disabled={!onSocialEnergyChange}
+            className="flex gap-2"
+          >
+            {SOCIAL_ENERGY_OPTIONS.map((level) => (
+              <RadioGroupItem key={level.value} value={level.value}>
+                {level.label}
+              </RadioGroupItem>
+            ))}
+          </RadioGroup>
+        </Field>
 
         {/* Cycle Tracking */}
         {profile.cycleTracking && (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">Cycle Tracking</label>
+          <Field className="flex flex-col gap-2">
+            <FieldLabel className="flex items-center gap-2">
+              Cycle Tracking
               {profile.cycleTracking.isPrivate && (
                 <Badge variant="outline" className="text-xs">
                   Private
                 </Badge>
               )}
-            </div>
+            </FieldLabel>
             {profile.cycleTracking.isPrivate &&
               profile.cycleTracking.predictedStart &&
               daysUntilPeriod !== null && (
@@ -217,33 +296,53 @@ export function LifestyleSnapshotSection({
                   </Button>
                 </div>
               )}
-          </div>
+          </Field>
         )}
 
-        {/* Date Budget Tendency */}
-        {profile.dateBudget && (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">
-                Date Budget Tendency
-              </label>
-              {profile.dateBudgetIsAiGenerated && <AiIndicator size="sm" />}
+        {/* Date Budget */}
+        <Field className="flex flex-col gap-2">
+          <FieldLabel className="flex items-center gap-2">
+            Date Budget
+            {profile.dateBudgetIsAiGenerated && <AiIndicator size="sm" />}
+          </FieldLabel>
+          <p className="text-sm text-muted-foreground">
+            Typical amount you're comfortable spending per date
+          </p>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-muted-foreground">Low</span>
+              <span className="text-base font-semibold">
+                ${convertDateBudgetToNumber(profile.dateBudget)}
+              </span>
+              <span className="text-xs text-muted-foreground">High</span>
             </div>
-            <DateBudgetSlider
-              value={profile.dateBudget}
-              onChange={onDateBudgetChange}
+            <Slider
+              min={10}
+              max={1000}
+              step={10}
+              value={[convertDateBudgetToNumber(profile.dateBudget)]}
+              onValueChange={(values) => {
+                if (onDateBudgetChange) {
+                  const converted = convertNumberToDateBudget(values[0]);
+                  onDateBudgetChange(converted);
+                }
+              }}
               disabled={!onDateBudgetChange}
-              isAiGenerated={profile.dateBudgetIsAiGenerated}
             />
+            <div className="flex justify-between text-xs text-muted-foreground/80">
+              <span>Budget-friendly: $20-50</span>
+              <span>Moderate: $50-150</span>
+              <span>Premium: $150+</span>
+            </div>
           </div>
-        )}
+        </Field>
 
         {/* Hobbies & Interests */}
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium">Hobbies & Interests</label>
+        <Field className="flex flex-col gap-2">
+          <FieldLabel className="flex items-center gap-2">
+            Hobbies & Interests
             {profile.hobbiesIsAiGenerated && <AiIndicator size="sm" />}
-          </div>
+          </FieldLabel>
           <div className="flex flex-wrap gap-2">
             {profile.hobbies.map((hobby) => {
               const isFavorite = profile.favoriteHobbies?.includes(hobby);
@@ -312,8 +411,8 @@ export function LifestyleSnapshotSection({
               </Popover>
             )}
           </div>
-        </div>
-      </div>
-    </ContentCard>
+        </Field>
+      </CardContent>
+    </Card>
   );
 }

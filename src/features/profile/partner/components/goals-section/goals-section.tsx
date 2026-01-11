@@ -5,7 +5,7 @@ import { PillButtonGroup, type PillButtonOption } from "../pill-button-group";
 import { AiIndicator } from "../ai-indicator";
 import { GOAL_OPTIONS } from "../../const";
 import type { GoalType } from "../../types";
-import ContentCard from "@/features/profile/common/content-card/content-card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
 interface GoalsSectionProps {
   goals: GoalType[];
@@ -26,23 +26,34 @@ export function GoalsSection({
   }));
 
   return (
-    <ContentCard className={className}>
-      <div className="flex items-center gap-2 mb-4">
-        <Flag className="size-5 text-purple-400" />
-        <h3 className="text-base font-bold">Goals</h3>
-        {isAiGenerated && <AiIndicator size="sm" />}
-      </div>
-      <PillButtonGroup
-        options={options}
-        value={goals}
-        multiple={true}
-        onValueChange={(value) => {
-          if (Array.isArray(value)) {
-            onChange?.(value as GoalType[]);
-          }
-        }}
-        disabled={!onChange}
-      />
-    </ContentCard>
+    <Card className={className}>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <Flag className="h-5 w-5 text-muted-foreground" />
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold">Goals</h3>
+              {isAiGenerated && <AiIndicator size="sm" />}
+            </div>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Relationship goals and intentions
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        <PillButtonGroup
+          options={options}
+          value={goals}
+          multiple={true}
+          onValueChange={(value) => {
+            if (Array.isArray(value)) {
+              onChange?.(value as GoalType[]);
+            }
+          }}
+          disabled={!onChange}
+        />
+      </CardContent>
+    </Card>
   );
 }
