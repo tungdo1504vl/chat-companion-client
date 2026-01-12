@@ -28,7 +28,7 @@ import type {
   PersonalityApi,
   LifestyleApi,
   SocialLinksApi,
-} from "../types";
+} from '../types';
 
 /**
  * Convert date budget number or string to DateBudget enum (snake_case)
@@ -43,30 +43,30 @@ function convertDateBudget(
   }
 
   // If it's already a string, validate it
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     const normalized = value.toLowerCase().trim();
     if (
-      normalized === "low" ||
-      normalized === "balanced" ||
-      normalized === "high"
+      normalized === 'low' ||
+      normalized === 'balanced' ||
+      normalized === 'high'
     ) {
       return normalized as DateBudget;
     }
     // Try to parse as number
     const numValue = parseFloat(value);
     if (!isNaN(numValue)) {
-      if (numValue <= 50) return "low";
-      if (numValue <= 100) return "balanced";
-      return "high";
+      if (numValue <= 50) return 'low';
+      if (numValue <= 100) return 'balanced';
+      return 'high';
     }
     return undefined;
   }
 
   // If it's a number, convert it
-  if (typeof value === "number") {
-    if (value <= 50) return "low";
-    if (value <= 100) return "balanced";
-    return "high";
+  if (typeof value === 'number') {
+    if (value <= 50) return 'low';
+    if (value <= 100) return 'balanced';
+    return 'high';
   }
 
   return undefined;
@@ -79,13 +79,13 @@ function convertGoalType(value: string): GoalType | null {
   // Normalize to snake_case
   const normalized = value
     .toLowerCase()
-    .replace(/\s+/g, "_")
-    .replace(/-/g, "_");
+    .replace(/\s+/g, '_')
+    .replace(/-/g, '_');
   const validTypes: GoalType[] = [
-    "for_fun",
-    "long_term",
-    "date_to_marry",
-    "unclear",
+    'for_fun',
+    'long_term',
+    'date_to_marry',
+    'unclear',
   ];
   return validTypes.includes(normalized as GoalType)
     ? (normalized as GoalType)
@@ -97,13 +97,13 @@ function convertGoalType(value: string): GoalType | null {
  */
 function convertLoveLanguage(value: string): LoveLanguage | undefined {
   // Normalize to snake_case
-  const normalized = value.toLowerCase().replace(/\s+/g, "_");
+  const normalized = value.toLowerCase().replace(/\s+/g, '_');
   const validLanguages: LoveLanguage[] = [
-    "words_of_affirmation",
-    "quality_time",
-    "acts_of_service",
-    "receiving_gifts",
-    "physical_touch",
+    'words_of_affirmation',
+    'quality_time',
+    'acts_of_service',
+    'receiving_gifts',
+    'physical_touch',
   ];
   return validLanguages.includes(normalized as LoveLanguage)
     ? (normalized as LoveLanguage)
@@ -117,19 +117,19 @@ function convertCommunicationStyle(value: string): CommunicationStyle | null {
   // Normalize to snake_case: handle spaces, &, and special cases
   const normalized = value
     .toLowerCase()
-    .replace(/\s*&\s*/g, "_")
-    .replace(/\s+/g, "_")
-    .replace(/-/g, "_");
+    .replace(/\s*&\s*/g, '_')
+    .replace(/\s+/g, '_')
+    .replace(/-/g, '_');
   const validStyles: CommunicationStyle[] = [
-    "direct",
-    "playful",
-    "soft_caring",
-    "avoid_conflict",
-    "logical",
-    "emotional",
-    "deep_talks",
-    "daily_texting",
-    "calls_only",
+    'direct',
+    'playful',
+    'soft_caring',
+    'avoid_conflict',
+    'logical',
+    'emotional',
+    'deep_talks',
+    'daily_texting',
+    'calls_only',
   ];
   return validStyles.includes(normalized as CommunicationStyle)
     ? (normalized as CommunicationStyle)
@@ -143,22 +143,22 @@ function convertDealBreaker(value: string): DealBreaker | null {
   // Normalize to snake_case: handle spaces, /, and special cases
   const normalized = value
     .toLowerCase()
-    .replace(/\s*\/\s*/g, "_")
-    .replace(/\s+/g, "_")
-    .replace(/-/g, "_");
+    .replace(/\s*\/\s*/g, '_')
+    .replace(/\s+/g, '_')
+    .replace(/-/g, '_');
   const validDealBreakers: DealBreaker[] = [
-    "smoking",
-    "bad_hygiene",
-    "dishonesty",
-    "ghosting_prolonged_silence",
-    "lack_of_respect",
-    "excessive_jealousy",
-    "unclear_relationship_intentions",
-    "misaligned_long_term_goals",
-    "fundamentally_different_core_values",
-    "unwillingness_to_commit",
-    "controlling_manipulative_behavior",
-    "disrespect_for_personal_boundaries",
+    'smoking',
+    'bad_hygiene',
+    'dishonesty',
+    'ghosting_prolonged_silence',
+    'lack_of_respect',
+    'excessive_jealousy',
+    'unclear_relationship_intentions',
+    'misaligned_long_term_goals',
+    'fundamentally_different_core_values',
+    'unwillingness_to_commit',
+    'controlling_manipulative_behavior',
+    'disrespect_for_personal_boundaries',
   ];
   return validDealBreakers.includes(normalized as DealBreaker)
     ? (normalized as DealBreaker)
@@ -172,15 +172,15 @@ function convertWorkRhythm(value: string): WorkRhythm | undefined {
   // Normalize to snake_case: handle spaces, /, and special cases like "nine_to_five"
   const normalized = value
     .toLowerCase()
-    .replace(/\s*\/\s*/g, "_")
-    .replace(/\s+/g, "_")
-    .replace(/-/g, "_")
-    .replace(/9[–-]?5/g, "nine_to_five");
+    .replace(/\s*\/\s*/g, '_')
+    .replace(/\s+/g, '_')
+    .replace(/-/g, '_')
+    .replace(/9[–-]?5/g, 'nine_to_five');
   const validRhythms: WorkRhythm[] = [
-    "busy_set_hours",
-    "flexible",
-    "remote",
-    "nine_to_five",
+    'busy_set_hours',
+    'flexible',
+    'remote',
+    'nine_to_five',
   ];
   return validRhythms.includes(normalized as WorkRhythm)
     ? (normalized as WorkRhythm)
@@ -196,9 +196,9 @@ function convertSocialEnergyLevel(
   // Normalize to snake_case
   const normalized = value.toLowerCase().trim();
   const validLevels: SocialEnergyLevel[] = [
-    "introvert",
-    "balanced",
-    "extrovert",
+    'introvert',
+    'balanced',
+    'extrovert',
   ];
   return validLevels.includes(normalized as SocialEnergyLevel)
     ? (normalized as SocialEnergyLevel)
@@ -212,25 +212,25 @@ function convertHobby(value: string): Hobby | null {
   // Normalize to snake_case: handle spaces, &, and special cases
   const normalized = value
     .toLowerCase()
-    .replace(/\s*&\s*/g, "_")
-    .replace(/\s+/g, "_");
+    .replace(/\s*&\s*/g, '_')
+    .replace(/\s+/g, '_');
   const validHobbies: Hobby[] = [
-    "travel",
-    "food_cafe",
-    "cooking",
-    "baking",
-    "fitness",
-    "gym",
-    "yoga",
-    "hiking",
-    "outdoor",
-    "photography",
-    "music",
-    "concert",
-    "movies",
-    "netflix",
-    "reading",
-    "gaming",
+    'travel',
+    'food_cafe',
+    'cooking',
+    'baking',
+    'fitness',
+    'gym',
+    'yoga',
+    'hiking',
+    'outdoor',
+    'photography',
+    'music',
+    'concert',
+    'movies',
+    'netflix',
+    'reading',
+    'gaming',
   ];
   return validHobbies.includes(normalized as Hobby)
     ? (normalized as Hobby)
@@ -242,7 +242,7 @@ function convertHobby(value: string): Hobby | null {
  */
 function convertInterestLevel(value: string): InterestLevel | undefined {
   const normalized = value.toLowerCase().trim();
-  const validLevels: InterestLevel[] = ["low", "medium", "high"];
+  const validLevels: InterestLevel[] = ['low', 'medium', 'high'];
   return validLevels.includes(normalized as InterestLevel)
     ? (normalized as InterestLevel)
     : undefined;
@@ -254,11 +254,11 @@ function convertInterestLevel(value: string): InterestLevel | undefined {
 function convertMoodTrend(value: string): MoodTrend | undefined {
   const normalized = value.toLowerCase().trim();
   const validTrends: MoodTrend[] = [
-    "excited",
-    "calm",
-    "stressed",
-    "happy",
-    "neutral",
+    'excited',
+    'calm',
+    'stressed',
+    'happy',
+    'neutral',
   ];
   return validTrends.includes(normalized as MoodTrend)
     ? (normalized as MoodTrend)
@@ -270,17 +270,17 @@ function convertMoodTrend(value: string): MoodTrend | undefined {
  */
 function convertStageType(value: string): StageType {
   // Normalize to snake_case
-  const normalized = value.toLowerCase().replace(/\s+/g, "_");
+  const normalized = value.toLowerCase().replace(/\s+/g, '_');
   const validStages: StageType[] = [
-    "dating",
-    "dating_exclusively",
-    "in_a_relationship",
-    "engaged",
-    "married",
+    'dating',
+    'dating_exclusively',
+    'in_a_relationship',
+    'engaged',
+    'married',
   ];
   return validStages.includes(normalized as StageType)
     ? (normalized as StageType)
-    : "dating"; // Default fallback
+    : 'dating'; // Default fallback
 }
 
 /**
@@ -290,19 +290,19 @@ function convertSpecialDayType(value: string): SpecialDayType {
   // Normalize to snake_case: handle spaces, apostrophes, and special cases
   const normalized = value
     .toLowerCase()
-    .replace(/\s+/g, "_")
-    .replace(/'/g, "")
-    .replace(/int['']l/g, "intl");
+    .replace(/\s+/g, '_')
+    .replace(/'/g, '')
+    .replace(/int['']l/g, 'intl');
   const validTypes: SpecialDayType[] = [
-    "birthday",
-    "our_start_date",
-    "christmas",
-    "intl_womens_day",
-    "custom",
+    'birthday',
+    'our_start_date',
+    'christmas',
+    'intl_womens_day',
+    'custom',
   ];
   return validTypes.includes(normalized as SpecialDayType)
     ? (normalized as SpecialDayType)
-    : "custom"; // Default fallback
+    : 'custom'; // Default fallback
 }
 
 /**
@@ -314,17 +314,17 @@ function convertAttachmentTendency(
   // Normalize to snake_case: handle spaces, hyphens, and special cases
   const normalized = value
     .toLowerCase()
-    .replace(/\s+/g, "_")
-    .replace(/-/g, "_");
+    .replace(/\s+/g, '_')
+    .replace(/-/g, '_');
   const validTendencies: AttachmentTendency[] = [
-    "secure",
-    "anxious",
-    "avoidant",
-    "secure_leaning_anxious",
-    "secure_leaning_avoidant",
-    "anxious_avoidant",
-    "not_sure",
-    "exploring",
+    'secure',
+    'anxious',
+    'avoidant',
+    'secure_leaning_anxious',
+    'secure_leaning_avoidant',
+    'anxious_avoidant',
+    'not_sure',
+    'exploring',
   ];
   return validTendencies.includes(normalized as AttachmentTendency)
     ? (normalized as AttachmentTendency)
@@ -387,12 +387,12 @@ export function apiResponseToPartnerProfile(
   const specialDays: SpecialDay[] | undefined = apiResponse.special_days
     ? apiResponse.special_days.map(
         (day): SpecialDay => ({
-          id: day.id || "",
-          type: convertSpecialDayType(day.type || "Custom"),
-          name: day.name || "",
-          date: day.date || "",
-          icon: day.icon || "",
-          iconColor: day.icon_color || "",
+          id: day.id || '',
+          type: convertSpecialDayType(day.type || 'Custom'),
+          name: day.name || '',
+          date: day.date || '',
+          icon: day.icon || '',
+          iconColor: day.icon_color || '',
           notifyEnabled: day.notifications_enabled ?? false,
         })
       )
@@ -402,12 +402,12 @@ export function apiResponseToPartnerProfile(
   const giftIdeas: GiftIdea[] | undefined = apiResponse.gift_ideas
     ? apiResponse.gift_ideas.map(
         (gift): GiftIdea => ({
-          id: gift.id || "",
-          name: gift.name || "",
+          id: gift.id || '',
+          name: gift.name || '',
           price: gift.price ?? 0,
-          tag: gift.tag || "",
-          icon: gift.icon || "",
-          iconColor: gift.icon_color || "",
+          tag: gift.tag || '',
+          icon: gift.icon || '',
+          iconColor: gift.icon_color || '',
           rationale: gift.rationale,
         })
       )
@@ -417,8 +417,8 @@ export function apiResponseToPartnerProfile(
   const socialSignals: SocialSignal[] =
     apiResponse.social_signals?.map(
       (signal): SocialSignal => ({
-        title: signal.title || "",
-        description: signal.description || "",
+        title: signal.title || '',
+        description: signal.description || '',
         icon: signal.icon,
         isAiGenerated: signal.is_ai_generated ?? false,
       })
@@ -466,20 +466,20 @@ export function apiResponseToPartnerProfile(
   // Build the transformed profile
   const profile: PartnerProfile = {
     // Basic Info
-    id: apiResponse.partner_id || "",
-    name: basicInfo.name || "",
+    id: apiResponse.partner_id || '',
+    name: basicInfo.name || '',
     nickname: basicInfo.nickname,
     age: basicInfo.age ?? 0,
     location:
       basicInfo.location ||
       (basicInfo.city_of_birth && basicInfo.country_of_birth
         ? `${basicInfo.city_of_birth}, ${basicInfo.country_of_birth}`
-        : basicInfo.city || ""),
+        : basicInfo.city || ''),
     avatarUrl: basicInfo.avatar_url,
     stage: convertStageType(
       basicInfo.relationship_stage ||
         apiResponse.partner_personality ||
-        "Dating"
+        'Dating'
     ),
     isPremium: apiResponse.is_premium ?? false,
     // Extended basic info fields
@@ -592,7 +592,7 @@ function convertDateBudgetToNumber(
  * Transform PartnerProfile to API response format
  * Maps camelCase PartnerProfile to snake_case PartnerProfileApiResponse
  * This is the reverse transformation of apiResponseToPartnerProfile
- * 
+ *
  * @param profile - The draft profile with form values
  * @param savedProfile - Optional saved profile from API to merge fields that aren't in draft
  */
@@ -726,13 +726,14 @@ export function partnerProfileToApiFormat(
       : undefined;
 
   // Transform cycle tracking
-  const cycleTracking: CycleTrackingApi | undefined = mergedProfile.cycleTracking
-    ? {
-        is_private: mergedProfile.cycleTracking.isPrivate,
-        predicted_start: mergedProfile.cycleTracking.predictedStart,
-        predicted_end: mergedProfile.cycleTracking.predictedEnd,
-      }
-    : undefined;
+  const cycleTracking: CycleTrackingApi | undefined =
+    mergedProfile.cycleTracking
+      ? {
+          is_private: mergedProfile.cycleTracking.isPrivate,
+          predicted_start: mergedProfile.cycleTracking.predictedStart,
+          predicted_end: mergedProfile.cycleTracking.predictedEnd,
+        }
+      : undefined;
 
   // Transform attachment tendency
   const attachmentTendency: AttachmentTendencyApi | undefined =
@@ -741,7 +742,8 @@ export function partnerProfileToApiFormat(
           tendency: mergedProfile.attachmentTendency.tendency,
           label: mergedProfile.attachmentTendency.label,
           description: mergedProfile.attachmentTendency.description,
-          is_ai_generated: mergedProfile.attachmentTendency.isAiGenerated ?? false,
+          is_ai_generated:
+            mergedProfile.attachmentTendency.isAiGenerated ?? false,
         }
       : undefined;
 
@@ -756,7 +758,7 @@ export function partnerProfileToApiFormat(
     const hasInstagram =
       instagramChanged &&
       mergedProfile.instagramUrl &&
-      mergedProfile.instagramUrl.trim() !== "";
+      mergedProfile.instagramUrl.trim() !== '';
 
     // Check if Facebook URL was changed
     const facebookChanged =
@@ -765,7 +767,7 @@ export function partnerProfileToApiFormat(
     const hasFacebook =
       facebookChanged &&
       mergedProfile.facebookUrl &&
-      mergedProfile.facebookUrl.trim() !== "";
+      mergedProfile.facebookUrl.trim() !== '';
 
     // Check if Threads URL was changed
     const threadsChanged =
@@ -774,7 +776,7 @@ export function partnerProfileToApiFormat(
     const hasThreads =
       threadsChanged &&
       mergedProfile.threadsUrl &&
-      mergedProfile.threadsUrl.trim() !== "";
+      mergedProfile.threadsUrl.trim() !== '';
 
     // Check if TikTok URL was changed
     const tiktokChanged =
@@ -783,7 +785,7 @@ export function partnerProfileToApiFormat(
     const hasTiktok =
       tiktokChanged &&
       mergedProfile.tiktokUrl &&
-      mergedProfile.tiktokUrl.trim() !== "";
+      mergedProfile.tiktokUrl.trim() !== '';
 
     if (hasInstagram || hasFacebook || hasThreads || hasTiktok) {
       return {
@@ -917,7 +919,7 @@ function deepEqual(a: unknown, b: unknown): boolean {
     return a.every((item, index) => deepEqual(item, b[index]));
   }
 
-  if (typeof a === "object" && typeof b === "object") {
+  if (typeof a === 'object' && typeof b === 'object') {
     const keysA = Object.keys(a as Record<string, unknown>);
     const keysB = Object.keys(b as Record<string, unknown>);
     if (keysA.length !== keysB.length) return false;
@@ -944,44 +946,44 @@ export function computeProfileDiff(
 
   // List of fields to check for changes
   const fieldsToCheck: (keyof PartnerProfile)[] = [
-    "name",
-    "nickname",
-    "age",
-    "location",
-    "avatarUrl",
-    "stage",
-    "isPremium",
-    "goals",
-    "goalsIsAiGenerated",
-    "loveLanguage",
-    "loveLanguageIsAiGenerated",
-    "communicationStyles",
-    "communicationStylesIsAiGenerated",
-    "attachmentTendency",
-    "dealBreakers",
-    "appreciatedThings",
-    "appreciatedThingsIsAiGenerated",
-    "workRhythm",
-    "workRhythmIsAiGenerated",
-    "socialEnergyLevel",
-    "socialEnergyLevelIsAiGenerated",
-    "cycleTracking",
-    "dateBudget",
-    "dateBudgetIsAiGenerated",
-    "hobbies",
-    "hobbiesIsAiGenerated",
-    "favoriteHobbies",
-    "socialSignals",
-    "socialSignalTags",
-    "instagramUrl",
-    "interestLevel",
-    "interestLevelConfidence",
-    "moodTrend",
-    "chemistryScore",
-    "chemistryScoreDescription",
-    "whatWorksWell",
-    "specialDays",
-    "giftIdeas",
+    'name',
+    'nickname',
+    'age',
+    'location',
+    'avatarUrl',
+    'stage',
+    'isPremium',
+    'goals',
+    'goalsIsAiGenerated',
+    'loveLanguage',
+    'loveLanguageIsAiGenerated',
+    'communicationStyles',
+    'communicationStylesIsAiGenerated',
+    'attachmentTendency',
+    'dealBreakers',
+    'appreciatedThings',
+    'appreciatedThingsIsAiGenerated',
+    'workRhythm',
+    'workRhythmIsAiGenerated',
+    'socialEnergyLevel',
+    'socialEnergyLevelIsAiGenerated',
+    'cycleTracking',
+    'dateBudget',
+    'dateBudgetIsAiGenerated',
+    'hobbies',
+    'hobbiesIsAiGenerated',
+    'favoriteHobbies',
+    'socialSignals',
+    'socialSignalTags',
+    'instagramUrl',
+    'interestLevel',
+    'interestLevelConfidence',
+    'moodTrend',
+    'chemistryScore',
+    'chemistryScoreDescription',
+    'whatWorksWell',
+    'specialDays',
+    'giftIdeas',
   ];
 
   for (const field of fieldsToCheck) {

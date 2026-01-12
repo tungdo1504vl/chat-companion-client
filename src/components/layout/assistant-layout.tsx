@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { PropsWithChildren } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { cn } from "@/libs/tailwind/utils";
-import { ASSISTANT_NAV_ITEMS, type NavigationItem } from "@/constants/routes";
+import { PropsWithChildren } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/libs/tailwind/utils';
+import { ASSISTANT_NAV_ITEMS, type NavigationItem } from '@/constants/routes';
 
 function isNavItemActive(item: NavigationItem, pathname: string): boolean {
   if (item.matchPrefix) {
@@ -20,9 +20,7 @@ export default function AssistantLayout(props: PropsWithChildren) {
   return (
     <>
       <div className="max-w-lg mx-auto h-screen flex flex-col bg-background fixed top-0 left-1/2 -translate-x-1/2 w-full">
-        <div className="flex-1 overflow-y-auto pb-20 max-h-[90vh]">
-          {children}
-        </div>
+        <div className="flex-1 overflow-y-auto max-h-[90vh]">{children}</div>
       </div>
 
       {/* Fixed Footer Navigation */}
@@ -37,17 +35,17 @@ export default function AssistantLayout(props: PropsWithChildren) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors",
+                  'flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors',
                   isActive
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                <Icon className={cn("size-5", isActive && "text-primary")} />
+                <Icon className={cn('size-5', isActive && 'text-primary')} />
                 <span
                   className={cn(
-                    "text-xs font-medium",
-                    isActive && "text-primary"
+                    'text-xs font-medium',
+                    isActive && 'text-primary'
                   )}
                 >
                   {item.label}

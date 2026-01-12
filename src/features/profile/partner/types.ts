@@ -1,88 +1,92 @@
-export type GoalType = "for_fun" | "long_term" | "date_to_marry" | "unclear";
+export type GoalType = 'for_fun' | 'long_term' | 'date_to_marry' | 'unclear';
 
 export type LoveLanguage =
-  | "words_of_affirmation"
-  | "quality_time"
-  | "acts_of_service"
-  | "receiving_gifts"
-  | "physical_touch";
+  | 'words_of_affirmation'
+  | 'quality_time'
+  | 'acts_of_service'
+  | 'receiving_gifts'
+  | 'physical_touch';
 
 export type CommunicationStyle =
-  | "direct"
-  | "playful"
-  | "soft_caring"
-  | "avoid_conflict"
-  | "logical"
-  | "emotional"
-  | "deep_talks"
-  | "daily_texting"
-  | "calls_only";
+  | 'direct'
+  | 'playful'
+  | 'soft_caring'
+  | 'avoid_conflict'
+  | 'logical'
+  | 'emotional'
+  | 'deep_talks'
+  | 'daily_texting'
+  | 'calls_only';
 
 export type AttachmentTendency =
-  | "secure"
-  | "anxious"
-  | "avoidant"
-  | "secure_leaning_anxious"
-  | "secure_leaning_avoidant"
-  | "anxious_avoidant"
-  | "not_sure"
-  | "exploring";
+  | 'secure'
+  | 'anxious'
+  | 'avoidant'
+  | 'secure_leaning_anxious'
+  | 'secure_leaning_avoidant'
+  | 'anxious_avoidant'
+  | 'not_sure'
+  | 'exploring';
 
 export type DealBreaker =
-  | "smoking"
-  | "bad_hygiene"
-  | "dishonesty"
-  | "ghosting_prolonged_silence"
-  | "lack_of_respect"
-  | "excessive_jealousy"
-  | "unclear_relationship_intentions"
-  | "misaligned_long_term_goals"
-  | "fundamentally_different_core_values"
-  | "unwillingness_to_commit"
-  | "controlling_manipulative_behavior"
-  | "disrespect_for_personal_boundaries";
+  | 'smoking'
+  | 'bad_hygiene'
+  | 'dishonesty'
+  | 'ghosting_prolonged_silence'
+  | 'lack_of_respect'
+  | 'excessive_jealousy'
+  | 'unclear_relationship_intentions'
+  | 'misaligned_long_term_goals'
+  | 'fundamentally_different_core_values'
+  | 'unwillingness_to_commit'
+  | 'controlling_manipulative_behavior'
+  | 'disrespect_for_personal_boundaries';
 
-export type WorkRhythm = "busy_set_hours" | "flexible" | "remote" | "nine_to_five";
+export type WorkRhythm =
+  | 'busy_set_hours'
+  | 'flexible'
+  | 'remote'
+  | 'nine_to_five';
 
-export type SocialEnergyLevel = "introvert" | "balanced" | "extrovert";
+export type SocialEnergyLevel = 'introvert' | 'balanced' | 'extrovert';
 
-export type DateBudget = "low" | "balanced" | "high"; // Maps to $, $$, $$$
+export type DateBudget = 'low' | 'balanced' | 'high'; // Maps to $, $$, $$$
 
 export type Hobby =
-  | "travel"
-  | "food_cafe"
-  | "cooking"
-  | "baking"
-  | "fitness"
-  | "gym"
-  | "yoga"
-  | "hiking"
-  | "outdoor"
-  | "photography"
-  | "music"
-  | "concert"
-  | "movies"
-  | "netflix"
-  | "reading"
-  | "gaming";
+  | 'travel'
+  | 'food_cafe'
+  | 'cooking'
+  | 'baking'
+  | 'fitness'
+  | 'gym'
+  | 'yoga'
+  | 'hiking'
+  | 'outdoor'
+  | 'photography'
+  | 'music'
+  | 'concert'
+  | 'movies'
+  | 'netflix'
+  | 'reading'
+  | 'gaming';
 
-export type InterestLevel = "low" | "medium" | "high";
+export type InterestLevel = 'low' | 'medium' | 'high';
 
-export type MoodTrend = "excited" | "calm" | "stressed" | "happy" | "neutral";
+export type MoodTrend = 'excited' | 'calm' | 'stressed' | 'happy' | 'neutral';
 
 export type StageType =
-  | "dating"
-  | "dating_exclusively"
-  | "in_a_relationship"
-  | "engaged"
-  | "married";
+  | 'dating'
+  | 'dating_exclusively'
+  | 'in_a_relationship'
+  | 'engaged'
+  | 'married';
 
 export type SpecialDayType =
-  | "birthday"
-  | "our_start_date"
-  | "christmas"
-  | "intl_womens_day"
-  | "custom";
+  | 'birthday'
+  | 'our_start_date'
+  | 'christmas'
+  | 'intl_womens_day'
+  | 'custom';
 
 export interface SpecialDay {
   id: string;

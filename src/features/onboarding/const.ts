@@ -200,3 +200,4 @@ export const VIETNAM_CITIES: ComboboxOption[] = [
   { id: 'vinh-phuc', value: 'Vinh Phuc', label: 'Vinh Phuc', type: 'province' },
   { id: 'yen-bai', value: 'Yen Bai', label: 'Yen Bai', type: 'province' },
 ].sort((a, b) => a.label.localeCompare(b.label));
+

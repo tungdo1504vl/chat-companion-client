@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 import {
   CheckSquare,
   Plus,
@@ -11,21 +11,21 @@ import {
   Calendar,
   X,
   Edit2,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { format, parseISO, differenceInDays } from "date-fns";
-import ContentCard from "@/features/profile/common/content-card/content-card";
-import type { SpecialDay, SpecialDayType } from "../../types";
-import { cn } from "@/libs/tailwind/utils";
+} from '@/components/ui/dialog';
+import { format, parseISO, differenceInDays } from 'date-fns';
+import ContentCard from '@/features/profile/common/content-card/content-card';
+import type { SpecialDay, SpecialDayType } from '../../types';
+import { cn } from '@/libs/tailwind/utils';
 
 interface SpecialDaysSectionProps {
   specialDays?: SpecialDay[];
@@ -63,7 +63,7 @@ function getDaysRemaining(dateString: string): number | null {
 
 function formatSpecialDate(dateString: string): string {
   try {
-    return format(parseISO(dateString), "MMMM d");
+    return format(parseISO(dateString), 'MMMM d');
   } catch {
     return dateString;
   }
@@ -76,8 +76,8 @@ export function SpecialDaysSection({
 }: SpecialDaysSectionProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingDay, setEditingDay] = useState<SpecialDay | null>(null);
-  const [newDayName, setNewDayName] = useState("");
-  const [newDayDate, setNewDayDate] = useState("");
+  const [newDayName, setNewDayName] = useState('');
+  const [newDayDate, setNewDayDate] = useState('');
 
   const handleToggleNotification = (dayId: string) => {
     if (!onChange) return;
@@ -105,16 +105,16 @@ export function SpecialDaysSection({
     if (!onChange || !newDayName.trim() || !newDayDate) return;
     const newDay: SpecialDay = {
       id: `custom-${Date.now()}`,
-      type: "custom",
+      type: 'custom',
       name: newDayName.trim(),
       date: newDayDate,
-      icon: "Calendar",
-      iconColor: "bg-blue-100",
+      icon: 'Calendar',
+      iconColor: 'bg-blue-100',
       notifyEnabled: false,
     };
     onChange([...specialDays, newDay]);
-    setNewDayName("");
-    setNewDayDate("");
+    setNewDayName('');
+    setNewDayDate('');
     setDialogOpen(false);
   };
 
@@ -134,8 +134,8 @@ export function SpecialDaysSection({
     );
     onChange(updated);
     setEditingDay(null);
-    setNewDayName("");
-    setNewDayDate("");
+    setNewDayName('');
+    setNewDayDate('');
     setDialogOpen(false);
   };
 
@@ -154,8 +154,8 @@ export function SpecialDaysSection({
                 size="sm"
                 onClick={() => {
                   setEditingDay(null);
-                  setNewDayName("");
-                  setNewDayDate("");
+                  setNewDayName('');
+                  setNewDayDate('');
                 }}
               >
                 <Plus className="size-4 mr-1" />
@@ -165,7 +165,7 @@ export function SpecialDaysSection({
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>
-                  {editingDay ? "Edit Special Day" : "Add Custom Day"}
+                  {editingDay ? 'Edit Special Day' : 'Add Custom Day'}
                 </DialogTitle>
               </DialogHeader>
               <div className="flex flex-col gap-4 py-4">
@@ -191,8 +191,8 @@ export function SpecialDaysSection({
                     onClick={() => {
                       setDialogOpen(false);
                       setEditingDay(null);
-                      setNewDayName("");
-                      setNewDayDate("");
+                      setNewDayName('');
+                      setNewDayDate('');
                     }}
                   >
                     Cancel
@@ -201,7 +201,7 @@ export function SpecialDaysSection({
                     onClick={editingDay ? handleSaveEdit : handleAddCustomDay}
                     disabled={!newDayName.trim() || !newDayDate}
                   >
-                    {editingDay ? "Save" : "Add"}
+                    {editingDay ? 'Save' : 'Add'}
                   </Button>
                 </div>
               </div>
@@ -223,7 +223,7 @@ export function SpecialDaysSection({
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <div
                   className={cn(
-                    "size-10 rounded-full flex items-center justify-center shrink-0",
+                    'size-10 rounded-full flex items-center justify-center shrink-0',
                     day.iconColor
                   )}
                 >
@@ -250,7 +250,7 @@ export function SpecialDaysSection({
                     )}
                     {daysRemaining !== null && daysRemaining !== undefined && (
                       <span className="text-xs text-muted-foreground">
-                        {daysRemaining} {daysRemaining === 1 ? "day" : "days"}{" "}
+                        {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'}{' '}
                         left
                       </span>
                     )}

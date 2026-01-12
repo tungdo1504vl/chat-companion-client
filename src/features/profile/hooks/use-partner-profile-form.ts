@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { usePartnerProfileStore } from "../partner/store/hooks";
-import { profilesEqual } from "../partner/store/partner-profile-store";
-import { useUpdatePartnerProfile } from "../partner/hooks/use-update-partner-profile";
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { usePartnerProfileStore } from '../partner/store/hooks';
+import { profilesEqual } from '../partner/store/partner-profile-store';
+import { useUpdatePartnerProfile } from '../partner/hooks/use-update-partner-profile';
 import type {
   PartnerProfile,
   GoalType,
@@ -18,7 +18,7 @@ import type {
   SocialSignal,
   SpecialDay,
   AttachmentTendencyData,
-} from "../partner/types";
+} from '../partner/types';
 export interface UsePartnerProfileFormReturn {
   // State
   draftProfile: PartnerProfile | null;
@@ -86,11 +86,11 @@ export function usePartnerProfileForm(
       if (draftProfile) {
         setSavedProfile(draftProfile);
       }
-      toast.success("Profile saved successfully");
+      toast.success('Profile saved successfully');
     },
     onError: (err) => {
       const errorMessage =
-        err instanceof Error ? err.message : "Failed to save profile";
+        err instanceof Error ? err.message : 'Failed to save profile';
       setError(errorMessage);
       toast.error(errorMessage);
     },
@@ -103,7 +103,6 @@ export function usePartnerProfileForm(
     }
   }, [updateMutation.isPending, isSaving, setIsSaving]);
 
-  console.log("initialProfile", initialProfile);
   // Initialize store on mount or when profile ID changes
   useEffect(() => {
     // Initialize if no saved profile exists, or if the profile ID has changed
@@ -125,18 +124,18 @@ export function usePartnerProfileForm(
   // Specific update handlers
   const updateHandlers = {
     onGoalsChange: (goals: GoalType[]) => {
-      updateField("goals", goals, "goalsIsAiGenerated");
+      updateField('goals', goals, 'goalsIsAiGenerated');
     },
 
     onLoveLanguageChange: (loveLanguage: LoveLanguage) => {
-      updateField("loveLanguage", loveLanguage, "loveLanguageIsAiGenerated");
+      updateField('loveLanguage', loveLanguage, 'loveLanguageIsAiGenerated');
     },
 
     onCommunicationStylesChange: (styles: CommunicationStyle[]) => {
       updateField(
-        "communicationStyles",
+        'communicationStyles',
         styles,
-        "communicationStylesIsAiGenerated"
+        'communicationStylesIsAiGenerated'
       );
     },
 
@@ -149,43 +148,43 @@ export function usePartnerProfileForm(
           isAiGenerated: false,
         },
       };
-      updateField("attachmentTendency", updated.attachmentTendency);
+      updateField('attachmentTendency', updated.attachmentTendency);
     },
 
     onDealBreakersChange: (dealBreakers: DealBreaker[]) => {
-      updateField("dealBreakers", dealBreakers);
+      updateField('dealBreakers', dealBreakers);
     },
 
     onAppreciatedThingsChange: (things: string[]) => {
       updateField(
-        "appreciatedThings",
+        'appreciatedThings',
         things,
-        "appreciatedThingsIsAiGenerated"
+        'appreciatedThingsIsAiGenerated'
       );
     },
 
     onWorkRhythmChange: (rhythm: WorkRhythm) => {
-      updateField("workRhythm", rhythm, "workRhythmIsAiGenerated");
+      updateField('workRhythm', rhythm, 'workRhythmIsAiGenerated');
     },
 
     onSocialEnergyChange: (energy: SocialEnergyLevel) => {
       updateField(
-        "socialEnergyLevel",
+        'socialEnergyLevel',
         energy,
-        "socialEnergyLevelIsAiGenerated"
+        'socialEnergyLevelIsAiGenerated'
       );
     },
 
     onDateBudgetChange: (budget: DateBudget) => {
-      updateField("dateBudget", budget, "dateBudgetIsAiGenerated");
+      updateField('dateBudget', budget, 'dateBudgetIsAiGenerated');
     },
 
     onHobbiesChange: (hobbies: Hobby[]) => {
-      updateField("hobbies", hobbies, "hobbiesIsAiGenerated");
+      updateField('hobbies', hobbies, 'hobbiesIsAiGenerated');
     },
 
     onFavoriteHobbiesChange: (favorites: Hobby[]) => {
-      updateField("favoriteHobbies", favorites);
+      updateField('favoriteHobbies', favorites);
     },
 
     onSocialSignalsChange: (signals: SocialSignal[]) => {
@@ -197,15 +196,15 @@ export function usePartnerProfileForm(
           isAiGenerated: false,
         })),
       };
-      updateField("socialSignals", updated.socialSignals);
+      updateField('socialSignals', updated.socialSignals);
     },
 
     onInstagramUrlChange: (url: string) => {
-      updateField("instagramUrl", url);
+      updateField('instagramUrl', url);
     },
 
     onSpecialDaysChange: (days: SpecialDay[] | undefined) => {
-      updateField("specialDays", days);
+      updateField('specialDays', days);
     },
   };
 
@@ -218,7 +217,7 @@ export function usePartnerProfileForm(
     setError(null);
 
     // Show loading toast when save starts
-    const loadingToastId = toast.loading("Saving profile...");
+    const loadingToastId = toast.loading('Saving profile...');
 
     // Pass both draft and saved profiles to compute diff and send only changed fields
     updateMutation.mutate(
@@ -239,7 +238,7 @@ export function usePartnerProfileForm(
   // Reset handler
   const handleReset = () => {
     resetToSaved();
-    toast.info("Changes discarded");
+    toast.info('Changes discarded');
   };
 
   return {

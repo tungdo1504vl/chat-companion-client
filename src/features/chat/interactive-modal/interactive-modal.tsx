@@ -50,13 +50,15 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
       setIsLoading(true);
       setAudioSrc(null);
       try {
+        // const userText = text;
+        const userText = 'Giới thiệu về bạn đi';
         const payload: TCommonPayload = {
           task_type: TASK_TYPE.PARTNER_VOICE_SYNTHESIZE,
           input_args: {
             user_id: userId,
             partner_id: partnerId,
             generate_from_chat: false,
-            user_message: text,
+            user_message: userText,
           },
           priority: 'high',
         };

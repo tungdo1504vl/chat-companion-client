@@ -1,25 +1,25 @@
-"use client";
+'use client';
 
-import { lazy, useState, useCallback, Suspense } from "react";
-import { useRouter } from "next/navigation";
-import { Pencil } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/commons/page-header";
-import { ProfileInfo } from "@/features/profile/common/header";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { MOCK_PARTNER_PROFILE } from "./const";
-import { usePartnerProfileForm } from "../hooks/use-partner-profile-form";
-import { useUpdatePartnerImage } from "./hooks/use-update-partner-image";
-import { ImageUploadDialog } from "@/features/profile/common/components/image-upload-dialog";
-import { usePartnerProfileStore } from "./store/hooks";
-import type { PartnerProfile } from "./types";
+import { lazy, useState, useCallback, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
+import { Pencil } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/commons/page-header';
+import { ProfileInfo } from '@/features/profile/common/header';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { MOCK_PARTNER_PROFILE } from './const';
+import { useUpdatePartnerImage } from './hooks/use-update-partner-image';
+import { ImageUploadDialog } from '@/features/profile/common/components/image-upload-dialog';
+import { usePartnerProfileStore } from './store/hooks';
+import type { PartnerProfile } from './types';
+import { usePartnerProfileForm } from '../hooks/use-partner-profile-form';
 
 // Lazy load tab components
 const PartnerProfileOverview = lazy(
-  () => import("./overview-tab/partner-profile-overview")
+  () => import('./overview-tab/partner-profile-overview')
 );
 const SpecialThingsTab = lazy(
-  () => import("./special-things-tab/special-things-tab")
+  () => import('./special-things-tab/special-things-tab')
 );
 
 // Lazy load insights history component (placeholder for now)
@@ -42,7 +42,7 @@ type PartnerProfileClientProps = Readonly<{
 const isFirstTimeUser = (): boolean => {
   // Mock logic: check localStorage for a flag
   if (globalThis.window === undefined) return true;
-  const hasViewedProfile = localStorage.getItem("hasViewedPartnerProfile");
+  const hasViewedProfile = localStorage.getItem('hasViewedPartnerProfile');
   return !hasViewedProfile;
 };
 
@@ -67,7 +67,7 @@ export function PartnerProfileClient({
 
   // Image upload hook
   const { updateImageAsync, isUpdating: isUpdatingImage } =
-    useUpdatePartnerImage(savedProfile?.id || "", {
+    useUpdatePartnerImage(savedProfile?.id || '', {
       savedProfile: savedProfile || initialProfile,
       onSuccess: () => {
         setIsImageDialogOpen(false);
@@ -76,10 +76,10 @@ export function PartnerProfileClient({
 
   // Determine default tab: first-time users → "overview", returning → "special-things"
   const getDefaultTab = (): string => {
-    if (globalThis.window === undefined) return "overview";
-    const savedTab = localStorage.getItem("partnerProfileLastTab");
+    if (globalThis.window === undefined) return 'overview';
+    const savedTab = localStorage.getItem('partnerProfileLastTab');
     if (savedTab) return savedTab;
-    return isFirstTimeUser() ? "overview" : "special-things";
+    return isFirstTimeUser() ? 'overview' : 'special-things';
   };
 
   const [activeTab, setActiveTab] = useState<string>(getDefaultTab);
@@ -88,8 +88,8 @@ export function PartnerProfileClient({
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab);
     if (globalThis.window !== undefined) {
-      localStorage.setItem("partnerProfileLastTab", tab);
-      localStorage.setItem("hasViewedPartnerProfile", "true");
+      localStorage.setItem('partnerProfileLastTab', tab);
+      localStorage.setItem('hasViewedPartnerProfile', 'true');
     }
   }, []);
 
@@ -98,9 +98,9 @@ export function PartnerProfileClient({
 
   // Get initials for avatar fallback
   const initials = displayProfile.name
-    .split(" ")
+    .split(' ')
     .map((n) => n[0])
-    .join("")
+    .join('')
     .toUpperCase();
 
   // Handle avatar edit click
@@ -111,20 +111,20 @@ export function PartnerProfileClient({
   // Handle image select and upload
   const handleImageSelect = async (file: File) => {
     try {
-      const imageInfo = await import("@/utils/image").then((m) =>
+      const imageInfo = await import('@/utils/image').then((m) =>
         m.processImageFile(file)
       );
 
       // Update draft profile immediately for instant UI feedback
       if (draftProfile) {
-        updateField("avatarUrl", imageInfo.base64);
+        updateField('avatarUrl', imageInfo.base64);
       }
 
       // Upload to backend
       await updateImageAsync(file);
     } catch (error) {
       // Error handling is done in the hook
-      console.error("Failed to upload image:", error);
+      console.error('Failed to upload image:', error);
     }
   };
 
@@ -258,7 +258,7 @@ export function PartnerProfileClient({
               onClick={handleSave}
               disabled={!hasUnsavedChanges || isSaving}
               aria-label={
-                hasUnsavedChanges ? "Save changes" : "No changes to save"
+                hasUnsavedChanges ? 'Save changes' : 'No changes to save'
               }
             >
               {(() => {

@@ -6,4 +6,6 @@ export const TASK_TYPE = {
   RELATIONSHIP_CHAT: 'relationship_chat',
   RELATIONSHIP_CHAT_HISTORY: 'relationship_chat_history',
   PARTNER_VOICE_SYNTHESIZE: 'partner_voice_synthesize',
+
+  PARTNER_GIFT_IDEAS: 'partner_gift_ideas',
 };

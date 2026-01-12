@@ -18,3 +18,4 @@ export type TOnboardingFormProps = {
   isLoading?: boolean;
   onStepChange?: (step: number) => void;
 };
+

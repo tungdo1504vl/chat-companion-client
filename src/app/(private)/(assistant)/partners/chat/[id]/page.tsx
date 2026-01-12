@@ -6,12 +6,7 @@ import { useComputeGet } from '@/hooks/use-compute-get';
 import { useSession } from '@/libs/better-auth/client';
 import { createTaskParams } from '@/utils/helpers';
 import { useState } from 'react';
-import {
-  Heart,
-  Home,
-  LoaderCircle,
-  Send,
-} from 'lucide-react';
+import { Heart, Home, LoaderCircle, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/commons/page-header';
 import Image from 'next/image';
@@ -29,6 +24,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import InteractiveModal from '@/features/chat/interactive-modal/interactive-modal';
+import { toast } from 'sonner';
 
 const ScrollToBottom = dynamic(() => import('react-scroll-to-bottom'), {
   ssr: false,
@@ -77,6 +73,18 @@ export default function PartnerChatPage() {
       queryKeys: [partnerId],
     }
   );
+  const { data: partnerData, isLoading: isLoadingPartnerData } = useComputeGet(
+    createTaskParams(TASK_TYPE.PARTNER_PROFILE_GET, {
+      user_id: userId || '',
+      partner_id: partnerId || '',
+    }),
+    {
+      enabled,
+      queryKeys: [partnerId],
+    }
+  );
+
+  const existingVoice = partnerData?.result?.partner_voice;
 
   // const bb = queryClient.getQueriesData({
   //   queryKey: ['compute', TASK_TYPE.RELATIONSHIP_CHAT_HISTORY, partnerId],
@@ -229,6 +237,10 @@ export default function PartnerChatPage() {
                   type="button"
                   className="flex items-center gap-2 cursor-pointer w-full text-left"
                   onClick={() => {
+                    if (!existingVoice) {
+                      toast.warning('Voice not found');
+                      return;
+                    }
                     setOpenInteractiveModal(true);
                     setOpenPopover(false);
                   }}
@@ -242,7 +254,7 @@ export default function PartnerChatPage() {
         </div>
 
         {/* Chat Messages */}
-        <div className="flex-1 min-h-0 overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-hidden px-2">
           {!isLoading && !hasMessages && (
             <div className="py-3 text-black/40">Enter message to start ...</div>
           )}
