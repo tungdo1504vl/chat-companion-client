@@ -102,6 +102,7 @@ export interface GiftIdea {
   tag: string;
   icon: string; // Icon name from lucide-react
   iconColor: string; // Tailwind color class
+  rationale?: string; // AI-generated rationale for the gift idea
 }
 
 export interface SocialSignal {
@@ -136,6 +137,22 @@ export interface PartnerProfile {
   avatarUrl?: string;
   stage: StageType;
   isPremium?: boolean;
+  // Extended basic info fields from API
+  gender?: string;
+  dob?: string;
+  timeOfBirth?: string;
+  countryOfBirth?: string;
+  cityOfBirth?: string;
+  city?: string;
+  timezoneOffset?: string;
+
+  // Context fields from API
+  currentSituation?: string;
+  whatYouWant?: string;
+  whatUltimatelyWant?: string;
+  partnerPersonality?: string;
+  pastEventsSummary?: string;
+  currentFeelings?: string;
 
   // Goals
   goals: GoalType[];
@@ -150,6 +167,8 @@ export interface PartnerProfile {
   dealBreakers: DealBreaker[];
   appreciatedThings: string[];
   appreciatedThingsIsAiGenerated?: boolean;
+  // Alternative field name from API
+  thingsTheyAppreciate?: string[];
 
   // Lifestyle Snapshot
   workRhythm?: WorkRhythm;
@@ -167,6 +186,9 @@ export interface PartnerProfile {
   socialSignals: SocialSignal[];
   socialSignalTags?: string[]; // Additional tags like "WEEKEND HIKER", "CAMERA SHY"
   instagramUrl?: string; // Instagram profile URL
+  facebookUrl?: string;
+  threadsUrl?: string;
+  tiktokUrl?: string;
 
   // Chemistry & Insights
   interestLevel?: InterestLevel;

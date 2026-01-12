@@ -345,8 +345,6 @@ export function apiResponseToPartnerProfile(
   const cycleTracking = apiResponse.cycle_tracking;
   const attachmentTendency = apiResponse.attachment_tendency;
 
-  console.log({ basicInfo });
-
   // Transform goals array with validation
   const goals: GoalType[] = (apiResponse.goals || [])
     .map(convertGoalType)
@@ -410,6 +408,7 @@ export function apiResponseToPartnerProfile(
           tag: gift.tag || "",
           icon: gift.icon || "",
           iconColor: gift.icon_color || "",
+          rationale: gift.rationale,
         })
       )
     : undefined;
@@ -457,9 +456,12 @@ export function apiResponseToPartnerProfile(
     apiResponse.date_budget ?? lifestyle?.date_budget
   );
 
-  // Extract social links (instagram from social_links or fallback to direct field)
+  // Extract social links
   const socialLinks = apiResponse.social_links;
   const instagramUrl = socialLinks?.instagram;
+  const facebookUrl = socialLinks?.facebook;
+  const threadsUrl = socialLinks?.threads;
+  const tiktokUrl = socialLinks?.tiktok;
 
   // Build the transformed profile
   const profile: PartnerProfile = {
@@ -469,9 +471,10 @@ export function apiResponseToPartnerProfile(
     nickname: basicInfo.nickname,
     age: basicInfo.age ?? 0,
     location:
-      basicInfo.city_of_birth && basicInfo.country_of_birth
+      basicInfo.location ||
+      (basicInfo.city_of_birth && basicInfo.country_of_birth
         ? `${basicInfo.city_of_birth}, ${basicInfo.country_of_birth}`
-        : "",
+        : basicInfo.city || ""),
     avatarUrl: basicInfo.avatar_url,
     stage: convertStageType(
       basicInfo.relationship_stage ||
@@ -479,6 +482,22 @@ export function apiResponseToPartnerProfile(
         "Dating"
     ),
     isPremium: apiResponse.is_premium ?? false,
+    // Extended basic info fields
+    gender: basicInfo.gender,
+    dob: basicInfo.dob,
+    timeOfBirth: basicInfo.time_of_birth,
+    countryOfBirth: basicInfo.country_of_birth,
+    cityOfBirth: basicInfo.city_of_birth,
+    city: basicInfo.city,
+    timezoneOffset: basicInfo.timezone_offset,
+
+    // Context fields
+    currentSituation: apiResponse.current_situation,
+    whatYouWant: apiResponse.what_you_want,
+    whatUltimatelyWant: apiResponse.what_ultimately_want,
+    partnerPersonality: apiResponse.partner_personality,
+    pastEventsSummary: apiResponse.past_events_summary,
+    currentFeelings: apiResponse.current_feelings,
 
     // Goals
     goals,
@@ -501,6 +520,7 @@ export function apiResponseToPartnerProfile(
     appreciatedThings,
     appreciatedThingsIsAiGenerated:
       apiResponse.appreciated_things_is_ai_generated ?? false,
+    thingsTheyAppreciate: apiResponse.things_they_appreciate,
 
     // Lifestyle Snapshot
     // Check both direct field and nested lifestyle.work_schedule
@@ -528,6 +548,9 @@ export function apiResponseToPartnerProfile(
     socialSignals,
     socialSignalTags: apiResponse.social_signal_tags,
     instagramUrl,
+    facebookUrl,
+    threadsUrl,
+    tiktokUrl,
 
     // Chemistry & Insights
     interestLevel: apiResponse.interest_level
@@ -569,23 +592,104 @@ function convertDateBudgetToNumber(
  * Transform PartnerProfile to API response format
  * Maps camelCase PartnerProfile to snake_case PartnerProfileApiResponse
  * This is the reverse transformation of apiResponseToPartnerProfile
+ * 
+ * @param profile - The draft profile with form values
+ * @param savedProfile - Optional saved profile from API to merge fields that aren't in draft
  */
 export function partnerProfileToApiFormat(
-  profile: PartnerProfile
+  profile: PartnerProfile,
+  savedProfile?: PartnerProfile
 ): PartnerProfileApiResponse {
-  // Transform basic info
+  // Merge saved profile fields with draft profile (draft takes precedence)
+  // Fields from form (draft) override saved values, but if draft doesn't have a field,
+  // we preserve the saved value to ensure all API fields are included
+  const mergedProfile: PartnerProfile = savedProfile
+    ? {
+        ...savedProfile,
+        ...profile,
+        // For arrays, use draft if it has values, otherwise preserve saved
+        goals:
+          profile.goals && profile.goals.length > 0
+            ? profile.goals
+            : savedProfile.goals,
+        communicationStyles:
+          profile.communicationStyles && profile.communicationStyles.length > 0
+            ? profile.communicationStyles
+            : savedProfile.communicationStyles,
+        dealBreakers:
+          profile.dealBreakers && profile.dealBreakers.length > 0
+            ? profile.dealBreakers
+            : savedProfile.dealBreakers,
+        appreciatedThings:
+          profile.appreciatedThings && profile.appreciatedThings.length > 0
+            ? profile.appreciatedThings
+            : savedProfile.appreciatedThings,
+        hobbies:
+          profile.hobbies && profile.hobbies.length > 0
+            ? profile.hobbies
+            : savedProfile.hobbies,
+        socialSignals:
+          profile.socialSignals && profile.socialSignals.length > 0
+            ? profile.socialSignals
+            : savedProfile.socialSignals,
+        // For optional arrays/objects, use draft if defined, otherwise use saved
+        favoriteHobbies:
+          profile.favoriteHobbies !== undefined
+            ? profile.favoriteHobbies
+            : savedProfile.favoriteHobbies,
+        specialDays:
+          profile.specialDays !== undefined
+            ? profile.specialDays
+            : savedProfile.specialDays,
+        giftIdeas:
+          profile.giftIdeas !== undefined
+            ? profile.giftIdeas
+            : savedProfile.giftIdeas,
+        thingsTheyAppreciate:
+          profile.thingsTheyAppreciate !== undefined
+            ? profile.thingsTheyAppreciate
+            : savedProfile.thingsTheyAppreciate,
+        // For social URLs, use draft if defined (including empty string to clear),
+        // otherwise preserve saved value
+        instagramUrl:
+          profile.instagramUrl !== undefined
+            ? profile.instagramUrl
+            : savedProfile.instagramUrl,
+        facebookUrl:
+          profile.facebookUrl !== undefined
+            ? profile.facebookUrl
+            : savedProfile.facebookUrl,
+        threadsUrl:
+          profile.threadsUrl !== undefined
+            ? profile.threadsUrl
+            : savedProfile.threadsUrl,
+        tiktokUrl:
+          profile.tiktokUrl !== undefined
+            ? profile.tiktokUrl
+            : savedProfile.tiktokUrl,
+      }
+    : profile;
+
+  // Transform basic info with all fields
   const basicInfo: BasicInfoApi = {
-    name: profile.name,
-    nickname: profile.nickname,
-    avatar_url: profile.avatarUrl,
-    age: profile.age,
-    location: profile.location,
-    relationship_stage: profile.stage,
+    name: mergedProfile.name,
+    nickname: mergedProfile.nickname,
+    avatar_url: mergedProfile.avatarUrl,
+    age: mergedProfile.age,
+    location: mergedProfile.location,
+    relationship_stage: mergedProfile.stage,
+    gender: mergedProfile.gender,
+    dob: mergedProfile.dob,
+    time_of_birth: mergedProfile.timeOfBirth,
+    country_of_birth: mergedProfile.countryOfBirth,
+    city_of_birth: mergedProfile.cityOfBirth,
+    city: mergedProfile.city,
+    timezone_offset: mergedProfile.timezoneOffset,
   };
 
   // Transform special days
-  const specialDays: SpecialDayApi[] | undefined = profile.specialDays
-    ? profile.specialDays.map((day) => ({
+  const specialDays: SpecialDayApi[] | undefined = mergedProfile.specialDays
+    ? mergedProfile.specialDays.map((day) => ({
         id: day.id,
         name: day.name,
         date: day.date,
@@ -597,8 +701,8 @@ export function partnerProfileToApiFormat(
     : undefined;
 
   // Transform gift ideas
-  const giftIdeas: GiftIdeaApi[] | undefined = profile.giftIdeas
-    ? profile.giftIdeas.map((gift) => ({
+  const giftIdeas: GiftIdeaApi[] | undefined = mergedProfile.giftIdeas
+    ? mergedProfile.giftIdeas.map((gift) => ({
         id: gift.id,
         name: gift.name,
         price: gift.price,
@@ -606,13 +710,14 @@ export function partnerProfileToApiFormat(
         icon: gift.icon,
         icon_color: gift.iconColor,
         ai_curated: false, // Default value, can be enhanced if needed
+        rationale: gift.rationale,
       }))
     : undefined;
 
   // Transform social signals
   const socialSignals: SocialSignalApi[] | undefined =
-    profile.socialSignals && profile.socialSignals.length > 0
-      ? profile.socialSignals.map((signal) => ({
+    mergedProfile.socialSignals && mergedProfile.socialSignals.length > 0
+      ? mergedProfile.socialSignals.map((signal) => ({
           title: signal.title,
           description: signal.description,
           icon: signal.icon,
@@ -621,31 +726,75 @@ export function partnerProfileToApiFormat(
       : undefined;
 
   // Transform cycle tracking
-  const cycleTracking: CycleTrackingApi | undefined = profile.cycleTracking
+  const cycleTracking: CycleTrackingApi | undefined = mergedProfile.cycleTracking
     ? {
-        is_private: profile.cycleTracking.isPrivate,
-        predicted_start: profile.cycleTracking.predictedStart,
-        predicted_end: profile.cycleTracking.predictedEnd,
+        is_private: mergedProfile.cycleTracking.isPrivate,
+        predicted_start: mergedProfile.cycleTracking.predictedStart,
+        predicted_end: mergedProfile.cycleTracking.predictedEnd,
       }
     : undefined;
 
   // Transform attachment tendency
   const attachmentTendency: AttachmentTendencyApi | undefined =
-    profile.attachmentTendency
+    mergedProfile.attachmentTendency
       ? {
-          tendency: profile.attachmentTendency.tendency,
-          label: profile.attachmentTendency.label,
-          description: profile.attachmentTendency.description,
-          is_ai_generated: profile.attachmentTendency.isAiGenerated ?? false,
+          tendency: mergedProfile.attachmentTendency.tendency,
+          label: mergedProfile.attachmentTendency.label,
+          description: mergedProfile.attachmentTendency.description,
+          is_ai_generated: mergedProfile.attachmentTendency.isAiGenerated ?? false,
         }
       : undefined;
 
-  // Transform social links
-  const socialLinks: SocialLinksApi | undefined = profile.instagramUrl
-    ? {
-        instagram: profile.instagramUrl,
-      }
-    : undefined;
+  // Transform social links (include all social media platforms)
+  // Only include URLs that are truthy (non-empty strings) AND were changed from saved value
+  // This ensures we send social_links only when there's at least one URL that was modified
+  const socialLinks: SocialLinksApi | undefined = (() => {
+    // Check if Instagram URL was changed (draft differs from saved, or draft has value and saved doesn't)
+    const instagramChanged =
+      savedProfile === undefined ||
+      profile.instagramUrl !== savedProfile.instagramUrl;
+    const hasInstagram =
+      instagramChanged &&
+      mergedProfile.instagramUrl &&
+      mergedProfile.instagramUrl.trim() !== "";
+
+    // Check if Facebook URL was changed
+    const facebookChanged =
+      savedProfile === undefined ||
+      profile.facebookUrl !== savedProfile.facebookUrl;
+    const hasFacebook =
+      facebookChanged &&
+      mergedProfile.facebookUrl &&
+      mergedProfile.facebookUrl.trim() !== "";
+
+    // Check if Threads URL was changed
+    const threadsChanged =
+      savedProfile === undefined ||
+      profile.threadsUrl !== savedProfile.threadsUrl;
+    const hasThreads =
+      threadsChanged &&
+      mergedProfile.threadsUrl &&
+      mergedProfile.threadsUrl.trim() !== "";
+
+    // Check if TikTok URL was changed
+    const tiktokChanged =
+      savedProfile === undefined ||
+      profile.tiktokUrl !== savedProfile.tiktokUrl;
+    const hasTiktok =
+      tiktokChanged &&
+      mergedProfile.tiktokUrl &&
+      mergedProfile.tiktokUrl.trim() !== "";
+
+    if (hasInstagram || hasFacebook || hasThreads || hasTiktok) {
+      return {
+        ...(hasInstagram && { instagram: mergedProfile.instagramUrl }),
+        ...(hasFacebook && { facebook: mergedProfile.facebookUrl }),
+        ...(hasThreads && { threads: mergedProfile.threadsUrl }),
+        ...(hasTiktok && { tiktok: mergedProfile.tiktokUrl }),
+      };
+    }
+    return undefined;
+  })();
 
   // Transform personality (optional nested structure)
   const personality: PersonalityApi | undefined =
@@ -679,53 +828,75 @@ export function partnerProfileToApiFormat(
         }
       : undefined;
 
-  // Build the API response
+  // Build the API response with all required fields
   const apiResponse: PartnerProfileApiResponse = {
-    partner_id: profile.id,
+    partner_id: mergedProfile.id,
     basic_info: basicInfo,
-    goals: profile.goals,
-    goals_is_ai_generated: profile.goalsIsAiGenerated,
-    is_premium: profile.isPremium,
-    love_language: profile.loveLanguage,
-    love_language_is_ai_generated: profile.loveLanguageIsAiGenerated,
+    // Context fields
+    current_situation: mergedProfile.currentSituation,
+    what_you_want: mergedProfile.whatYouWant,
+    what_ultimately_want: mergedProfile.whatUltimatelyWant,
+    partner_personality: mergedProfile.partnerPersonality,
+    past_events_summary: mergedProfile.pastEventsSummary,
+    current_feelings: mergedProfile.currentFeelings,
+    // Goals
+    goals: mergedProfile.goals,
+    goals_is_ai_generated: mergedProfile.goalsIsAiGenerated ?? false,
+    // Premium status
+    is_premium: mergedProfile.isPremium ?? false,
+    // Personality & Preference
+    love_language: mergedProfile.loveLanguage,
+    love_language_is_ai_generated:
+      mergedProfile.loveLanguageIsAiGenerated ?? false,
     communication_styles:
-      profile.communicationStyles.length > 0
-        ? profile.communicationStyles
+      mergedProfile.communicationStyles.length > 0
+        ? mergedProfile.communicationStyles
         : undefined,
     communication_styles_is_ai_generated:
-      profile.communicationStylesIsAiGenerated,
+      mergedProfile.communicationStylesIsAiGenerated ?? false,
     attachment_tendency: attachmentTendency,
     deal_breakers:
-      profile.dealBreakers.length > 0 ? profile.dealBreakers : undefined,
+      mergedProfile.dealBreakers.length > 0
+        ? mergedProfile.dealBreakers
+        : undefined,
     appreciated_things:
-      profile.appreciatedThings.length > 0
-        ? profile.appreciatedThings
+      mergedProfile.appreciatedThings.length > 0
+        ? mergedProfile.appreciatedThings
         : undefined,
-    appreciated_things_is_ai_generated: profile.appreciatedThingsIsAiGenerated,
-    work_rhythm: profile.workRhythm,
-    work_rhythm_is_ai_generated: profile.workRhythmIsAiGenerated,
+    appreciated_things_is_ai_generated:
+      mergedProfile.appreciatedThingsIsAiGenerated ?? false,
+    things_they_appreciate: mergedProfile.thingsTheyAppreciate,
+    // Lifestyle
+    work_rhythm: mergedProfile.workRhythm,
+    work_rhythm_is_ai_generated: mergedProfile.workRhythmIsAiGenerated ?? false,
     cycle_tracking: cycleTracking,
-    date_budget: convertDateBudgetToNumber(profile.dateBudget),
-    date_budget_is_ai_generated: profile.dateBudgetIsAiGenerated,
-    hobbies: profile.hobbies.length > 0 ? profile.hobbies : undefined,
-    hobbies_is_ai_generated: profile.hobbiesIsAiGenerated,
+    date_budget: convertDateBudgetToNumber(mergedProfile.dateBudget),
+    date_budget_is_ai_generated: mergedProfile.dateBudgetIsAiGenerated ?? false,
+    hobbies:
+      mergedProfile.hobbies.length > 0 ? mergedProfile.hobbies : undefined,
+    hobbies_is_ai_generated: mergedProfile.hobbiesIsAiGenerated ?? false,
     favorite_hobbies:
-      profile.favoriteHobbies && profile.favoriteHobbies.length > 0
-        ? profile.favoriteHobbies
+      mergedProfile.favoriteHobbies && mergedProfile.favoriteHobbies.length > 0
+        ? mergedProfile.favoriteHobbies
         : undefined,
+    social_energy_level: mergedProfile.socialEnergyLevel,
+    social_energy_level_is_ai_generated:
+      mergedProfile.socialEnergyLevelIsAiGenerated ?? false,
+    // Social Signals
     social_signals: socialSignals,
-    social_signal_tags: profile.socialSignalTags,
-    interest_level: profile.interestLevel,
-    interest_level_confidence: profile.interestLevelConfidence,
-    mood_trend: profile.moodTrend,
-    chemistry_score: profile.chemistryScore,
-    chemistry_score_description: profile.chemistryScoreDescription,
-    what_works_well: profile.whatWorksWell,
-    gift_ideas: giftIdeas,
-    social_energy_level: profile.socialEnergyLevel,
-    social_energy_level_is_ai_generated: profile.socialEnergyLevelIsAiGenerated,
-    special_days: specialDays,
+    social_signal_tags: mergedProfile.socialSignalTags,
     social_links: socialLinks,
+    // Chemistry & Insights
+    interest_level: mergedProfile.interestLevel,
+    interest_level_confidence: mergedProfile.interestLevelConfidence,
+    mood_trend: mergedProfile.moodTrend,
+    chemistry_score: mergedProfile.chemistryScore,
+    chemistry_score_description: mergedProfile.chemistryScoreDescription,
+    what_works_well: mergedProfile.whatWorksWell,
+    // Special Things
+    special_days: specialDays,
+    gift_ideas: giftIdeas,
+    // Nested structures
     personality,
     lifestyle,
   };

@@ -10,6 +10,7 @@ import { Field, FieldLabel } from "@/components/ui/field";
 
 interface SocialSignalsSectionProps {
   instagramUrl?: string;
+  savedInstagramUrl?: string; // Instagram URL from API (saved profile)
   onInstagramUrlChange?: (url: string) => void;
   className?: string;
 }
@@ -46,10 +47,14 @@ function InstagramIcon({ className }: Readonly<{ className?: string }>) {
 
 export function SocialSignalsSection({
   instagramUrl = "",
+  savedInstagramUrl,
   onInstagramUrlChange,
   className,
 }: SocialSignalsSectionProps) {
   const hasUrl = instagramUrl && instagramUrl.trim() !== "";
+  // Only show "Linked" when saved profile has Instagram URL from API
+  const isLinkedFromApi =
+    savedInstagramUrl && savedInstagramUrl.trim() !== "";
 
   return (
     <Card className={className}>
@@ -72,7 +77,7 @@ export function SocialSignalsSection({
               <InstagramIcon className="h-5 w-5 shrink-0" />
               Instagram
             </FieldLabel>
-            {hasUrl && (
+            {isLinkedFromApi && (
               <span className="text-sm text-green-600 dark:text-green-400">
                 ✓ Linked
               </span>

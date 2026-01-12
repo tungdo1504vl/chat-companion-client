@@ -51,6 +51,7 @@ export function PartnerProfileClient({
   // // Use custom hook for form state management
   const {
     draftProfile,
+    savedProfile,
     isSaving,
     hasUnsavedChanges,
     updateHandlers,
@@ -141,6 +142,7 @@ export function PartnerProfileClient({
               >
                 <PartnerProfileOverview
                   profile={displayProfile}
+                  savedInstagramUrl={savedProfile?.instagramUrl}
                   onGoalsChange={updateHandlers.onGoalsChange}
                   onLoveLanguageChange={updateHandlers.onLoveLanguageChange}
                   onCommunicationStylesChange={
@@ -161,7 +163,6 @@ export function PartnerProfileClient({
                     updateHandlers.onFavoriteHobbiesChange
                   }
                   onInstagramUrlChange={updateHandlers.onInstagramUrlChange}
-                  onVoiceAudioChange={updateHandlers.onVoiceAudioChange}
                 />
               </Suspense>
             </TabsContent>
@@ -214,9 +215,23 @@ export function PartnerProfileClient({
               className="flex-1"
               onClick={handleSave}
               disabled={!hasUnsavedChanges || isSaving}
+              aria-label={hasUnsavedChanges ? "Save changes" : "No changes to save"}
             >
-              <Pencil className="size-4 mr-2" />
-              {isSaving ? "Saving..." : "Edit Profile"}
+              {isSaving ? (
+                <>
+                  <span className="animate-pulse">Saving...</span>
+                </>
+              ) : hasUnsavedChanges ? (
+                <>
+                  <Pencil className="size-4 mr-2" />
+                  Save Changes
+                </>
+              ) : (
+                <>
+                  <Pencil className="size-4 mr-2 opacity-50" />
+                  No Changes
+                </>
+              )}
             </Button>
           </div>
         </div>

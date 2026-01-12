@@ -59,6 +59,10 @@ export function profilesEqual(
     "favoriteHobbies",
     "socialSignals",
     "specialDays",
+    "instagramUrl",
+    "facebookUrl",
+    "threadsUrl",
+    "tiktokUrl",
   ];
 
   return keys.every((key) => {

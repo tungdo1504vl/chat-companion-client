@@ -146,7 +146,7 @@ export default function PartnerCreatePage() {
             partner_id: partnerId,
             audio_base64: formData.voiceAudio.base64,
             audio_format: formData.voiceAudio.format,
-            metadata: JSON.stringify({ source: "upload" }),
+            metadata: { source: "upload" },
           } as unknown as TTaskInputArgs;
 
           await userService.createPartnerVoiceProfile(voicePayload, "high");

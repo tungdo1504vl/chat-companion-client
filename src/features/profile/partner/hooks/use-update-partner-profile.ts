@@ -11,7 +11,6 @@ import {
   partnerProfileDiffToApiFormat,
 } from "../utils/transform";
 import type { z } from "zod";
-import type { AudioFileInfo } from "@/utils/audio";
 import { toast } from "sonner";
 
 /**
@@ -57,7 +56,6 @@ export const useUpdatePartnerProfile = (
     | {
         draft: PartnerProfile;
         saved: PartnerProfile;
-        voiceAudio?: AudioFileInfo | null;
       };
 
   const mutation = useMutation<TCommonResponse, Error, MutationVariables>({
@@ -68,7 +66,6 @@ export const useUpdatePartnerProfile = (
         | {
             draft: PartnerProfile;
             saved: PartnerProfile;
-            voiceAudio?: AudioFileInfo | null;
           }
     ) => {
       if (!userId) {
@@ -78,31 +75,30 @@ export const useUpdatePartnerProfile = (
       let draftProfile: PartnerProfile;
       let apiFormat: PartnerProfileApiResponse;
 
-      // Extract draft profile and voice audio from input
-      let voiceAudio: AudioFileInfo | null | undefined;
+      let savedProfile: PartnerProfile | undefined;
 
       if (
         typeof profileOrDiff === "object" &&
         "draft" in profileOrDiff &&
         "saved" in profileOrDiff
       ) {
-        // If diff object is provided, extract draft profile and voice audio
+        // If diff object is provided, extract draft and saved profiles
         draftProfile = profileOrDiff.draft;
-        voiceAudio = profileOrDiff.voiceAudio;
+        savedProfile = profileOrDiff.saved;
 
         // TODO: Enable partial updates when ENABLE_PARTIAL_UPDATES is true
         // if (ENABLE_PARTIAL_UPDATES) {
-        //   const savedProfile = profileOrDiff.saved;
         //   // Compute diff to send only changed fields
         //   const diff = computeProfileDiff(draftProfile, savedProfile);
         //   apiFormat = partnerProfileDiffToApiFormat(diff, draftProfile);
         // } else {
-        //   // Send full profile
-        //   apiFormat = partnerProfileToApiFormat(draftProfile);
+        //   // Send full profile with merged fields
+        //   apiFormat = partnerProfileToApiFormat(draftProfile, savedProfile);
         // }
 
-        // Temporarily: Always send full profile (diff computation disabled)
-        apiFormat = partnerProfileToApiFormat(draftProfile);
+        // Always send full profile with merged fields (diff computation disabled)
+        // This ensures all fields from API are preserved, and form values override them
+        apiFormat = partnerProfileToApiFormat(draftProfile, savedProfile);
       } else {
         // Fallback to full profile update (backward compatibility)
         if (!profileOrDiff.id) {
@@ -110,7 +106,7 @@ export const useUpdatePartnerProfile = (
         }
 
         draftProfile = profileOrDiff as PartnerProfile;
-        // Transform full PartnerProfile to API format
+        // Transform full PartnerProfile to API format (no saved profile to merge)
         apiFormat = partnerProfileToApiFormat(draftProfile);
       }
 
@@ -126,15 +122,15 @@ export const useUpdatePartnerProfile = (
           );
         }
         finalDraftProfile = validationResult.data;
-        // Always send full profile after validation (diff computation disabled)
-        apiFormat = partnerProfileToApiFormat(finalDraftProfile);
+        // Always send full profile after validation with merged fields
+        apiFormat = partnerProfileToApiFormat(finalDraftProfile, savedProfile);
 
         // TODO: Enable partial updates when ENABLE_PARTIAL_UPDATES is true
         // if (ENABLE_PARTIAL_UPDATES && savedProfile) {
         //   const diff = computeProfileDiff(finalDraftProfile, savedProfile);
         //   apiFormat = partnerProfileDiffToApiFormat(diff, finalDraftProfile);
         // } else {
-        //   apiFormat = partnerProfileToApiFormat(finalDraftProfile);
+        //   apiFormat = partnerProfileToApiFormat(finalDraftProfile, savedProfile);
         // }
       }
 
@@ -155,30 +151,6 @@ export const useUpdatePartnerProfile = (
           inputArgs,
           "high"
         );
-
-      // Handle voice audio upload if provided
-      if (voiceAudio) {
-        try {
-          const voicePayload: TTaskInputArgs = {
-            user_id: userId,
-            partner_id: partnerId,
-            audio_base64: voiceAudio.base64,
-            audio_format: voiceAudio.format,
-            metadata: JSON.stringify({ source: "upload" }),
-          } as unknown as TTaskInputArgs;
-
-          await userService.createPartnerVoiceProfile(voicePayload, "high");
-        } catch (voiceError) {
-          console.error("Failed to upload voice:", voiceError);
-          // Don't fail the entire update if voice upload fails
-          toast.error("Profile updated, but voice upload failed", {
-            description:
-              voiceError instanceof Error
-                ? voiceError.message
-                : "Could not upload voice recording",
-          });
-        }
-      }
 
       return profileResponse;
     },
