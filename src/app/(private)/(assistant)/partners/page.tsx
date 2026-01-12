@@ -109,7 +109,7 @@ export default function PartnersPage() {
           <div
             className="space-y-3 z-10"
             style={{
-              maxHeight: "calc(100vh - 334px)",
+              maxHeight: "calc(100vh - 450px)",
               overflowY: "auto",
             }}
           >
@@ -185,7 +185,7 @@ export default function PartnersPage() {
         {data?.result?.partners.length > 0 && !isFetching && (
           <Button
             onClick={handleCreatePartner}
-            className="fixed bottom-16 left-0 right-0 z-40 w-full bg-primary mt-5 text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium mb-8"
+            className="w-full bg-primary mt-5 text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium mb-8"
           >
             Create a partner profile
           </Button>
@@ -205,7 +205,7 @@ export default function PartnersPage() {
 
             <Button
               onClick={handleCreatePartner}
-              className="fixed bottom-16 left-0 right-0 z-40 w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium"
             >
               Create a partner profile
             </Button>
