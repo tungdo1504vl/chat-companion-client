@@ -696,7 +696,7 @@ export default function PartnerForm(props: Readonly<TPartnerFormProps>) {
       </div>
 
       {/* Navigation Buttons */}
-      <div className="sticky bottom-16 z-40 bg-background/95 backdrop-blur-sm border-t px-4 py-4">
+      <div className="fixed bottom-16 z-40 bg-background/95 backdrop-blur-sm border-t px-4 py-4">
         <div className="flex gap-2">
           {currentStep > 1 ? (
             <>

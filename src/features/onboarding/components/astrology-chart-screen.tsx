@@ -279,7 +279,7 @@ export default function AstrologyChartScreen({
       <PageHeader title="My Astrology Chart" />
       {/* Decorative gradient progress bar */}
       <div className="h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 max-h-[80vh] overflow-y-auto">
         <div className="container mx-auto max-w-2xl px-4 py-6 pb-6 space-y-6">
           {/* Your Cosmic Blueprint Section */}
           <div className="flex flex-col items-center space-y-4">
@@ -302,7 +302,7 @@ export default function AstrologyChartScreen({
 
           {/* Big Three Cards */}
           {bigThree?.length === 3 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {bigThree.map((item) => (
                 <BigThreeCard
                   key={item.title}

@@ -95,7 +95,7 @@ export default function ProfileSaveButton({
   };
 
   return (
-    <div className="sticky bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-t p-4">
+    <div className="fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-t p-4">
       <div className="flex gap-2">
         {onReset && (
           <Button

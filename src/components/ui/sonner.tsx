@@ -19,20 +19,36 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group"
       position="top-right"
       icons={{
-        success: <CircleCheckIcon className="size-4" />,
-        info: <InfoIcon className="size-4" />,
-        warning: <TriangleAlertIcon className="size-4" />,
-        error: <OctagonXIcon className="size-4" />,
-        loading: <Loader2Icon className="size-4 animate-spin" />,
+        info: <InfoIcon width={24} height={24} />,
+        success: <CircleCheckIcon width={20} height={20} />,
+        error: <OctagonXIcon width={20} height={20} />,
+        warning: <TriangleAlertIcon width={24} height={24} />,
+        loading: (
+          <Loader2Icon className="animate-spin" width={20} height={20} />
+        ),
+        close: null,
       }}
-      style={
-        {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
-        } as React.CSSProperties
-      }
+      toastOptions={{
+        unstyled: true,
+        classNames: {
+          toast: `rounded-lg gap-2.5 px-2 py-2 right-0 flex min-w-[240px] items-center`,
+          title: "text-sm font-medium",
+          description: "text-xs",
+          content: "peer-[.is-exist]:w-[calc(100%-56px)] pr-0 gap-0",
+          closeButton: "hidden",
+          icon: "size-5 ml-1 rounded-full flex justify-center items-center mr-0",
+          default:
+            "bg-blue-50 dark:bg-blue-950/50 text-blue-900 dark:text-blue-100",
+          info: "bg-blue-50 dark:bg-blue-950/50 text-blue-900 dark:text-blue-100",
+          success:
+            "bg-green-50 dark:bg-green-950/50 text-green-900 dark:text-green-100",
+          error: "bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-100",
+          warning:
+            "bg-orange-50 dark:bg-orange-950/50 text-orange-900 dark:text-orange-100",
+          loading:
+            "bg-blue-50 dark:bg-blue-950/50 text-blue-900 dark:text-blue-100",
+        },
+      }}
       {...props}
     />
   );
