@@ -50,8 +50,8 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
       setIsLoading(true);
       setAudioSrc(null);
       try {
-        // const userText = text;
-        const userText = 'Giới thiệu về bạn đi';
+        const userText = text;
+        // const userText = 'Giới thiệu về bạn đi';
         const payload: TCommonPayload = {
           task_type: TASK_TYPE.PARTNER_VOICE_SYNTHESIZE,
           input_args: {
