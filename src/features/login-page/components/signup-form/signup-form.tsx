@@ -63,10 +63,10 @@ export default function SignupForm(props: Readonly<TSignupFormProps>) {
               disabled={isLoading}
             />
             <FieldError errors={field.state.meta.errors} />
-            {field.state.isTouched && (
+            {field.state.meta.isTouched && (
               <p className="text-sm text-muted-foreground">
-                Password must be at least 8 characters with uppercase, lowercase,
-                and a number
+                Password must be at least 8 characters with uppercase,
+                lowercase, and a number
               </p>
             )}
           </Field>
