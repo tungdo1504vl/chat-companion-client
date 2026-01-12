@@ -9,6 +9,9 @@ import { ProfileInfo } from "@/features/profile/common/header";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { MOCK_PARTNER_PROFILE } from "./const";
 import { usePartnerProfileForm } from "../hooks/use-partner-profile-form";
+import { useUpdatePartnerImage } from "./hooks/use-update-partner-image";
+import { ImageUploadDialog } from "@/features/profile/common/components/image-upload-dialog";
+import { usePartnerProfileStore } from "./store/hooks";
 import type { PartnerProfile } from "./types";
 
 // Lazy load tab components
@@ -47,8 +50,9 @@ export function PartnerProfileClient({
   profile: initialProfile = MOCK_PARTNER_PROFILE,
 }: PartnerProfileClientProps) {
   const router = useRouter();
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
 
-  // // Use custom hook for form state management
+  // Use custom hook for form state management
   const {
     draftProfile,
     savedProfile,
@@ -57,6 +61,18 @@ export function PartnerProfileClient({
     updateHandlers,
     handleSave,
   } = usePartnerProfileForm(initialProfile);
+
+  // Get updateField from store to update draft profile with new image
+  const updateField = usePartnerProfileStore((state) => state.updateField);
+
+  // Image upload hook
+  const { updateImageAsync, isUpdating: isUpdatingImage } =
+    useUpdatePartnerImage(savedProfile?.id || "", {
+      savedProfile: savedProfile || initialProfile,
+      onSuccess: () => {
+        setIsImageDialogOpen(false);
+      },
+    });
 
   // Determine default tab: first-time users → "overview", returning → "special-things"
   const getDefaultTab = (): string => {
@@ -87,6 +103,31 @@ export function PartnerProfileClient({
     .join("")
     .toUpperCase();
 
+  // Handle avatar edit click
+  const handleAvatarEditClick = () => {
+    setIsImageDialogOpen(true);
+  };
+
+  // Handle image select and upload
+  const handleImageSelect = async (file: File) => {
+    try {
+      const imageInfo = await import("@/utils/image").then((m) =>
+        m.processImageFile(file)
+      );
+
+      // Update draft profile immediately for instant UI feedback
+      if (draftProfile) {
+        updateField("avatarUrl", imageInfo.base64);
+      }
+
+      // Upload to backend
+      await updateImageAsync(file);
+    } catch (error) {
+      // Error handling is done in the hook
+      console.error("Failed to upload image:", error);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Scrollable Content */}
@@ -102,6 +143,7 @@ export function PartnerProfileClient({
           location={displayProfile.location}
           stage={displayProfile.stage}
           isPremium={displayProfile.isPremium}
+          onAvatarEditClick={handleAvatarEditClick}
         />
         <div className="px-4 pb-6">
           {/* Tabs */}
@@ -215,27 +257,42 @@ export function PartnerProfileClient({
               className="flex-1"
               onClick={handleSave}
               disabled={!hasUnsavedChanges || isSaving}
-              aria-label={hasUnsavedChanges ? "Save changes" : "No changes to save"}
+              aria-label={
+                hasUnsavedChanges ? "Save changes" : "No changes to save"
+              }
             >
-              {isSaving ? (
-                <>
-                  <span className="animate-pulse">Saving...</span>
-                </>
-              ) : hasUnsavedChanges ? (
-                <>
-                  <Pencil className="size-4 mr-2" />
-                  Save Changes
-                </>
-              ) : (
-                <>
-                  <Pencil className="size-4 mr-2 opacity-50" />
-                  No Changes
-                </>
-              )}
+              {(() => {
+                if (isSaving) {
+                  return <span className="animate-pulse">Saving...</span>;
+                }
+                if (hasUnsavedChanges) {
+                  return (
+                    <>
+                      <Pencil className="size-4 mr-2" />
+                      Save Changes
+                    </>
+                  );
+                }
+                return (
+                  <>
+                    <Pencil className="size-4 mr-2 opacity-50" />
+                    No Changes
+                  </>
+                );
+              })()}
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Image Upload Dialog */}
+      <ImageUploadDialog
+        open={isImageDialogOpen}
+        onOpenChange={setIsImageDialogOpen}
+        onImageSelect={handleImageSelect}
+        isUploading={isUpdatingImage}
+        currentAvatarUrl={displayProfile.avatarUrl}
+      />
     </div>
   );
 }

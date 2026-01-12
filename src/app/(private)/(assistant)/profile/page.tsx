@@ -13,10 +13,13 @@ import {
 } from "@/features/profile/user/components";
 import { useProfileForm } from "@/features/profile/user/hooks/use-profile-form";
 import { useUserProfile } from "@/features/profile/user/hooks/use-user-profile";
+import { useUpdateUserImage } from "@/features/profile/user/hooks/use-update-user-image";
+import { ImageUploadDialog } from "@/features/profile/common/components/image-upload-dialog";
 
 export default function ProfilePage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("settings");
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
 
   const {
     formData,
@@ -28,6 +31,12 @@ export default function ProfilePage() {
     isSuccess,
   } = useProfileForm();
   const { user } = useUserProfile();
+  const { updateImageAsync, isUpdating: isUpdatingImage } = useUpdateUserImage({
+    onSuccess: () => {
+      setIsImageDialogOpen(false);
+      refetch?.();
+    },
+  });
 
   const handleBackClick = () => {
     router.back();
@@ -39,6 +48,14 @@ export default function ProfilePage() {
 
   const handleStart = () => {
     setActiveTab("settings");
+  };
+
+  const handleAvatarEditClick = () => {
+    setIsImageDialogOpen(true);
+  };
+
+  const handleImageSelect = async (file: File) => {
+    await updateImageAsync(file);
   };
 
   // Check if profile is empty (matches default values)
@@ -61,7 +78,11 @@ export default function ProfilePage() {
     <div className="flex flex-col h-full bg-background">
       {/* Scrollable Content */}
       <div className="flex-1  overflow-y-auto">
-        <ProfileHeader onBackClick={handleBackClick} isLoading={isFetching} />
+        <ProfileHeader
+          onBackClick={handleBackClick}
+          isLoading={isFetching}
+          onAvatarEditClick={handleAvatarEditClick}
+        />
 
         <div className="px-4 pb-6">
           {/* Loading State */}
@@ -128,6 +149,15 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Image Upload Dialog */}
+      <ImageUploadDialog
+        open={isImageDialogOpen}
+        onOpenChange={setIsImageDialogOpen}
+        onImageSelect={handleImageSelect}
+        isUploading={isUpdatingImage}
+        currentAvatarUrl={user?.image || undefined}
+      />
     </div>
   );
 }

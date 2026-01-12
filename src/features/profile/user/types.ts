@@ -180,6 +180,15 @@ export interface TUnifiedUser {
 export interface TProfileUpdatePayload {
   user_id: string;
   profile_update?: {
+    basic_info?: {
+      name?: string;
+      avatar_url?: string;
+      gender?: TGender;
+      dob?: string;
+      time_of_birth?: string;
+      country_of_birth?: string;
+      city_of_birth?: string;
+    };
     personality?: {
       love_languages?: string[];
       communication_styles?: string[];
@@ -196,13 +205,5 @@ export interface TProfileUpdatePayload {
       instagram?: string;
     };
     primary_love_language?: string;
-    // Basic info fields (for future use)
-    name?: string;
-    avatar_url?: string;
-    gender?: TGender;
-    dob?: string;
-    time_of_birth?: string;
-    country_of_birth?: string;
-    city_of_birth?: string;
   };
 }
