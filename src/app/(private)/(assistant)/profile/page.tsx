@@ -60,7 +60,7 @@ export default function ProfilePage() {
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1  overflow-y-auto">
         <ProfileHeader onBackClick={handleBackClick} isLoading={isFetching} />
 
         <div className="px-4 pb-6">

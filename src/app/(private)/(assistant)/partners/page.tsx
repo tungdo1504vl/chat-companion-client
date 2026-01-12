@@ -83,7 +83,7 @@ export default function PartnersPage() {
         onBackClick={handleBack}
       />
 
-      <div className="flex-1 overflow-y-auto px-4 overflow-x-hidden">
+      <div className="flex-1  overflow-y-auto px-4 overflow-x-hidden">
         {/* Title Section */}
         <div className="relative mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-2">
@@ -185,7 +185,7 @@ export default function PartnersPage() {
         {data?.result?.partners.length > 0 && !isFetching && (
           <Button
             onClick={handleCreatePartner}
-            className="w-full bg-primary mt-5 text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium mb-8"
+            className="fixed bottom-16 left-0 right-0 z-40 w-full bg-primary mt-5 text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium mb-8"
           >
             Create a partner profile
           </Button>
@@ -205,7 +205,7 @@ export default function PartnersPage() {
 
             <Button
               onClick={handleCreatePartner}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium"
+              className="fixed bottom-16 left-0 right-0 z-40 w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium"
             >
               Create a partner profile
             </Button>
