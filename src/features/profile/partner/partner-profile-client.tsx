@@ -161,6 +161,7 @@ export function PartnerProfileClient({
                     updateHandlers.onFavoriteHobbiesChange
                   }
                   onInstagramUrlChange={updateHandlers.onInstagramUrlChange}
+                  onVoiceAudioChange={updateHandlers.onVoiceAudioChange}
                 />
               </Suspense>
             </TabsContent>
@@ -198,7 +199,7 @@ export function PartnerProfileClient({
       </div>
 
       {/* Bottom Actions */}
-      <div className="fixed bottom-16 border-t bg-background z-40">
+      <div className="border-t bg-background">
         <div className="container mx-auto max-w-2xl px-4 py-4">
           <div className="flex gap-3">
             <Button

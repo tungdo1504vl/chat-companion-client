@@ -8,6 +8,7 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/commons/radio-group";
 import { Select } from "@/components/commons/select";
 import { Combobox } from "@/components/ui/combobox";
+import { VoiceUpload } from "@/components/ui/voice-upload";
 import {
   defaultPartnerFormValues,
   partnerGenders,
@@ -676,6 +677,35 @@ export default function PartnerForm(props: Readonly<TPartnerFormProps>) {
                 </Field>
               )}
             </form.Field>
+
+            {/* Voice Recording */}
+            <form.Field name="voiceAudio">
+              {(field) => (
+                <VoiceUpload
+                  value={field.state.value || null}
+                  onChange={(value) => {
+                    field.handleChange(value || undefined);
+                    field.handleBlur();
+                  }}
+                  onError={(error) => {
+                    // Set a custom error that will be displayed
+                    field.setMeta((prev) => ({
+                      ...prev,
+                      errors: [{ message: error }],
+                    }));
+                  }}
+                  disabled={isLoading}
+                  label="Voice Recording"
+                  description="Optional: Upload a voice recording of your partner"
+                  required={false}
+                  error={
+                    field.state.meta.isTouched && field.state.meta.errors?.[0]
+                      ? field.state.meta.errors[0].message
+                      : undefined
+                  }
+                />
+              )}
+            </form.Field>
           </div>
         );
 
@@ -696,7 +726,7 @@ export default function PartnerForm(props: Readonly<TPartnerFormProps>) {
       </div>
 
       {/* Navigation Buttons */}
-      <div className="fixed bottom-16 z-40 bg-background/95 backdrop-blur-sm border-t px-4 py-4">
+      <div className="border-t bg-background px-4 py-4">
         <div className="flex gap-2">
           {currentStep > 1 ? (
             <>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { usePartnerProfileStore } from "../partner/store/hooks";
 import { profilesEqual } from "../partner/store/partner-profile-store";
@@ -19,6 +19,7 @@ import type {
   SpecialDay,
   AttachmentTendencyData,
 } from "../partner/types";
+import type { AudioFileInfo } from "@/utils/audio";
 
 export interface UsePartnerProfileFormReturn {
   // State
@@ -27,6 +28,7 @@ export interface UsePartnerProfileFormReturn {
   isSaving: boolean;
   hasUnsavedChanges: boolean;
   error: string | null;
+  voiceAudio: AudioFileInfo | null; // Track voice audio separately
 
   // Update handlers
   updateHandlers: {
@@ -44,6 +46,7 @@ export interface UsePartnerProfileFormReturn {
     onSocialSignalsChange: (signals: SocialSignal[]) => void;
     onInstagramUrlChange: (url: string) => void;
     onSpecialDaysChange: (days: SpecialDay[] | undefined) => void;
+    onVoiceAudioChange: (audio: AudioFileInfo | null) => void;
   };
 
   // Actions
@@ -58,6 +61,10 @@ export interface UsePartnerProfileFormReturn {
 export function usePartnerProfileForm(
   initialProfile: PartnerProfile
 ): UsePartnerProfileFormReturn {
+  // Track voice audio separately since it's not part of PartnerProfile
+  const [voiceAudio, setVoiceAudio] = useState<AudioFileInfo | null>(null);
+  const [savedVoiceAudio, setSavedVoiceAudio] = useState<AudioFileInfo | null>(null);
+
   // Get state from store using selectors
   const draftProfile = usePartnerProfileStore((state) => state.draftProfile);
   const savedProfile = usePartnerProfileStore((state) => state.savedProfile);
@@ -65,7 +72,7 @@ export function usePartnerProfileForm(
   const error = usePartnerProfileStore((state) => state.error);
   const hasUnsavedChanges = usePartnerProfileStore((state) => {
     return !profilesEqual(state.draftProfile, state.savedProfile);
-  });
+  }) || voiceAudio !== savedVoiceAudio;
 
   const setSavedProfile = usePartnerProfileStore(
     (state) => state.setSavedProfile
@@ -208,12 +215,17 @@ export function usePartnerProfileForm(
     onSpecialDaysChange: (days: SpecialDay[] | undefined) => {
       updateField("specialDays", days);
     },
+
+    onVoiceAudioChange: (audio: AudioFileInfo | null) => {
+      setVoiceAudio(audio);
+    },
   };
 
   // Save handler - uses the update mutation hook
   // Sends only changed fields by comparing draft with saved profile
   const handleSave = async () => {
-    if (!draftProfile || !savedProfile || !hasUnsavedChanges) return;
+    if (!draftProfile || !savedProfile) return;
+    if (!hasUnsavedChanges && voiceAudio === savedVoiceAudio) return;
 
     setError(null);
 
@@ -222,9 +234,13 @@ export function usePartnerProfileForm(
 
     // Pass both draft and saved profiles to compute diff and send only changed fields
     updateMutation.mutate(
-      { draft: draftProfile, saved: savedProfile },
+      { draft: draftProfile, saved: savedProfile, voiceAudio },
       {
         onSuccess: () => {
+          // Update saved voice audio if it was changed
+          if (voiceAudio !== savedVoiceAudio) {
+            setSavedVoiceAudio(voiceAudio);
+          }
           // Dismiss loading toast - success toast will be shown by updateMutation.onSuccess
           toast.dismiss(loadingToastId);
         },
@@ -239,6 +255,7 @@ export function usePartnerProfileForm(
   // Reset handler
   const handleReset = () => {
     resetToSaved();
+    setVoiceAudio(savedVoiceAudio);
     toast.info("Changes discarded");
   };
 
@@ -249,6 +266,7 @@ export function usePartnerProfileForm(
     isSaving: updateMutation.isPending || isSaving,
     hasUnsavedChanges,
     error,
+    voiceAudio,
     updateHandlers,
     handleSave,
     handleReset,

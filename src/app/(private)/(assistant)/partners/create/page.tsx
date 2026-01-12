@@ -15,6 +15,8 @@ import { TASK_TYPE } from "@/constants/task";
 import { useQueryClient } from "@/libs/react-query";
 import { ProgressIndicator } from "@/features/partner-form/components/progress-indicator";
 import { convertTo24HourFormat } from "@/utils";
+import userService from "@/services/user.service";
+import type { TTaskInputArgs } from "@/services/types";
 
 const STEP_TITLES = [
   "Partner's Basic Information",
@@ -130,6 +132,37 @@ export default function PartnerCreatePage() {
       };
       const res = await mutatePartner.mutateAsync(payload);
       console.log("res:", res);
+
+      // Extract partner_id from response
+      // The response structure may vary, adjust based on actual API response
+      const partnerId =
+        (res as any)?.result?.partner_id || (res as any)?.partner_id;
+
+      // Handle voice upload if provided
+      if (formData.voiceAudio && partnerId) {
+        try {
+          const voicePayload: TTaskInputArgs = {
+            user_id: userId,
+            partner_id: partnerId,
+            audio_base64: formData.voiceAudio.base64,
+            audio_format: formData.voiceAudio.format,
+            metadata: JSON.stringify({ source: "upload" }),
+          } as unknown as TTaskInputArgs;
+
+          await userService.createPartnerVoiceProfile(voicePayload, "high");
+          console.log("Voice profile created successfully");
+        } catch (voiceError) {
+          console.error("Failed to upload voice:", voiceError);
+          // Don't fail the entire creation if voice upload fails
+          toast.error("Partner created, but voice upload failed", {
+            description:
+              voiceError instanceof Error
+                ? voiceError.message
+                : "Could not upload voice recording",
+          });
+        }
+      }
+
       await queryClient.invalidateQueries({
         queryKey: ["compute", TASK_TYPE.PARTNER_PROFILE_LIST],
       });

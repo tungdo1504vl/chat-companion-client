@@ -31,22 +31,23 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         unstyled: true,
         classNames: {
-          toast: `rounded-lg gap-2.5 px-2 py-2 right-0 flex min-w-[240px] items-center`,
-          title: "text-sm font-medium",
-          description: "text-xs",
+          toast: `rounded-lg gap-3 px-4 py-3 right-0 flex min-w-[240px] items-center shadow-sm border`,
+          title: "text-sm font-normal text-foreground/90",
+          description: "text-xs text-muted-foreground",
           content: "peer-[.is-exist]:w-[calc(100%-56px)] pr-0 gap-0",
           closeButton: "hidden",
-          icon: "size-5 ml-1 rounded-full flex justify-center items-center mr-0",
+          icon: "size-5 shrink-0 mr-2.5 flex justify-center items-center text-foreground/70",
           default:
-            "bg-blue-50 dark:bg-blue-950/50 text-blue-900 dark:text-blue-100",
-          info: "bg-blue-50 dark:bg-blue-950/50 text-blue-900 dark:text-blue-100",
+            "bg-background/95 backdrop-blur-sm border-border text-foreground",
+          info: "bg-blue-50/95 dark:bg-blue-950/30 backdrop-blur-sm border-blue-200/50 dark:border-blue-800/30 text-blue-700 dark:text-blue-300",
           success:
-            "bg-green-50 dark:bg-green-950/50 text-green-900 dark:text-green-100",
-          error: "bg-red-50 dark:bg-red-950/50 text-red-900 dark:text-red-100",
+            "bg-green-50/95 dark:bg-green-950/30 backdrop-blur-sm border-green-200/50 dark:border-green-800/30 text-green-700 dark:text-green-300",
+          error:
+            "bg-red-50/95 dark:bg-red-950/30 backdrop-blur-sm border-red-200/50 dark:border-red-800/30 text-red-700 dark:text-red-300",
           warning:
-            "bg-orange-50 dark:bg-orange-950/50 text-orange-900 dark:text-orange-100",
+            "bg-orange-50/95 dark:bg-orange-950/30 backdrop-blur-sm border-orange-200/50 dark:border-orange-800/30 text-orange-700 dark:text-orange-300",
           loading:
-            "bg-blue-50 dark:bg-blue-950/50 text-blue-900 dark:text-blue-100",
+            "bg-blue-50/95 dark:bg-blue-950/30 backdrop-blur-sm border-blue-200/50 dark:border-blue-800/30 text-blue-700 dark:text-blue-300",
         },
       }}
       {...props}

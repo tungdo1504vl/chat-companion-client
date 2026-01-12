@@ -60,6 +60,7 @@ export const defaultPartnerFormValues: TPartnerFormData = {
   partnerPersonality: '',
   majorPastEvents: '',
   currentFeelings: '',
+  voiceAudio: undefined,
 };
 
 // Re-export VIETNAM_CITIES for use in partner form

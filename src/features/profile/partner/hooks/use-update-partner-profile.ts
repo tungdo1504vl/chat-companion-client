@@ -11,6 +11,8 @@ import {
   partnerProfileDiffToApiFormat,
 } from "../utils/transform";
 import type { z } from "zod";
+import type { AudioFileInfo } from "@/utils/audio";
+import { toast } from "sonner";
 
 /**
  * Feature flag: Enable partial updates (send only changed fields)
@@ -49,18 +51,25 @@ export const useUpdatePartnerProfile = (
   const queryClient = useQueryClient();
   const userId = session?.user?.id;
 
-  const mutation = useMutation<
-    TCommonResponse,
-    Error,
+  type MutationVariables =
     | PartnerProfile
     | Partial<PartnerProfile>
-    | { draft: PartnerProfile; saved: PartnerProfile }
-  >({
+    | {
+        draft: PartnerProfile;
+        saved: PartnerProfile;
+        voiceAudio?: AudioFileInfo | null;
+      };
+
+  const mutation = useMutation<TCommonResponse, Error, MutationVariables>({
     mutationFn: async (
       profileOrDiff:
         | PartnerProfile
         | Partial<PartnerProfile>
-        | { draft: PartnerProfile; saved: PartnerProfile }
+        | {
+            draft: PartnerProfile;
+            saved: PartnerProfile;
+            voiceAudio?: AudioFileInfo | null;
+          }
     ) => {
       if (!userId) {
         throw new Error("User ID is required to update partner profile");
@@ -69,14 +78,17 @@ export const useUpdatePartnerProfile = (
       let draftProfile: PartnerProfile;
       let apiFormat: PartnerProfileApiResponse;
 
-      // Extract draft profile from input
+      // Extract draft profile and voice audio from input
+      let voiceAudio: AudioFileInfo | null | undefined;
+
       if (
         typeof profileOrDiff === "object" &&
         "draft" in profileOrDiff &&
         "saved" in profileOrDiff
       ) {
-        // If diff object is provided, extract draft profile
+        // If diff object is provided, extract draft profile and voice audio
         draftProfile = profileOrDiff.draft;
+        voiceAudio = profileOrDiff.voiceAudio;
 
         // TODO: Enable partial updates when ENABLE_PARTIAL_UPDATES is true
         // if (ENABLE_PARTIAL_UPDATES) {
@@ -138,10 +150,37 @@ export const useUpdatePartnerProfile = (
       } as unknown as TTaskInputArgs;
 
       // Call the service with high priority as specified
-      return userService.updatePartnerProfile<TCommonResponse>(
-        inputArgs,
-        "high"
-      );
+      const profileResponse =
+        await userService.updatePartnerProfile<TCommonResponse>(
+          inputArgs,
+          "high"
+        );
+
+      // Handle voice audio upload if provided
+      if (voiceAudio) {
+        try {
+          const voicePayload: TTaskInputArgs = {
+            user_id: userId,
+            partner_id: partnerId,
+            audio_base64: voiceAudio.base64,
+            audio_format: voiceAudio.format,
+            metadata: JSON.stringify({ source: "upload" }),
+          } as unknown as TTaskInputArgs;
+
+          await userService.createPartnerVoiceProfile(voicePayload, "high");
+        } catch (voiceError) {
+          console.error("Failed to upload voice:", voiceError);
+          // Don't fail the entire update if voice upload fails
+          toast.error("Profile updated, but voice upload failed", {
+            description:
+              voiceError instanceof Error
+                ? voiceError.message
+                : "Could not upload voice recording",
+          });
+        }
+      }
+
+      return profileResponse;
     },
     onSuccess: (data, variables) => {
       // Invalidate the partner profile query cache to refetch fresh data

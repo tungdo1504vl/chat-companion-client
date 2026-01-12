@@ -109,6 +109,17 @@ const userService = {
     return createTask<TResult>("partner_gift_ideas", inputArgs, priority);
   },
 
+  createPartnerVoiceProfile<TResult = unknown>(
+    inputArgs: TTaskInputArgs,
+    priority: string = "medium"
+  ): Promise<TCommonResponse<TResult>> {
+    return createTask<TResult>(
+      "partner_voice_profile_create",
+      inputArgs,
+      priority
+    );
+  },
+
   // ============================================
   // User Profile Functions
   // ============================================

@@ -4,6 +4,7 @@ import {
   LifestyleSnapshotSection,
   SocialSignalsSection,
 } from "../components";
+import { VoiceUpload } from "@/components/ui/voice-upload";
 import type {
   PartnerProfile,
   GoalType,
@@ -16,6 +17,7 @@ import type {
   Hobby,
   AttachmentTendencyData,
 } from "../types";
+import type { AudioFileInfo } from "@/utils/audio";
 
 type PartnerProfileOverviewProps = Readonly<{
   profile: PartnerProfile;
@@ -31,6 +33,7 @@ type PartnerProfileOverviewProps = Readonly<{
   onHobbiesChange?: (hobbies: Hobby[]) => void;
   onFavoriteHobbiesChange?: (favorites: Hobby[]) => void;
   onInstagramUrlChange?: (url: string) => void;
+  onVoiceAudioChange?: (audio: AudioFileInfo | null) => void;
 }>;
 
 export default function PartnerProfileOverview({
@@ -47,7 +50,14 @@ export default function PartnerProfileOverview({
   onHobbiesChange,
   onFavoriteHobbiesChange,
   onInstagramUrlChange,
+  onVoiceAudioChange,
 }: PartnerProfileOverviewProps) {
+  // Convert voiceAudioUrl to AudioFileInfo format if needed
+  // For now, we'll handle it as a new upload since we don't have the full file info
+  const voiceAudioValue = profile.voiceAudioUrl
+    ? null // If URL exists, we'd need to fetch the file, so for now treat as null
+    : null;
+
   return (
     <div className="flex flex-col gap-6">
       {/* Goals Section */}
@@ -82,6 +92,18 @@ export default function PartnerProfileOverview({
         instagramUrl={profile.instagramUrl || ""}
         onInstagramUrlChange={onInstagramUrlChange}
       />
+
+      {/* Voice Profile Section */}
+      {onVoiceAudioChange && (
+        <div className="flex flex-col gap-2">
+          <VoiceUpload
+            value={voiceAudioValue}
+            onChange={onVoiceAudioChange}
+            label="Voice Recording"
+            description="Upload a voice recording of your partner (optional)"
+          />
+        </div>
+      )}
     </div>
   );
 }

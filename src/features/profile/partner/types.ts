@@ -179,6 +179,9 @@ export interface PartnerProfile {
   // Special Things
   specialDays?: SpecialDay[];
   giftIdeas?: GiftIdea[];
+
+  // Voice Profile
+  voiceAudioUrl?: string; // URL to stored audio if already uploaded
 }
 
 // ============================================

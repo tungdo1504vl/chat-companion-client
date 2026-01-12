@@ -1,4 +1,5 @@
 import type { GoalType } from "@/features/profile/partner/types";
+import type { AudioFileInfo } from "@/utils/audio";
 
 export type PartnerGender = "Male" | "Female" | "Other" | "Prefer not to say";
 
@@ -36,6 +37,7 @@ export type TPartnerFormData = {
   partnerPersonality: string;
   majorPastEvents: string;
   currentFeelings: string;
+  voiceAudio?: AudioFileInfo;
 };
 
 export type TPartnerFormProps = {
