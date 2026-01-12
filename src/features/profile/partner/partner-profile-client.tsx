@@ -198,7 +198,7 @@ export function PartnerProfileClient({
       </div>
 
       {/* Bottom Actions */}
-      <div className="sticky bottom-0 border-t bg-background z-[99]">
+      <div className="sticky bottom-16 border-t bg-background z-40">
         <div className="container mx-auto max-w-2xl px-4 py-4">
           <div className="flex gap-3">
             <Button

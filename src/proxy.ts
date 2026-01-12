@@ -35,11 +35,11 @@ function isSystemPath(pathname: string): boolean {
 }
 
 /**
- * Validate session using better-auth API
- * This actually validates the session is valid, not just that a cookie exists
+ * Get session using better-auth API
+ * Returns the session object if valid, null otherwise
  * More reliable than cookie checking, especially on mobile devices
  */
-async function hasValidSession(request: NextRequest): Promise<boolean> {
+async function getSession(request: NextRequest) {
   try {
     // Convert NextRequest headers to Headers object for better-auth
     const headers = new Headers();
@@ -47,13 +47,12 @@ async function hasValidSession(request: NextRequest): Promise<boolean> {
       headers.set(key, value);
     });
 
-    // Use better-auth API to validate the session
+    // Use better-auth API to get the session
     const session = await auth.api.getSession({
       headers,
     });
 
-    // Return true if session exists and is valid
-    return !!session;
+    return session;
   } catch (error) {
     // If there's an error validating the session, assume no valid session
     // This prevents blocking requests due to validation errors
@@ -61,7 +60,7 @@ async function hasValidSession(request: NextRequest): Promise<boolean> {
     if (process.env.NODE_ENV === "development") {
       console.error("Session validation error:", error);
     }
-    return false;
+    return null;
   }
 }
 
@@ -165,9 +164,10 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Validate session using better-auth API
+  // Get session using better-auth API
   // This actually checks if the session is valid, not just if a cookie exists
-  const hasSession = await hasValidSession(request);
+  const session = await getSession(request);
+  const hasSession = !!session;
 
   // Public routes: redirect authenticated users away from login/signup
   if (PUBLIC_PATHS.has(pathname as "/login" | "/signup")) {
@@ -189,8 +189,20 @@ export default async function proxy(request: NextRequest) {
   // Private routes (from (private) folder): require authentication
   if (isPrivateRoute(pathname)) {
     if (hasSession) {
+      // Check if user has completed onboarding
+      // If not, redirect to onboarding (except if already on onboarding page)
+      const hasCompletedOnboarding =
+        session?.user?.hasCompletedOnboarding ?? false;
+
+      if (!hasCompletedOnboarding && pathname !== ONBOARDING_PATH) {
+        // Prevent redirect loops
+        if (!isRedirectLoop(request, ONBOARDING_PATH)) {
+          const redirectUrl = new URL(ONBOARDING_PATH, request.url);
+          return NextResponse.redirect(redirectUrl);
+        }
+      }
+
       // User is authenticated, allow access
-      // Server-side layouts will handle onboarding checks
       return NextResponse.next();
     } else {
       // User is not authenticated, redirect to login with safe callbackUrl

@@ -42,14 +42,10 @@ export function DateOfBirthPicker({
 
   const handleSelect = (date: Date | undefined) => {
     onChange?.(date);
-    if (date && !isMobile) {
-      // Close popover on desktop after selection
+    if (date) {
+      // Close popover/sheet after selection on both mobile and desktop
       setOpen(false);
     }
-  };
-
-  const handleMobileConfirm = () => {
-    setOpen(false);
   };
 
   const formatDate = (date: Date | undefined): string => {
@@ -76,12 +72,15 @@ export function DateOfBirthPicker({
   // Mobile: Use Sheet
   if (isMobile) {
     return (
-      <Sheet open={open} onOpenChange={(isOpen) => {
-        setOpen(isOpen);
-        if (!isOpen) {
-          handleBlur();
-        }
-      }}>
+      <Sheet
+        open={open}
+        onOpenChange={(isOpen) => {
+          setOpen(isOpen);
+          if (!isOpen) {
+            handleBlur();
+          }
+        }}
+      >
         <SheetTrigger asChild>
           <Button
             variant="outline"
@@ -102,13 +101,8 @@ export function DateOfBirthPicker({
           <SheetHeader>
             <SheetTitle>Select Date of Birth</SheetTitle>
           </SheetHeader>
-          <div className="mt-6 flex flex-col gap-4">
+          <div className="mt-6">
             <Calendar {...calendarProps} />
-            {value && (
-              <Button onClick={handleMobileConfirm} className="w-full">
-                Confirm Selection
-              </Button>
-            )}
           </div>
         </SheetContent>
       </Sheet>
@@ -117,12 +111,15 @@ export function DateOfBirthPicker({
 
   // Desktop: Use Popover
   return (
-    <Popover open={open} onOpenChange={(isOpen) => {
-      setOpen(isOpen);
-      if (!isOpen) {
-        handleBlur();
-      }
-    }}>
+    <Popover
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          handleBlur();
+        }
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
           variant="outline"

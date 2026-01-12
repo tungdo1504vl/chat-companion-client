@@ -548,6 +548,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                           value={field.state.value}
                           onValueChange={(value) => {
                             field.handleChange(value as "male" | "female");
+                            field.handleBlur();
                             setDirtyFields(
                               (prev) => new Set([...prev, "genderAtBirth"])
                             );

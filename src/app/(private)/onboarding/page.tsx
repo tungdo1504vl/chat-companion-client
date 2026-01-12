@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { OnboardingForm } from "@/features/onboarding/components";
+import { useRouter } from "next/navigation";
+import { OnboardingForm, AstrologyChartScreen } from "@/features/onboarding/components";
 import { useOnboarding } from "@/features/onboarding/hooks/use-onboarding";
 import { TOnboardingFormData } from "@/features/onboarding/types";
 import { TCommonPayload } from "@/services";
@@ -9,10 +10,13 @@ import { convertTo24HourFormat } from "@/utils";
 import { PageHeader } from "@/components/commons/page-header";
 import { TopProgressBar } from "@/features/partner-form/components/top-progress-bar";
 import { ProgressIndicator } from "@/features/partner-form/components/progress-indicator";
+import { PROTECTED_ROUTES } from "@/constants/routes";
 
 export default function OnboardingPage() {
+  const router = useRouter();
   const mutateOnboarding = useOnboarding();
   const [currentStep, setCurrentStep] = useState(1);
+  const [showChartScreen, setShowChartScreen] = useState(false);
   const totalSteps = 3;
   const progress = (currentStep / totalSteps) * 100;
   const stepTitles = ["Personal Information", "Birth Details", "Location"];
@@ -45,7 +49,20 @@ export default function OnboardingPage() {
     };
 
     await mutateOnboarding.mutateAsync(payload);
+    
+    // Show chart screen after successful submission
+    setShowChartScreen(true);
   };
+
+  const handleNext = () => {
+    router.push(PROTECTED_ROUTES.ASSISTANT);
+    router.refresh();
+  };
+
+  // Show astrology chart screen if onboarding is complete
+  if (showChartScreen) {
+    return <AstrologyChartScreen onNext={handleNext} />;
+  }
 
   return (
     <div className="flex flex-col h-full bg-background">
