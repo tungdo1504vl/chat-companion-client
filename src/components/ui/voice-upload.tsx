@@ -5,7 +5,11 @@ import { Upload, X, Loader2, FileAudio } from "lucide-react";
 import { cn } from "@/libs/tailwind/utils";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { processAudioFile, formatFileSize, type AudioFileInfo } from "@/utils/audio";
+import {
+  processAudioFile,
+  formatFileSize,
+  type AudioFileInfo,
+} from "@/utils/audio";
 
 export interface VoiceUploadProps {
   value?: AudioFileInfo | null;
@@ -33,7 +37,9 @@ export function VoiceUpload({
   const [isLoading, setIsLoading] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -42,7 +48,8 @@ export function VoiceUpload({
       const audioInfo = await processAudioFile(file);
       onChange?.(audioInfo);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to process audio file";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to process audio file";
       onError?.(errorMessage);
       // Reset file input
       if (fileInputRef.current) {
@@ -65,8 +72,6 @@ export function VoiceUpload({
       fileInputRef.current?.click();
     }
   };
-
-  const hasValue = Boolean(value);
 
   return (
     <Field className={cn("flex flex-col gap-2", className)}>
@@ -92,34 +97,7 @@ export function VoiceUpload({
           aria-label={label}
         />
 
-        {!hasValue ? (
-          /* Upload button state */
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleButtonClick}
-            disabled={disabled || isLoading}
-            className={cn(
-              "h-12 w-full flex items-center justify-center gap-2",
-              "border-dashed border-2",
-              "hover:bg-accent/50 hover:border-primary/50",
-              "transition-colors duration-150 ease-out",
-              "focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-            )}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="size-5 animate-spin" />
-                <span>Processing...</span>
-              </>
-            ) : (
-              <>
-                <Upload className="size-5" />
-                <span>Choose File</span>
-              </>
-            )}
-          </Button>
-        ) : (
+        {value !== null && value !== undefined ? (
           /* File preview state */
           <div
             className={cn(
@@ -153,13 +131,38 @@ export function VoiceUpload({
               <X className="size-4" />
             </Button>
           </div>
+        ) : (
+          /* Upload button state */
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleButtonClick}
+            disabled={disabled || isLoading}
+            className={cn(
+              "h-12 w-full flex items-center justify-center gap-2",
+              "border-dashed border-2",
+              "hover:bg-accent/50 hover:border-primary/50",
+              "transition-colors duration-150 ease-out",
+              "focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+            )}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="size-5 animate-spin" />
+                <span>Processing...</span>
+              </>
+            ) : (
+              <>
+                <Upload className="size-5" />
+                <span>Choose File</span>
+              </>
+            )}
+          </Button>
         )}
       </div>
 
       {/* Error message */}
-      {error && (
-        <FieldError errors={[{ message: error }]} />
-      )}
+      {error && <FieldError errors={[{ message: error }]} />}
     </Field>
   );
 }
