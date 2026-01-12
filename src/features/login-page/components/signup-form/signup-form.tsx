@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { TSignupFormProps } from "./types";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Loader2 } from "lucide-react";
 
 export default function SignupForm(props: Readonly<TSignupFormProps>) {
   const { onSubmit, isLoading } = props;
@@ -62,14 +63,17 @@ export default function SignupForm(props: Readonly<TSignupFormProps>) {
               disabled={isLoading}
             />
             <FieldError errors={field.state.meta.errors} />
-            <p className="text-sm text-muted-foreground">
-              Password must be at least 8 characters with uppercase, lowercase,
-              and a number
-            </p>
+            {field.state.isTouched && (
+              <p className="text-sm text-muted-foreground">
+                Password must be at least 8 characters with uppercase, lowercase,
+                and a number
+              </p>
+            )}
           </Field>
         )}
       </form.Field>
       <Button type="submit" disabled={!canSubmit || isLoading}>
+        {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
         {isLoading ? "Creating account..." : "Sign Up"}
       </Button>
     </form>

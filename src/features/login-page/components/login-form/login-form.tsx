@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { TLoginFormProps } from "./types";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Loader2 } from "lucide-react";
 
 export default function LoginForm(props: Readonly<TLoginFormProps>) {
   const { onSubmit, isLoading } = props;
@@ -66,6 +67,7 @@ export default function LoginForm(props: Readonly<TLoginFormProps>) {
         )}
       </form.Field>
       <Button type="submit" disabled={!canSubmit || isLoading}>
+        {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
         {isLoading ? "Signing in..." : "Sign In"}
       </Button>
     </form>

@@ -3,13 +3,41 @@ import { TLoginFormData } from "../components/login-form/types";
 import { signIn, useSession } from "@/libs/better-auth/client";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
-import { PROTECTED_ROUTES } from "@/constants/routes";
+import { PROTECTED_ROUTES, PUBLIC_ROUTES } from "@/constants/routes";
 import {
   encryptPasswordSafely,
   extractErrorMessage,
   getAuthErrorMessage,
 } from "@/libs/crypto/utils";
 import { AUTH_SUCCESS_MESSAGES, AUTH_FAILURE_MESSAGES } from "@/constants/auth";
+
+/**
+ * Validate that a callbackUrl is safe to redirect to
+ * Prevents redirect loops and security issues
+ */
+function validateCallbackUrl(callbackUrl: string | null): string {
+  if (!callbackUrl) {
+    return PROTECTED_ROUTES.ONBOARDING;
+  }
+
+  // Remove query params and hash for validation
+  const urlPath = callbackUrl.split("?")[0].split("#")[0];
+  const normalizedPath = urlPath.startsWith("/") ? urlPath : `/${urlPath}`;
+
+  // Don't redirect to public routes (would cause redirect loops)
+  const publicPaths = [PUBLIC_ROUTES.LOGIN, PUBLIC_ROUTES.SIGNUP];
+  if (publicPaths.includes(normalizedPath as "/login" | "/signup")) {
+    return PROTECTED_ROUTES.ONBOARDING;
+  }
+
+  // Don't redirect to empty or root path
+  if (normalizedPath === "/" || normalizedPath.length === 0) {
+    return PROTECTED_ROUTES.ONBOARDING;
+  }
+
+  // Return the validated callbackUrl (with original query params if any)
+  return callbackUrl;
+}
 
 export const useSignIn = () => {
   const router = useRouter();
@@ -47,11 +75,12 @@ export const useSignIn = () => {
       await refetchSession();
       toast.success(AUTH_SUCCESS_MESSAGES.SIGN_IN);
 
-      // Redirect to callbackUrl or default to conversations
-      // Middleware will handle onboarding redirect if needed
-      const callbackUrl =
-        searchParams.get("callbackUrl") || PROTECTED_ROUTES.ONBOARDING;
-      router.push(callbackUrl);
+      // Validate and redirect to callbackUrl or default to onboarding
+      // The proxy and server-side layouts will handle onboarding redirect if needed
+      const rawCallbackUrl = searchParams.get("callbackUrl");
+      const safeCallbackUrl = validateCallbackUrl(rawCallbackUrl);
+
+      router.push(safeCallbackUrl);
       router.refresh();
     },
     onError: (error) => {
