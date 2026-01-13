@@ -7,7 +7,7 @@ import {
   MessageCircle,
   Plus,
   LucideIcon,
-} from "lucide-react";
+} from 'lucide-react';
 
 export interface NavigationItem {
   href: string;
@@ -19,27 +19,27 @@ export interface NavigationItem {
 
 // Public Routes (accessible without authentication)
 export const PUBLIC_ROUTES = {
-  LOGIN: "/login",
-  SIGNUP: "/signup",
-  FORGOT_PASSWORD: "/forgot-password",
+  LOGIN: '/login',
+  SIGNUP: '/signup',
+  FORGOT_PASSWORD: '/forgot-password',
 } as const;
 
 // Protected Routes (require authentication)
 export const PROTECTED_ROUTES = {
-  CONVERSATIONS: "/conversations",
-  ONBOARDING: "/onboarding",
-  ASSISTANT: "/assistant",
+  CONVERSATIONS: '/conversations',
+  ONBOARDING: '/onboarding',
+  ASSISTANT: '/assistant',
 } as const;
 
 // Assistant Routes (within the assistant section)
 export const ASSISTANT_ROUTES = {
-  ASSISTANT: "/assistant",
-  PARTNERS: "/partners",
-  PARTNER_CREATE: "/partners/create",
-  PARTNER_DETAIL: "/partners", // Base for dynamic routes like /partners/[id]
-  PARTNER_CHAT: "/partners/chat", // Base for dynamic routes like /partners/chat/[id]
-  PROFILE: "/profile",
-  HISTORY: "/history",
+  ASSISTANT: '/assistant',
+  PARTNERS: '/partners',
+  PARTNER_CREATE: '/partners/create',
+  PARTNER_DETAIL: '/partners', // Base for dynamic routes like /partners/[id]
+  PARTNER_CHAT: '/partners/chat', // Base for dynamic routes like /partners/chat/[id]
+  PROFILE: '/profile',
+  HISTORY: '',
 } as const;
 
 // Helper functions for building dynamic routes
@@ -59,19 +59,19 @@ export const buildWinACrushRoute = (partnerId: string): string => {
 export const ASSISTANT_NAV_ITEMS: NavigationItem[] = [
   {
     href: ASSISTANT_ROUTES.ASSISTANT,
-    label: "Analyze",
+    label: 'Analyze',
     icon: BarChart3,
     matchPrefix: false,
   },
   {
     href: ASSISTANT_ROUTES.PARTNERS,
-    label: "Partners",
+    label: 'Partners',
     icon: Users,
     matchPrefix: true, // Matches /partners, /partners/123, /partners/chat/123, etc.
   },
   {
     href: ASSISTANT_ROUTES.PROFILE,
-    label: "Profile",
+    label: 'Profile',
     icon: User,
     matchPrefix: false,
   },
@@ -81,31 +81,31 @@ export const ASSISTANT_NAV_ITEMS: NavigationItem[] = [
 export const FOOTER_V2_NAV_ITEMS: NavigationItem[] = [
   {
     href: ASSISTANT_ROUTES.ASSISTANT,
-    label: "Home",
+    label: 'Home',
     icon: Home,
     matchPrefix: false,
   },
   {
     href: ASSISTANT_ROUTES.PARTNERS,
-    label: "Partners",
+    label: 'Partners',
     icon: Compass,
     matchPrefix: true, // Matches /partners, /partners/123, /partners/chat/123, etc.
   },
   {
     href: ASSISTANT_ROUTES.PARTNER_CREATE,
-    label: "Create",
+    label: 'Create',
     icon: Plus,
     matchPrefix: false,
   },
   {
     href: ASSISTANT_ROUTES.HISTORY,
-    label: "History",
+    label: 'History',
     icon: MessageCircle,
     matchPrefix: false,
   },
   {
     href: ASSISTANT_ROUTES.PROFILE,
-    label: "Profile",
+    label: 'Profile',
     icon: User,
     matchPrefix: false,
   },
