@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { ArrowLeft, MoreVertical } from "lucide-react";
-import { TypographyH1 } from "@/components/ui/typgoraphy";
-import { TPageHeaderProps } from "./types";
-import { cn } from "@/libs/tailwind/utils";
+import { ArrowLeft, MoreVertical } from 'lucide-react';
+import { TypographyH1, TypographyH2 } from '@/components/ui/typgoraphy';
+import { TPageHeaderProps } from './types';
+import { cn } from '@/libs/tailwind/utils';
 
 export default function PageHeader({
   title,
@@ -14,14 +14,14 @@ export default function PageHeader({
   return (
     <nav
       className={cn(
-        "px-6 pt-4 pb-2 flex items-center justify-between",
+        'px-6 pt-4 pb-2 flex items-center justify-between',
         className
       )}
     >
       {onBackClick ? (
         <button
           type="button"
-          className="w-10 h-10 flex items-center justify-center shadow-md rounded-full bg-white/60 backdrop-blur-md border border-white/50"
+          className="min-w-10 w-10 h-10 flex items-center justify-center shadow-md rounded-full bg-white/60 backdrop-blur-md border border-white/50"
           onClick={onBackClick}
         >
           <ArrowLeft className="material-symbols-outlined  text-romantic-400 text-xl" />

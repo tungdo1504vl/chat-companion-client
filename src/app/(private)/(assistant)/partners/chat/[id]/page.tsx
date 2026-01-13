@@ -217,7 +217,7 @@ export default function PartnerChatPage() {
         {/* Header */}
         <div className="bg-transparent z-10 relative">
           <PageHeader
-            title="Strategy for a successful crush"
+            title=""
             onBackClick={() => {
               router.push(ASSISTANT_ROUTES.PARTNERS);
             }}
@@ -419,10 +419,10 @@ export default function PartnerChatPage() {
           <Button
             className="bg-[#e05e68] h-14! w-full rounded-3xl"
             onClick={() => {
-              // if (!existingVoice) {
-              //   toast.warning('Voice not found');
-              //   return;
-              // }
+              if (!existingVoice) {
+                toast.warning('Voice not found');
+                return;
+              }
               setOpenInteractiveModal(true);
               setOpenPopover(false);
             }}

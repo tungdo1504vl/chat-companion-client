@@ -1,31 +1,31 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
 import {
   ASSISTANT_ROUTES,
   buildPartnerDetailRoute,
   buildPartnerChatRoute,
   buildWinACrushRoute,
-} from "@/constants/routes";
+} from '@/constants/routes';
 import {
   Smile,
   EllipsisVertical,
   InfoIcon,
   MessageCircleMoreIcon,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { PageHeader } from "@/components/commons/page-header";
-import { useComputeGet } from "@/hooks/use-compute-get";
-import { createTaskParams, getInitials } from "@/utils/helpers";
-import { TASK_TYPE } from "@/constants/task";
-import { useSession } from "@/libs/better-auth/client";
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { PageHeader } from '@/components/commons/page-header';
+import { useComputeGet } from '@/hooks/use-compute-get';
+import { createTaskParams, getInitials } from '@/utils/helpers';
+import { TASK_TYPE } from '@/constants/task';
+import { useSession } from '@/libs/better-auth/client';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { LoadingSkeleton } from "@/components/commons/loading-skeleton";
+} from '@/components/ui/popover';
+import { LoadingSkeleton } from '@/components/commons/loading-skeleton';
 
 interface Partner {
   id: string;
@@ -38,18 +38,18 @@ interface Partner {
 // Mock data - replace with actual API call
 const mockPartners: Partner[] = [
   {
-    id: "1",
-    name: "Alex Chen",
+    id: '1',
+    name: 'Alex Chen',
     age: 28,
-    location: "New York, NY",
-    avatarUrl: "/images/placeholder-avatar.png",
+    location: 'New York, NY',
+    avatarUrl: '/images/placeholder-avatar.png',
   },
   {
-    id: "2",
-    name: "Maria Rodriguez",
+    id: '2',
+    name: 'Maria Rodriguez',
     age: 26,
-    location: "Los Angeles, CA",
-    avatarUrl: "/images/placeholder-avatar.png",
+    location: 'Los Angeles, CA',
+    avatarUrl: '/images/placeholder-avatar.png',
   },
 ];
 
@@ -59,7 +59,7 @@ export default function PartnersPage() {
   const userId = session?.user.id;
   const { data, isLoading, isFetching } = useComputeGet(
     createTaskParams(TASK_TYPE.PARTNER_PROFILE_LIST, {
-      user_id: userId || "",
+      user_id: userId || '',
       include_archived: false,
     }),
     {
@@ -90,7 +90,7 @@ export default function PartnersPage() {
           <h2 className="text-2xl font-bold text-foreground mb-2">
             Select partner
           </h2>
-          <p className="text-sm text-muted-foreground pr-20">
+          <p className="text-sm text-muted-foreground pr-20 mb-10">
             Please enter your information for an accurate chart analysis
           </p>
 
@@ -110,8 +110,8 @@ export default function PartnersPage() {
           <div
             className="space-y-3 z-10"
             style={{
-              maxHeight: "calc(100vh - 450px)",
-              overflowY: "auto",
+              maxHeight: 'calc(100vh - 450px)',
+              overflowY: 'auto',
             }}
           >
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -125,7 +125,7 @@ export default function PartnersPage() {
                   router.push(buildWinACrushRoute(partner.partner_id));
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
+                  if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     router.push(buildWinACrushRoute(partner.partner_id));
                   }
@@ -149,7 +149,7 @@ export default function PartnersPage() {
                     {partner.partner_profile?.basic_info?.city_of_birth &&
                     partner.partner_profile?.basic_info?.country_of_birth
                       ? ` - ${partner.partner_profile?.basic_info?.city_of_birth}, ${partner.partner_profile?.basic_info?.country_of_birth}`
-                      : ""}
+                      : ''}
                   </p>
                 </div>
 
@@ -179,7 +179,7 @@ export default function PartnersPage() {
                           );
                         }}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
+                          if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             e.stopPropagation();
                             router.push(
@@ -203,7 +203,7 @@ export default function PartnersPage() {
                           }
                         }}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
+                          if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             e.stopPropagation();
                             const partnerId = partner.partner_id;
