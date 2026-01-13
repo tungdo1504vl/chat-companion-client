@@ -5,6 +5,7 @@ import {
   ASSISTANT_ROUTES,
   buildPartnerDetailRoute,
   buildPartnerChatRoute,
+  buildWinACrushRoute,
 } from "@/constants/routes";
 import {
   Smile,
@@ -117,7 +118,18 @@ export default function PartnersPage() {
             {data.result.partners.map((partner: any) => (
               <div
                 key={partner.partner_id}
+                role="button"
+                tabIndex={0}
                 className="bg-card border border-border rounded-lg p-4 flex items-center gap-4 cursor-pointer hover:bg-accent/50 transition-colors"
+                onClick={() => {
+                  router.push(buildWinACrushRoute(partner.partner_id));
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    router.push(buildWinACrushRoute(partner.partner_id));
+                  }
+                }}
               >
                 <Avatar className="size-12 shrink-0">
                   {partner.avatarUrl ? (
@@ -143,30 +155,61 @@ export default function PartnersPage() {
 
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button className="cursor-pointer" variant="link" size="lg">
+                    <Button
+                      className="cursor-pointer"
+                      variant="link"
+                      size="lg"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                    >
                       <EllipsisVertical className="size-5 text-muted-foreground shrink-0" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-36 p-2">
                     <div className="flex flex-col gap-1.5">
                       <div
+                        role="button"
+                        tabIndex={0}
                         className="flex items-center gap-2 cursor-pointer"
-                        onClick={() => {
-                          //
+                        onClick={(e) => {
+                          e.stopPropagation();
                           router.push(
                             buildPartnerDetailRoute(partner.partner_id)
                           );
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            router.push(
+                              buildPartnerDetailRoute(partner.partner_id)
+                            );
+                          }
                         }}
                       >
                         <InfoIcon className="size-5 text-muted-foreground shrink-0" />
                         <span>View Detail</span>
                       </div>
                       <div
+                        role="button"
+                        tabIndex={0}
                         className="flex items-center gap-2 cursor-pointer"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           const partnerId = partner.partner_id;
                           if (partnerId) {
                             router.push(buildPartnerChatRoute(partnerId));
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const partnerId = partner.partner_id;
+                            if (partnerId) {
+                              router.push(buildPartnerChatRoute(partnerId));
+                            }
                           }
                         }}
                       >

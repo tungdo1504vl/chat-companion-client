@@ -1,22 +1,20 @@
 'use client';
 
+<<<<<<< Updated upstream
 import { PropsWithChildren } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/libs/tailwind/utils';
 import { ASSISTANT_NAV_ITEMS, type NavigationItem } from '@/constants/routes';
+=======
+import { PropsWithChildren } from "react";
+import FooterLayoutV2 from "./footer-layout-v2";
+>>>>>>> Stashed changes
 
-function isNavItemActive(item: NavigationItem, pathname: string): boolean {
-  if (item.matchPrefix) {
-    return pathname.startsWith(item.href);
-  }
-  return pathname === item.href;
-}
-
-export default function AssistantLayout(props: PropsWithChildren) {
+export default function AssistantLayout(props: Readonly<PropsWithChildren>) {
   const { children } = props;
-  const pathname = usePathname();
 
+<<<<<<< Updated upstream
   return (
     <>
       <div className="max-w-lg mx-auto h-screen flex flex-col bg-background fixed top-0 left-1/2 -translate-x-1/2 w-full">
@@ -57,4 +55,7 @@ export default function AssistantLayout(props: PropsWithChildren) {
       </footer>
     </>
   );
+=======
+  return <FooterLayoutV2>{children}</FooterLayoutV2>;
+>>>>>>> Stashed changes
 }
