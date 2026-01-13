@@ -488,11 +488,11 @@
 
 /* Assistant Page Card Styles */
 .gradient-orange-pink {
-  background: linear-gradient(135deg, #fb923c 0%, #f472b6 100%);
+  background: linear-gradient(135deg, #fb923c 0%, #f472b6 100%) !important;
 }
 
 .gradient-pink-purple {
-  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%) !important;
 }
 
 .shadow-soft {

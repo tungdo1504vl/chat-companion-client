@@ -117,11 +117,16 @@ export default function AssistantPage() {
           const isNew = feature.status === "new";
 
           // Get gradient for "New" cards (cycle through gradients)
+          // Always ensure gradient exists for new cards
           const newCardGradientIndex = features
             .slice(0, index)
             .filter((f) => f.status === "new").length;
+
+          // Ensure gradient class always exists for new cards with fallback
           const gradientClass = isNew
-            ? newCardGradients[newCardGradientIndex % newCardGradients.length]
+            ? newCardGradients[
+                newCardGradientIndex % newCardGradients.length
+              ] || newCardGradients[0] // Fallback to first gradient if somehow undefined
             : "";
 
           return (
@@ -133,8 +138,8 @@ export default function AssistantPage() {
               {isNew ? (
                 <div
                   className={cn(
-                    "relative w-full rounded-4xl p-6 h-40 flex flex-col justify-center text-white shadow-soft overflow-hidden group cursor-pointer active:scale-[0.98] transition-transform",
-                    gradientClass
+                    gradientClass, // Apply gradient class first to ensure it's not overridden
+                    "relative w-full rounded-4xl px-4 h-32 flex flex-col justify-center text-white shadow-soft overflow-hidden group cursor-pointer active:scale-[0.98] transition-transform"
                   )}
                 >
                   {/* Badge */}
