@@ -5,7 +5,7 @@ import { cache } from "react";
 /**
  * Get the current session on the server side
  * Use this in Server Components, Server Actions, and API Routes
- * 
+ *
  * Uses React's cache() to memoize the session within a single request,
  * preventing multiple database queries when getSession() is called multiple times.
  */

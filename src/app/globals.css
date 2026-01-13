@@ -71,6 +71,10 @@
   /* Font families - reference Next.js font CSS variables */
   --font-sans: var(--font-family-sans);
   --font-serif: var(--font-family-serif);
+  /* Custom color tokens for assistant cards */
+  --color-cream-bg: #fdfbf7;
+  --color-card-beige: #efece6;
+  --color-text-dark: #1a1a1a;
 }
 
 :root {
@@ -480,4 +484,17 @@
     rgba(240, 93, 113, 0.05) 1px,
     transparent 0
   );
+}
+
+/* Assistant Page Card Styles */
+.gradient-orange-pink {
+  background: linear-gradient(135deg, #fb923c 0%, #f472b6 100%);
+}
+
+.gradient-pink-purple {
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+}
+
+.shadow-soft {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
 }
