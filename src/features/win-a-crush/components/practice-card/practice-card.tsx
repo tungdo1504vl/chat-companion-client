@@ -1,11 +1,19 @@
 "use client";
 
 import { Heart, HeartIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { buildPartnerChatRoute } from "@/constants/routes";
 
-export function PracticeCard() {
+type PracticeCardProps = {
+  partnerId: string;
+};
+
+export function PracticeCard({ partnerId }: PracticeCardProps) {
+  const router = useRouter();
+
   const handlePracticeClick = () => {
-    // Placeholder for now
-    console.log("Practice button clicked");
+    // Navigate to chat screen with query param to open modal
+    router.push(`${buildPartnerChatRoute(partnerId)}?openModal=true`);
   };
 
   return (

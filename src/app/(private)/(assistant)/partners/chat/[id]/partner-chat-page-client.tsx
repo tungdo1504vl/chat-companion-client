@@ -5,12 +5,12 @@ import { useCommonCompute } from '@/hooks/use-compute';
 import { useComputeGet } from '@/hooks/use-compute-get';
 import { useSession } from '@/libs/better-auth/client';
 import { createTaskParams } from '@/utils/helpers';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Heart, Home, LoaderCircle, MicIcon, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/commons/page-header';
 import Image from 'next/image';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { ASSISTANT_ROUTES } from '@/constants/routes';
 import { TCommonPayload } from '@/types/common';
 import { LoadingSkeleton } from '@/components/commons/loading-skeleton';
@@ -89,13 +89,43 @@ export default function PartnerChatPageClient({
   );
 
   const existingVoice = partnerData?.result?.partner_voice;
+  const searchParams = useSearchParams();
+  const hasProcessedOpenModal = useRef(false);
 
-  // const bb = queryClient.getQueriesData({
-  //   queryKey: ['compute', TASK_TYPE.RELATIONSHIP_CHAT_HISTORY, partnerId],
-  // });
-  // console.log('bb:', bb);
-  // const [, aa] = bb;
-  // console.log('queryData:', aa);
+  // Check for openModal query param and open modal automatically
+  useEffect(() => {
+    const openModal = searchParams.get('openModal');
+    if (openModal === 'true' && !hasProcessedOpenModal.current) {
+      // Check if partner data is loaded
+      if (!isLoadingPartnerData) {
+        hasProcessedOpenModal.current = true;
+        // Check if existingVoice exists
+        if (!existingVoice) {
+          toast.warning('Voice not found');
+          // Remove query param from URL without page reload
+          const newSearchParams = new URLSearchParams(searchParams.toString());
+          newSearchParams.delete('openModal');
+          const newUrl = newSearchParams.toString()
+            ? `${window.location.pathname}?${newSearchParams.toString()}`
+            : window.location.pathname;
+          router.replace(newUrl, { scroll: false });
+          return;
+        }
+        // Open modal if voice exists
+        setOpenInteractiveModal(true);
+        // Remove query param from URL without page reload
+        const newSearchParams = new URLSearchParams(searchParams.toString());
+        newSearchParams.delete('openModal');
+        const newUrl = newSearchParams.toString()
+          ? `${window.location.pathname}?${newSearchParams.toString()}`
+          : window.location.pathname;
+        router.replace(newUrl, { scroll: false });
+      }
+    } else if (openModal !== 'true') {
+      // Reset flag when openModal is removed from URL
+      hasProcessedOpenModal.current = false;
+    }
+  }, [searchParams, router, existingVoice, isLoadingPartnerData]);
 
   function setNewMessageState(
     queryKey: string[],
