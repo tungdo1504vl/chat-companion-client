@@ -130,12 +130,7 @@ export default function AssistantPage() {
               href={ASSISTANT_ROUTES.PARTNERS}
               key={feature.id}
             >
-<<<<<<< Updated upstream
-              <div className="bg-card border border-border rounded-lg p-4 flex items-start gap-4 cursor-pointer hover:bg-accent/50 transition-colors">
-                {/* Icon */}
-=======
               {isNew ? (
->>>>>>> Stashed changes
                 <div
                   className={cn(
                     "relative w-full rounded-4xl p-6 h-40 flex flex-col justify-center text-white shadow-soft overflow-hidden group cursor-pointer active:scale-[0.98] transition-transform",
