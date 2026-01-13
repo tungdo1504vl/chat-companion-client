@@ -1,15 +1,19 @@
 import { auth } from "./auth";
 import { headers } from "next/headers";
+import { cache } from "react";
 
 /**
  * Get the current session on the server side
  * Use this in Server Components, Server Actions, and API Routes
+ * 
+ * Uses React's cache() to memoize the session within a single request,
+ * preventing multiple database queries when getSession() is called multiple times.
  */
-export async function getSession() {
+export const getSession = cache(async () => {
   return auth.api.getSession({
     headers: await headers(),
   });
-}
+});
 
 /**
  * Get the current user on the server side

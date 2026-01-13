@@ -6,6 +6,7 @@ import { ProfileInfo } from "@/features/profile/common/header";
 
 interface ProfileHeaderProps {
   readonly onBackClick?: () => void;
+  readonly backHref?: string;
   readonly onMenuClick?: () => void;
   readonly onAvatarEditClick?: () => void;
   readonly isLoading?: boolean;
@@ -13,6 +14,7 @@ interface ProfileHeaderProps {
 
 export default function ProfileHeader({
   onBackClick,
+  backHref,
   onMenuClick,
   onAvatarEditClick,
   isLoading = false,
@@ -33,6 +35,7 @@ export default function ProfileHeader({
       <PageHeader
         title="My Profile"
         onBackClick={onBackClick}
+        backHref={backHref}
         onMenuClick={onMenuClick}
       />
 

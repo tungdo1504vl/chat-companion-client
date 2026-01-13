@@ -12,7 +12,7 @@ const customFetch = async (
 ): Promise<Response> => {
   // Create an AbortController with a 30 second timeout
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
 
   // If there's an existing signal, combine it with our timeout signal
   const existingSignal = init?.signal;
