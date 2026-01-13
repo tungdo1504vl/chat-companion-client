@@ -215,8 +215,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
           value={inputValue}
           onChange={onChange}
           onKeyPress={onKeyPress}
-          placeholder="Type your message..."
-          className={`relative z-10 w-full rounded-full border-0 bg-white/80 backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-primary/50 ${
+          placeholder="What do you with you could say?"
+          className={`h-12! relative z-10 w-full rounded-full border-0 bg-white/80 backdrop-blur-sm focus-visible:ring-2 focus-visible:ring-primary/50 ${
             isSupported ? 'pr-12' : ''
           }`}
         />
@@ -227,7 +227,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           }`}
         >
           <span className="text-sm text-muted-foreground">
-            {transcript || 'Đang ghi âm...'}
+            {transcript || 'Recording...'}
           </span>
         </div>
       )}
