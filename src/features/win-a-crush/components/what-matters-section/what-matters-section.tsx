@@ -13,7 +13,7 @@ export function WhatMattersSection() {
       <div className="flex items-center gap-2 mb-4">
         <div className="h-px flex-1 bg-romantic-100"></div>
         <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
-          What matters to her
+          Key to her heart
         </h3>
         <div className="h-px flex-1 bg-romantic-100"></div>
       </div>

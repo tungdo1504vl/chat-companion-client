@@ -18,8 +18,12 @@ export function WinACrushClient({ partnerProfile }: WinACrushClientProps) {
   const router = useRouter();
   return (
     <>
-      <PageHeader title="" onBackClick={() => router.back()} />
-      <main className="flex-1 flex flex-col">
+      <PageHeader
+        title=""
+        onBackClick={() => router.back()}
+        className="absolute top-4 left-0"
+      />
+      <main className="flex-1 flex flex-col pb-16 pt-12">
         <WinACrushHeader partnerProfile={partnerProfile} />
         <PracticeCard partnerId={partnerProfile.id} />
         <WhatMattersSection />
