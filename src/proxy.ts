@@ -4,7 +4,6 @@ import {
   PUBLIC_ROUTES,
   ASSISTANT_ROUTES,
 } from "@/constants/routes";
-import { auth } from "@/libs/better-auth/auth";
 
 const PUBLIC_PATHS = new Set([PUBLIC_ROUTES.LOGIN, PUBLIC_ROUTES.SIGNUP]);
 const ONBOARDING_PATH = PROTECTED_ROUTES.ONBOARDING;
@@ -35,33 +34,26 @@ function isSystemPath(pathname: string): boolean {
 }
 
 /**
- * Get session using better-auth API
- * Returns the session object if valid, null otherwise
- * More reliable than cookie checking, especially on mobile devices
+ * Lightweight check for better-auth session cookie existence
+ * This is a fast O(1) operation that just checks if the cookie exists
+ * Full session validation will be done in the layout components
+ *
+ * Note: Better-auth uses different cookie names in different environments:
+ * - Development: better-auth.session_token
+ * - Production: __Secure-better-auth.session_token
  */
-async function getSession(request: NextRequest) {
-  try {
-    // Convert NextRequest headers to Headers object for better-auth
-    const headers = new Headers();
-    request.headers.forEach((value, key) => {
-      headers.set(key, value);
-    });
-
-    // Use better-auth API to get the session
-    const session = await auth.api.getSession({
-      headers,
-    });
-
-    return session;
-  } catch (error) {
-    // If there's an error validating the session, assume no valid session
-    // This prevents blocking requests due to validation errors
-    // Log error in development for debugging
-    if (process.env.NODE_ENV === "development") {
-      console.error("Session validation error:", error);
-    }
-    return null;
+function hasSessionCookie(request: NextRequest): boolean {
+  // Check for production cookie (__Secure-better-auth.session_token)
+  const secureCookie = request.cookies.get(
+    "__Secure-better-auth.session_token"
+  );
+  if (secureCookie) {
+    return true;
   }
+
+  // Check for development cookie (better-auth.session_token)
+  const devCookie = request.cookies.get("better-auth.session_token");
+  return !!devCookie;
 }
 
 /**
@@ -164,10 +156,9 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Get session using better-auth API
-  // This actually checks if the session is valid, not just if a cookie exists
-  const session = await getSession(request);
-  const hasSession = !!session;
+  // Lightweight cookie check - just verify if session cookie exists
+  // Full session validation and onboarding checks are deferred to layout components
+  const hasSession = hasSessionCookie(request);
 
   // Public routes: redirect authenticated users away from login/signup
   if (PUBLIC_PATHS.has(pathname as "/login" | "/signup")) {
@@ -189,20 +180,8 @@ export default async function proxy(request: NextRequest) {
   // Private routes (from (private) folder): require authentication
   if (isPrivateRoute(pathname)) {
     if (hasSession) {
-      // Check if user has completed onboarding
-      // If not, redirect to onboarding (except if already on onboarding page)
-      const hasCompletedOnboarding =
-        session?.user?.hasCompletedOnboarding ?? false;
-
-      if (!hasCompletedOnboarding && pathname !== ONBOARDING_PATH) {
-        // Prevent redirect loops
-        if (!isRedirectLoop(request, ONBOARDING_PATH)) {
-          const redirectUrl = new URL(ONBOARDING_PATH, request.url);
-          return NextResponse.redirect(redirectUrl);
-        }
-      }
-
-      // User is authenticated, allow access
+      // User has session cookie, allow access
+      // Onboarding check will be performed in the layout component
       return NextResponse.next();
     } else {
       // User is not authenticated, redirect to login with safe callbackUrl
