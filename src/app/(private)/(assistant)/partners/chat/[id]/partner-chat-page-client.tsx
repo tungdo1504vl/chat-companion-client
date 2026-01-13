@@ -6,12 +6,11 @@ import { useComputeGet } from '@/hooks/use-compute-get';
 import { useSession } from '@/libs/better-auth/client';
 import { createTaskParams } from '@/utils/helpers';
 import { useState } from 'react';
-import { Heart, Home, LoaderCircle, Send } from 'lucide-react';
+import { Heart, Home, LoaderCircle, MicIcon, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/commons/page-header';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
 import { ASSISTANT_ROUTES } from '@/constants/routes';
 import { TCommonPayload } from '@/types/common';
 import { LoadingSkeleton } from '@/components/commons/loading-skeleton';
@@ -58,6 +57,7 @@ export default function PartnerChatPageClient({
   const { data: session } = useSession();
   const [openInteractiveModal, setOpenInteractiveModal] = useState(false);
   const [openPopover, setOpenPopover] = useState(false);
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [inputValue, setInputValue] = useState('');
   const [isError, setIsError] = useState(false);
@@ -77,7 +77,7 @@ export default function PartnerChatPageClient({
       queryKeys: [partnerId],
     }
   );
-  const { data: partnerData } = useComputeGet(
+  const { data: partnerData, isLoading: isLoadingPartnerData } = useComputeGet(
     createTaskParams(TASK_TYPE.PARTNER_PROFILE_GET, {
       user_id: userId || '',
       partner_id: partnerId || '',
@@ -89,6 +89,13 @@ export default function PartnerChatPageClient({
   );
 
   const existingVoice = partnerData?.result?.partner_voice;
+
+  // const bb = queryClient.getQueriesData({
+  //   queryKey: ['compute', TASK_TYPE.RELATIONSHIP_CHAT_HISTORY, partnerId],
+  // });
+  // console.log('bb:', bb);
+  // const [, aa] = bb;
+  // console.log('queryData:', aa);
 
   function setNewMessageState(
     queryKey: string[],
@@ -181,6 +188,10 @@ export default function PartnerChatPageClient({
   const onSendMessage = () => {
     if (!userId || !partnerId) return;
     handleSend(userId, partnerId);
+    // Close interactive modal when sending message
+    if (openInteractiveModal) {
+      setOpenInteractiveModal(false);
+    }
   };
 
   const onResendMessage = () => {
@@ -194,17 +205,26 @@ export default function PartnerChatPageClient({
   const messageList = data?.result?.messages;
   const hasMessages = messageList?.length > 0;
 
+  // Extract partner info
+  const partnerProfile =
+    partnerData?.result?.partner_profile || partnerData?.result;
+  const partnerName = partnerProfile?.basic_info?.name || 'Partner';
+  const partnerAvatar = partnerProfile?.basic_info?.avatar_url;
+  const partnerGender = partnerProfile?.basic_info?.gender;
+
   return (
     <>
       <div className="flex flex-col h-full relative overflow-hidden">
         {/* Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-100 via-blue-100 to-pink-100 -z-10" />
+        <div className="absolute inset-0 bg-[#FFF0F2] -z-10" />
 
         {/* Header */}
         <div className="bg-transparent z-10 relative">
           <PageHeader
-            title="Strategy for a successful crush"
-            backHref={ASSISTANT_ROUTES.PARTNERS}
+            title=""
+            onBackClick={() => {
+              router.push(ASSISTANT_ROUTES.PARTNERS);
+            }}
             onMenuClick={() => {
               setOpenPopover(true);
             }}
@@ -218,37 +238,61 @@ export default function PartnerChatPageClient({
             </PopoverTrigger>
             <PopoverContent className="w-42 p-2" align="end">
               <div className="flex flex-col gap-1.5">
-                <Link
-                  href={ASSISTANT_ROUTES.ASSISTANT}
-                  className="flex items-center gap-2 cursor-pointer w-full text-left"
-                >
-                  <Home className="size-5" />
-                  <span>Back to home</span>
-                </Link>
                 <button
                   type="button"
                   className="flex items-center gap-2 cursor-pointer w-full text-left"
                   onClick={() => {
-                    if (!existingVoice) {
-                      toast.warning('Voice not found');
-                      return;
-                    }
-                    setOpenInteractiveModal(true);
-                    setOpenPopover(false);
+                    router.push('/assistant');
                   }}
                 >
-                  <Heart className="size-5" />
-                  <span>Interactive</span>
+                  <Home className="size-5" />
+                  <span>Back to home</span>
                 </button>
               </div>
             </PopoverContent>
           </Popover>
         </div>
 
+        {/* Partner Info Section */}
+        <div className="flex flex-col items-center bg-[#FFF9F9] pt-6 pb-4 px-4 z-10">
+          {!isLoadingPartnerData && (
+            <>
+              {/* Partner Avatar */}
+              <div className="relative w-12 h-12 mb-3">
+                {partnerAvatar ? (
+                  <Image
+                    src={partnerAvatar}
+                    alt={partnerName}
+                    fill
+                    className="object-cover rounded-full"
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full bg-gradient-to-br from-pink-200 to-pink-300 flex items-center justify-center text-2xl font-semibold text-pink-700">
+                    {partnerName.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+
+              {/* Partner Name */}
+              <h2 className="text-2xl font-semibold text-black mb-1">
+                {partnerName}
+              </h2>
+
+              {/* Subtitle */}
+              <p className="text-sm text-[#FF8A9B] mb-4 text-center px-4">
+                You're talking to {partnerName}, based on how she usually thinks
+                and responds
+              </p>
+            </>
+          )}
+        </div>
+
         {/* Chat Messages */}
         <div className="flex-1 min-h-0 overflow-hidden px-2">
-          {!isLoading && !hasMessages && (
-            <div className="py-3 text-black/40">Enter message to start ...</div>
+          {!isLoading && !hasMessages && !isLoadingPartnerData && (
+            <div className="py-3 text-black/40 text-center">
+              Enter message to start ...
+            </div>
           )}
           {isLoading ? (
             <div className="h-full px-4 py-4">
@@ -257,61 +301,79 @@ export default function PartnerChatPageClient({
           ) : (
             <ScrollToBottom
               className="h-full"
-              scrollViewClassName="flex flex-col gap-3 px-4 py-4"
+              scrollViewClassName="flex flex-col gap-4 px-4 py-4"
               followButtonClassName="scroll-to-bottom-button"
             >
-              <div className="flex flex-col gap-3">
+              <p className="text-sm text-center font-medium text-[#FFB6C1] uppercase tracking-wide">
+                SAFE SPACE
+              </p>
+              <div className="flex flex-col gap-4">
                 {hasMessages &&
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   messageList.map((message: any, index: number) => {
                     const isAssistant = message.role === 'assistant';
-                    const showMascot = isAssistant;
                     const messageContent = message.content;
+                    const isLastMessage = index === messageList.length - 1;
+                    const isUserTyping =
+                      isLastMessage && !isAssistant && inputValue.trim() === '';
+
+                    const nextMessage = messageList[index + 1];
+                    const nextIsAssistant = nextMessage?.role === 'assistant';
+
                     return (
                       <div
                         key={message.id || message.timestamp || index}
-                        className={`flex items-start gap-3 ${
-                          isAssistant ? 'justify-start' : 'justify-end'
-                        }`}
+                        className="flex flex-col"
                       >
+                        {/* Assistant Message */}
                         {isAssistant && (
-                          <div className="flex items-start gap-2">
-                            {showMascot && (
-                              <div className="relative w-12 h-12 shrink-0">
-                                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-green-400 via-orange-400 to-green-500 animate-pulse blur-sm opacity-50" />
-                                <Image
-                                  src="/mascot/mascot-removebg-preview.png"
-                                  alt="Aura"
-                                  fill
-                                  className="object-contain relative z-10"
-                                />
-                              </div>
-                            )}
-                            {!showMascot && <div className="w-12" />}
-                            <div
-                              className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                                index === 0
-                                  ? 'bg-purple-200 text-foreground'
-                                  : 'bg-blue-200 text-foreground'
-                              }`}
-                            >
-                              <p className="text-sm leading-relaxed">
+                          <div className="flex flex-col items-start">
+                            <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-white text-foreground ">
+                              <p className="text-sm leading-relaxed text-black">
                                 {messageContent}
                               </p>
                             </div>
+                            {/* Show "YOU (TYPED)" label after assistant message if next message is from user or if this is the last message */}
+                            {(!nextMessage || !nextIsAssistant) && (
+                              <span className="text-xs text-[#FFB6C1] mt-1.5 ml-1 uppercase font-medium">
+                                {partnerName.toUpperCase()}
+                              </span>
+                            )}
                           </div>
                         )}
 
+                        {/* User Message */}
                         {!isAssistant && (
-                          <div className="max-w-[80%] rounded-2xl px-4 py-2 bg-gray-200 text-foreground">
-                            <p className="text-sm leading-relaxed">
-                              {messageContent}
-                            </p>
+                          <div className="flex flex-col items-end">
+                            <div className="max-w-[85%] rounded-2xl px-4 py-3 shadow-sm bg-[#FFE5E9] text-foreground">
+                              <p className="text-sm leading-relaxed text-black">
+                                {messageContent}
+                              </p>
+                            </div>
+                            {/* Show partner name label after user message if next message is from assistant or if this is the last message */}
+                            {(!nextMessage || nextIsAssistant) && (
+                              <span className="text-xs text-[#FFB6C1] mt-1.5 ml-1 uppercase font-medium">
+                                YOU (TYPED)
+                              </span>
+                            )}
+                            {/* Encouraging text after user message */}
+                            {isLastMessage && (
+                              <p className="text-xs text-gray-700 italic mt-3 text-center w-full">
+                                You don't have to say it perfectly.
+                              </p>
+                            )}
                           </div>
                         )}
                       </div>
                     );
                   })}
+
+                {/* Show encouraging text when no messages yet */}
+                {!hasMessages && !isLoading && (
+                  <p className="text-xs text-gray-700 italic text-center mt-4">
+                    You don't have to say it perfectly.
+                  </p>
+                )}
               </div>
               {mutateChat.status === MUTATE_STATUS.PENDING && (
                 <div className="flex flex-col h-16 items-center justify-center">
@@ -337,7 +399,7 @@ export default function PartnerChatPageClient({
         </div>
 
         {/* Input Bar */}
-        <div className="px-4 pb-4 pt-2 bg-transparent z-10">
+        <div className="px-4 pb-4 pt-2 bg-[#FFF9F9] z-10">
           <div className="flex items-center gap-2">
             <ChatInput
               inputValue={inputValue}
@@ -349,12 +411,28 @@ export default function PartnerChatPageClient({
                 onSendMessage();
               }}
               disabled={!inputValue.trim() || isError}
-              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-6 shrink-0"
+              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 !h-12 px-6 shrink-0"
             >
               <Send className="size-4" />
               Send
             </Button>
           </div>
+        </div>
+        {/* Practice */}
+        <div className="px-4 bg-[#FFF9F9]">
+          <Button
+            className="bg-[#e05e68] h-14! w-full rounded-3xl"
+            onClick={() => {
+              if (!existingVoice) {
+                toast.warning('Voice not found');
+                return;
+              }
+              setOpenInteractiveModal(true);
+              setOpenPopover(false);
+            }}
+          >
+            <MicIcon className="size-4 text-white" /> Practice with me
+          </Button>
         </div>
       </div>
       {openInteractiveModal && (
@@ -363,6 +441,9 @@ export default function PartnerChatPageClient({
           onClose={() => {
             setOpenInteractiveModal(false);
           }}
+          partnerName={partnerName}
+          partnerAvatar={partnerAvatar}
+          partnerGender={partnerGender}
         />
       )}
     </>

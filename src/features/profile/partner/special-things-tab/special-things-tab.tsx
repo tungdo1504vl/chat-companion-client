@@ -30,6 +30,9 @@ export default function SpecialThingsTab({
       input_args: {
         user_id: userId,
         partner_id: profile.id,
+        upcoming_event: {
+          birthday: '2005-03-03',
+        },
       } as any,
       priority: 'high',
     };
