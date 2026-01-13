@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/libs/better-auth/server";
-import LoginPageClient from "./login-page-client";
 import { PROTECTED_ROUTES } from "@/constants/routes";
+import LoginPageClientV2 from "./login-page-client-v2";
 
 export default async function LoginPage() {
   // Redirect if already authenticated
@@ -10,5 +10,5 @@ export default async function LoginPage() {
     redirect(PROTECTED_ROUTES.CONVERSATIONS);
   }
 
-  return <LoginPageClient />;
+  return <LoginPageClientV2 />;
 }

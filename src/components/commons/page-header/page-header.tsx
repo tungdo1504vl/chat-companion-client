@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft, MoreVertical } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { TypographyH1 } from "@/components/ui/typgoraphy";
 import { TPageHeaderProps } from "./types";
 import { cn } from "@/libs/tailwind/utils";
 
@@ -12,37 +12,39 @@ export default function PageHeader({
   className,
 }: TPageHeaderProps) {
   return (
-    <div
+    <nav
       className={cn(
-        "flex items-center justify-between px-4 py-3 border-b",
+        "px-6 pt-4 pb-2 flex items-center justify-between",
         className
       )}
     >
       {onBackClick ? (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9"
+        <button
+          type="button"
+          className="w-10 h-10 flex items-center justify-center shadow-md rounded-full bg-white/60 backdrop-blur-md border border-white/50"
           onClick={onBackClick}
         >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
+          <ArrowLeft className="material-symbols-outlined  text-romantic-400 text-xl" />
+        </button>
       ) : (
-        <div className="h-9 w-9" />
+        <div className="w-10 h-10" />
       )}
-      <h1 className="text-lg font-semibold">{title}</h1>
+      {title && (
+        <TypographyH1 className="text-2xl font-bold text-center">
+          {title}
+        </TypographyH1>
+      )}
       {onMenuClick ? (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9"
+        <button
+          type="button"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white/40 backdrop-blur-sm border border-white/50"
           onClick={onMenuClick}
         >
-          <MoreVertical className="h-4 w-4" />
-        </Button>
+          <MoreVertical className="material-symbols-outlined text-romantic-400 text-xl" />
+        </button>
       ) : (
-        <div className="h-9 w-9" />
+        <div className="w-10 h-10" />
       )}
-    </div>
+    </nav>
   );
 }

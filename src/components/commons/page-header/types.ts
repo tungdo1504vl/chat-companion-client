@@ -1,5 +1,5 @@
 export type TPageHeaderProps = Readonly<{
-  title: string;
+  title?: string;
   onBackClick?: () => void;
   onMenuClick?: () => void;
   className?: string;

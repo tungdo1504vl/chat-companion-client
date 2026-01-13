@@ -1,4 +1,13 @@
-import { BarChart3, Users, User, LucideIcon } from "lucide-react";
+import {
+  BarChart3,
+  Users,
+  User,
+  Home,
+  Compass,
+  MessageCircle,
+  Plus,
+  LucideIcon,
+} from "lucide-react";
 
 export interface NavigationItem {
   href: string;
@@ -42,6 +51,10 @@ export const buildPartnerChatRoute = (partnerId: string): string => {
   return `${ASSISTANT_ROUTES.PARTNER_CHAT}/${partnerId}`;
 };
 
+export const buildWinACrushRoute = (partnerId: string): string => {
+  return `${ASSISTANT_ROUTES.PARTNER_DETAIL}/${partnerId}/win-a-crush`;
+};
+
 // Navigation items for assistant layout
 export const ASSISTANT_NAV_ITEMS: NavigationItem[] = [
   {
@@ -55,6 +68,40 @@ export const ASSISTANT_NAV_ITEMS: NavigationItem[] = [
     label: "Partners",
     icon: Users,
     matchPrefix: true, // Matches /partners, /partners/123, /partners/chat/123, etc.
+  },
+  {
+    href: ASSISTANT_ROUTES.PROFILE,
+    label: "Profile",
+    icon: User,
+    matchPrefix: false,
+  },
+] as const;
+
+// Navigation items for footer layout v2 (5 items: Home, Compass, Plus, Chat, User)
+export const FOOTER_V2_NAV_ITEMS: NavigationItem[] = [
+  {
+    href: ASSISTANT_ROUTES.ASSISTANT,
+    label: "Home",
+    icon: Home,
+    matchPrefix: false,
+  },
+  {
+    href: ASSISTANT_ROUTES.PARTNERS,
+    label: "Partners",
+    icon: Compass,
+    matchPrefix: true, // Matches /partners, /partners/123, /partners/chat/123, etc.
+  },
+  {
+    href: ASSISTANT_ROUTES.PARTNER_CREATE,
+    label: "Create",
+    icon: Plus,
+    matchPrefix: false,
+  },
+  {
+    href: ASSISTANT_ROUTES.HISTORY,
+    label: "History",
+    icon: MessageCircle,
+    matchPrefix: false,
   },
   {
     href: ASSISTANT_ROUTES.PROFILE,
