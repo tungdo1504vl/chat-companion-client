@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import type { PartnerProfile } from "@/features/profile/partner/types";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import type { PartnerProfile } from '@/features/profile/partner/types';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 type WinACrushHeaderProps = Readonly<{
   partnerProfile: PartnerProfile;
@@ -9,9 +9,9 @@ type WinACrushHeaderProps = Readonly<{
 
 export function WinACrushHeader({ partnerProfile }: WinACrushHeaderProps) {
   const initials = partnerProfile.name
-    .split(" ")
+    .split(' ')
     .map((n) => n[0])
-    .join("")
+    .join('')
     .toUpperCase()
     .slice(0, 2);
 
@@ -36,10 +36,10 @@ export function WinACrushHeader({ partnerProfile }: WinACrushHeaderProps) {
       </div>
       <h1 className="font-serif text-xl text-slate-900 leading-tight">
         {/* There's something you've been wanting to say to {partnerProfile.name}… */}
-        Sarah means the world to you, it's time to let her know
+        Bao Quyen means the world to you, it's time to let her know
       </h1>
       <p className="text-romantic-400/90 text-xs mt-1 italic font-medium">
-        Experience a conversation with her vivid AI persona
+        Experience a real conversation with her
       </p>
     </header>
   );

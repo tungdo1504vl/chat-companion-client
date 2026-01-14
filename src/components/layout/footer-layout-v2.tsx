@@ -29,7 +29,7 @@ export default function FooterLayoutV2(props: Readonly<PropsWithChildren>) {
         <div
           className={cn('flex-1 overflow-y-auto', {
             'pb-24 max-h-[90vh]': !isPartnerChatDetailPath,
-            'h-screen pb-16': isPartnerChatDetailPath,
+            'h-screen pb-6': isPartnerChatDetailPath,
           })}
         >
           {children}

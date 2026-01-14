@@ -1,45 +1,45 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
   ASSISTANT_ROUTES,
   buildPartnerDetailRoute,
   buildPartnerChatRoute,
   buildWinACrushRoute,
-} from "@/constants/routes";
+} from '@/constants/routes';
 import {
   Smile,
   EllipsisVertical,
   InfoIcon,
   MessageCircleMoreIcon,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { PageHeader } from "@/components/commons/page-header";
-import { useComputeGet } from "@/hooks/use-compute-get";
-import { createTaskParams, getInitials } from "@/utils/helpers";
-import { TASK_TYPE } from "@/constants/task";
-import { useSession } from "@/libs/better-auth/client";
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { PageHeader } from '@/components/commons/page-header';
+import { useComputeGet } from '@/hooks/use-compute-get';
+import { createTaskParams, getInitials } from '@/utils/helpers';
+import { TASK_TYPE } from '@/constants/task';
+import { useSession } from '@/libs/better-auth/client';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { LoadingSkeleton } from "@/components/commons/loading-skeleton";
+} from '@/components/ui/popover';
+import { LoadingSkeleton } from '@/components/commons/loading-skeleton';
 
 // Mock data - replace with actual API call
 const mockPartners = [
   {
-    partner_id: "1",
+    partner_id: '62cc15de2b57420e82199606f2e86b40',
     avatarUrl:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDFBu7ihKfRsIjq6dEDQDkTqn4LzycaeVwJi-A8kD9EBRvazPeVl5o7enP19JsooIn6KBCFf-gl-JkhWnsJIfsQ1vb7ie0Jz2NOWaM_jCk9v15OTwILMkpv1yMyGNWoQ2mJIxRKZ9pzLAB32lk_5W15IJubeE7TcRxF2w1OrZLPJejDL_6KU3b_74wVpY8yoj2ejsuWIsNNDEYCwSF27MqvL_RjMapch817j9wSP9qmTFL5Sog3s2uXlxVubLske_JWd_TbNqcD8w",
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuDFBu7ihKfRsIjq6dEDQDkTqn4LzycaeVwJi-A8kD9EBRvazPeVl5o7enP19JsooIn6KBCFf-gl-JkhWnsJIfsQ1vb7ie0Jz2NOWaM_jCk9v15OTwILMkpv1yMyGNWoQ2mJIxRKZ9pzLAB32lk_5W15IJubeE7TcRxF2w1OrZLPJejDL_6KU3b_74wVpY8yoj2ejsuWIsNNDEYCwSF27MqvL_RjMapch817j9wSP9qmTFL5Sog3s2uXlxVubLske_JWd_TbNqcD8w',
     partner_profile: {
       basic_info: {
-        name: "Quyen",
+        name: 'Bao Quyen',
         age: 28,
-        city_of_birth: "Da Nang",
-        country_of_birth: "Vietnam",
+        city_of_birth: 'Da Nang',
+        country_of_birth: 'Vietnam',
       },
     },
   },
@@ -116,8 +116,8 @@ export default function PartnersPage() {
           <div
             className="space-y-3 z-10"
             style={{
-              maxHeight: "calc(100vh - 450px)",
-              overflowY: "auto",
+              maxHeight: 'calc(100vh - 450px)',
+              overflowY: 'auto',
             }}
           >
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -131,7 +131,7 @@ export default function PartnersPage() {
                   router.push(buildWinACrushRoute(partner.partner_id));
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
+                  if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     router.push(buildWinACrushRoute(partner.partner_id));
                   }
@@ -155,7 +155,7 @@ export default function PartnersPage() {
                     {partner.partner_profile?.basic_info?.city_of_birth &&
                     partner.partner_profile?.basic_info?.country_of_birth
                       ? ` - ${partner.partner_profile?.basic_info?.city_of_birth}, ${partner.partner_profile?.basic_info?.country_of_birth}`
-                      : ""}
+                      : ''}
                   </p>
                 </div>
 
@@ -185,7 +185,7 @@ export default function PartnersPage() {
                           );
                         }}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
+                          if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             e.stopPropagation();
                             router.push(
@@ -209,7 +209,7 @@ export default function PartnersPage() {
                           }
                         }}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
+                          if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             e.stopPropagation();
                             const partnerId = partner.partner_id;
