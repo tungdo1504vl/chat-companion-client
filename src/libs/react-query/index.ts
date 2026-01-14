@@ -22,9 +22,6 @@ const HydrationBoundary = TanstackHydrationBoundary;
 function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
-      // queries: {
-      //   staleTime: 60 * 1000,
-      // },
       dehydrate: {
         // include pending queries in dehydration
         shouldDehydrateQuery: (query) =>
@@ -36,6 +33,8 @@ function makeQueryClient() {
       },
       queries: {
         retry: 0,
+        staleTime: 60 * 1000 * 5,
+        gcTime: 60 * 1000 * 10,
         refetchOnWindowFocus: false,
       },
     },
