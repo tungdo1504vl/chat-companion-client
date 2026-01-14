@@ -23,25 +23,26 @@ export function PracticeCard({ partnerId }: PracticeCardProps) {
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-romantic-50 rounded-full blur-2xl"></div>
 
         <div className="relative z-10 space-y-2 mb-8">
+          <h2 className="text-2xl font-serif text-slate-900">Hear her voice</h2>
           <h2 className="text-2xl font-serif text-slate-900">
-            Tell her how you feel
+            Feel her reaction
           </h2>
           <p className="text-sm text-slate-500 font-medium">
-            Say it gently. Say it honestly.
+            You've imagined this moment a thousands times. Let's make it real.
           </p>
         </div>
 
         <button
           onClick={handlePracticeClick}
-          className="w-full bg-romantic-500 text-white py-4.5 px-6 rounded-2xl font-bold text-base shadow-lg shadow-romantic-200 active:scale-[0.98] transition-all flex items-center justify-center gap-3 relative z-10"
+          className="w-full bg-romantic-500 text-white py-3 px-6 rounded-2xl font-bold text-base shadow-lg shadow-romantic-200 active:scale-[0.98] transition-all flex items-center justify-center gap-3 relative z-10"
         >
-          <HeartIcon className="material-symbols-outlined text-xl" />
-          Practice what you'll say
+          {/* <HeartIcon className="material-symbols-outlined text-xl" /> */}
+          Rehearse the moment
         </button>
 
         <div className="mt-4">
           <p className="text-[11px] text-romantic-300 font-semibold tracking-wide uppercase">
-            Private &amp; Personal
+            Your secret space
           </p>
         </div>
       </div>

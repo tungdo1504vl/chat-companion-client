@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import Link from "next/link";
 import {
   ASSISTANT_ROUTES,
@@ -8,7 +8,6 @@ import {
   buildWinACrushRoute,
 } from "@/constants/routes";
 import {
-  Smile,
   EllipsisVertical,
   InfoIcon,
   MessageCircleMoreIcon,
@@ -52,18 +51,20 @@ export default function PartnersPageClient() {
       <div className="flex-1  overflow-y-auto px-4 overflow-x-hidden">
         {/* Title Section */}
         <div className="relative mb-6">
-          <h2 className="text-2xl font-bold text-foreground mb-2">
-            Select partner
-          </h2>
-          <p className="text-sm text-muted-foreground pr-20">
-            Please enter your information for an accurate chart analysis
-          </p>
+          <h2 className="text-2xl text-foreground mb-2">Select partner</h2>
 
           {/* Gradient Circle with Smiley */}
           <div className="absolute top-0 right-0 w-40 h-40 -mt-8 -mr-8">
             <div className="relative w-full h-full rounded-full bg-gradient-to-br from-blue-200 via-green-200 to-pink-200 blur-3xl opacity-60" />
             <div className="absolute inset-0 flex items-center justify-center">
-              <Smile className="size-16 text-foreground/30" />
+              <div className="relative w-20 h-20">
+                <Image
+                  src="/mascot/mascot-removebg-preview.png"
+                  alt="Mascot"
+                  fill
+                  className="object-contain opacity-80 scale-200"
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -55,6 +55,7 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement>(null);
   const audioRef2 = React.useRef<HTMLAudioElement>(null);
+  const micBtnRef = React.useRef<HTMLButtonElement>(null);
   const mutateInteractive = useCommonCompute();
   const { data: session } = useSession();
   const params = useParams<{ id: string }>();
@@ -67,6 +68,9 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
   useEffect(() => {
+    setTimeout(() => {
+      micBtnRef.current?.click();
+    }, 2000);
     setTimeout(() => {
       audioRef2.current?.play();
     }, 5000);
@@ -202,7 +206,7 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
       setFinalTranscript(currentTranscript);
       handleInteractive(currentTranscript);
     } else {
-      toast.info('No audio detected. Please try speaking again.');
+      // toast.info('No audio detected. Please try speaking again.');
     }
   };
 
@@ -357,6 +361,7 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
               {/* Microphone/Stop Button */}
               <div className="flex flex-col items-center gap-3">
                 <Button
+                  ref={micBtnRef}
                   onClick={handleMicClick}
                   className={`h-20 min-h-20! w-20 rounded-full ${
                     listening

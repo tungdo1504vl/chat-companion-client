@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
-import PartnerChatPageClient from './partner-chat-page-client';
+// import PartnerChatPageClient from './partner-chat-page-client';
 import PartnerChatPageSkeleton from './partner-chat-page-skeleton';
+import PartnerChatPageClientDemo from './partner-chat-page-client-demo';
 
 type PartnerChatPageProps = Readonly<{
   params: Promise<{ id: string }>;
@@ -14,7 +15,8 @@ export default async function PartnerChatPage({
 
   return (
     <Suspense fallback={<PartnerChatPageSkeleton />}>
-      <PartnerChatPageClient partnerId={partnerId} />
+      {/* <PartnerChatPageClient partnerId={partnerId} /> */}
+      <PartnerChatPageClientDemo partnerId={partnerId} />
     </Suspense>
   );
 }

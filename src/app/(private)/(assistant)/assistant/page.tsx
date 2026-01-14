@@ -99,14 +99,13 @@ export default function AssistantPage() {
           <TypographyH1 className="text-4xl font-serif font-bold text-foreground">
             Your relationship friend
           </TypographyH1>
-          <div className="relative w-16 h-16">
-            <Image
-              src="/mascot/mascot-removebg-preview.png"
-              alt="Mascot"
-              fill
-              className="object-contain opacity-80"
-            />
-          </div>
+          <Image
+            src="/mascot/mascot-removebg-preview.png"
+            alt="Mascot"
+            width={80}
+            height={80}
+            className="object-contain opacity-80 scale-120"
+          />
         </div>
       </div>
 
