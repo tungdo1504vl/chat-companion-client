@@ -54,6 +54,7 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement>(null);
+  const audioRef2 = React.useRef<HTMLAudioElement>(null);
   const mutateInteractive = useCommonCompute();
   const { data: session } = useSession();
   const params = useParams<{ id: string }>();
@@ -65,6 +66,11 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
     resetTranscript,
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
+  useEffect(() => {
+    setTimeout(() => {
+      audioRef2.current?.play();
+    }, 5000);
+  }, []);
 
   const handleInteractive = useCallback(
     async (text: string) => {
@@ -232,8 +238,8 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
   const partnerAvatarUrl = useMemo(() => {
     if (!partnerAvatar) {
       return partnerGender === 'Male'
-        ? PARTNER_AVATAR_MEN
-        : PARTNER_AVATAR_WOMEN;
+        ? PARTNER_AVATAR_WOMEN
+        : PARTNER_AVATAR_MEN;
     }
     return partnerAvatar;
   }, [partnerAvatar, partnerGender]);
@@ -241,6 +247,11 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
   const subjectName = useMemo(() => {
     if (partnerGender === 'Male') return 'HE';
     return 'SHE';
+  }, [partnerGender]);
+
+  const objectName = useMemo(() => {
+    if (partnerGender === 'Male') return 'her';
+    return 'him';
   }, [partnerGender]);
 
   return (
@@ -260,11 +271,12 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
               'radial-gradient(circle at 50% 30%, #5E3B32 0%, #261613 90%)',
           }}
         />
-
+        {/* Audio */}
+        <audio ref={audioRef2} src={'/full_demo.wav'} />
         {/* Top Section - Header with icon and prompt */}
         <div className="relative pt-8 px-6 pb-4 z-10">
           {/* Speech bubble icon in top right */}
-          <div className="absolute top-6 right-6 w-10 h-10 rounded-full bg-gray-200/30 flex items-center justify-center">
+          <div className="absolute top-1 right-2 w-10 h-10 rounded-full bg-gray-200/30 flex items-center justify-center">
             <button
               onClick={handleClose}
               className="p-2 rounded-full hover:bg-white/20 transition-colors"
@@ -276,11 +288,11 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
 
           {/* Main prompt */}
           <div className="text-center mt-4">
-            <h1 className="text-3xl font-serif font-bold text-white mb-3">
-              Say it out loud.
+            <h1 className="text-2xl font-serif font-bold text-white mb-3">
+              Simulating {partnerName || 'Sarah'}'s reactions
             </h1>
             <p className="text-base font-serif italic text-white/90">
-              This is your space to practice — no pressure, no judgment.
+              Based on her personality profile
             </p>
           </div>
         </div>
@@ -333,7 +345,7 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
         </div>
 
         {/* Bottom Section - Controls */}
-        <div className="pb-8 px-6 z-10">
+        <div className="pb-9 px-6 z-10">
           {!browserSupportsSpeechRecognition ? (
             <div className="text-center">
               <p className="text-lg text-white font-semibold">
@@ -369,7 +381,7 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
                   <p className="text-xs uppercase text-white font-medium tracking-wider">
                     {listening
                       ? `RECORDING... CLICK TO STOP.`
-                      : `CLICK TO SPEAK. ${subjectName}'S LISTENING.`}
+                      : `CLICK TO SPEAK. SHE'S LISTENING.`}
                   </p>
                 )}
 

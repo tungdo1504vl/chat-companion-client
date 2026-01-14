@@ -115,112 +115,121 @@ export default function PartnersPage() {
             }}
           >
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {data.result.partners.map((partner: any) => (
-              <div
-                key={partner.partner_id}
-                role="button"
-                tabIndex={0}
-                className="bg-card border border-border rounded-lg p-4 flex items-center gap-4 cursor-pointer hover:bg-accent/50 transition-colors"
-                onClick={() => {
-                  router.push(buildWinACrushRoute(partner.partner_id));
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
+            {data.result.partners
+              .filter(
+                (item: any) =>
+                  item.partner_id !== 'fdb1664500584882bd4df2cd88f20807'
+              )
+              .map((partner: any) => (
+                <div
+                  key={partner.partner_id}
+                  role="button"
+                  tabIndex={0}
+                  className="bg-card border border-border rounded-lg p-4 flex items-center gap-4 cursor-pointer hover:bg-accent/50 transition-colors"
+                  onClick={() => {
                     router.push(buildWinACrushRoute(partner.partner_id));
-                  }
-                }}
-              >
-                <Avatar className="size-12 shrink-0">
-                  {partner.avatarUrl ? (
-                    <AvatarImage src={partner.avatarUrl} alt={partner.name} />
-                  ) : null}
-                  <AvatarFallback className="bg-muted text-foreground">
-                    {getInitials(partner.partner_profile?.basic_info?.name)}
-                  </AvatarFallback>
-                </Avatar>
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      router.push(buildWinACrushRoute(partner.partner_id));
+                    }
+                  }}
+                >
+                  <Avatar className="size-12 shrink-0">
+                    <AvatarImage
+                      src={partner.avatarUrl || '/images/partner-women.jpeg'}
+                      alt={partner.name}
+                    />
+                    {/* {partner.avatarUrl ? (
+                      <AvatarImage src={partner.avatarUrl} alt={partner.name} />
+                    ) : null}
+                    <AvatarFallback className="bg-muted text-foreground">
+                      {getInitials(partner.partner_profile?.basic_info?.name)}
+                    </AvatarFallback> */}
+                  </Avatar>
 
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-base text-foreground mb-1">
-                    {partner.partner_profile?.basic_info?.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {partner.partner_profile?.basic_info?.age}
-                    {partner.partner_profile?.basic_info?.city_of_birth &&
-                    partner.partner_profile?.basic_info?.country_of_birth
-                      ? ` - ${partner.partner_profile?.basic_info?.city_of_birth}, ${partner.partner_profile?.basic_info?.country_of_birth}`
-                      : ''}
-                  </p>
-                </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-base text-foreground mb-1">
+                      {partner.partner_profile?.basic_info?.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {partner.partner_profile?.basic_info?.age}
+                      {partner.partner_profile?.basic_info?.city_of_birth &&
+                      partner.partner_profile?.basic_info?.country_of_birth
+                        ? ` - ${partner.partner_profile?.basic_info?.city_of_birth}, ${partner.partner_profile?.basic_info?.country_of_birth}`
+                        : ''}
+                    </p>
+                  </div>
 
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      className="cursor-pointer"
-                      variant="link"
-                      size="lg"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                    >
-                      <EllipsisVertical className="size-5 text-muted-foreground shrink-0" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-36 p-2">
-                    <div className="flex flex-col gap-1.5">
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        className="flex items-center gap-2 cursor-pointer"
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        className="cursor-pointer"
+                        variant="link"
+                        size="lg"
                         onClick={(e) => {
                           e.stopPropagation();
-                          router.push(
-                            buildPartnerDetailRoute(partner.partner_id)
-                          );
                         }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
+                      >
+                        <EllipsisVertical className="size-5 text-muted-foreground shrink-0" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-36 p-2">
+                      <div className="flex flex-col gap-1.5">
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          className="flex items-center gap-2 cursor-pointer"
+                          onClick={(e) => {
                             e.stopPropagation();
                             router.push(
                               buildPartnerDetailRoute(partner.partner_id)
                             );
-                          }
-                        }}
-                      >
-                        <InfoIcon className="size-5 text-muted-foreground shrink-0" />
-                        <span>View Detail</span>
-                      </div>
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        className="flex items-center gap-2 cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const partnerId = partner.partner_id;
-                          if (partnerId) {
-                            router.push(buildPartnerChatRoute(partnerId));
-                          }
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              router.push(
+                                buildPartnerDetailRoute(partner.partner_id)
+                              );
+                            }
+                          }}
+                        >
+                          <InfoIcon className="size-5 text-muted-foreground shrink-0" />
+                          <span>View Detail</span>
+                        </div>
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          className="flex items-center gap-2 cursor-pointer"
+                          onClick={(e) => {
                             e.stopPropagation();
                             const partnerId = partner.partner_id;
                             if (partnerId) {
                               router.push(buildPartnerChatRoute(partnerId));
                             }
-                          }
-                        }}
-                      >
-                        <MessageCircleMoreIcon className="size-5 text-muted-foreground shrink-0" />
-                        <span>Chat</span>
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const partnerId = partner.partner_id;
+                              if (partnerId) {
+                                router.push(buildPartnerChatRoute(partnerId));
+                              }
+                            }
+                          }}
+                        >
+                          <MessageCircleMoreIcon className="size-5 text-muted-foreground shrink-0" />
+                          <span>Chat</span>
+                        </div>
                       </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            ))}
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              ))}
           </div>
         )}
 
@@ -228,7 +237,7 @@ export default function PartnersPage() {
         {data?.result?.partners.length > 0 && !isFetching && (
           <Button
             onClick={handleCreatePartner}
-            className="w-full bg-primary mt-5 text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium mb-8"
+            className="w-full bg-primary mt-5 text-primary-foreground hover:bg-primary/90 !h-14 text-base font-medium mb-8"
           >
             Create a partner profile
           </Button>
@@ -248,7 +257,7 @@ export default function PartnersPage() {
 
             <Button
               onClick={handleCreatePartner}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 !h-14 text-base font-medium"
             >
               Create a partner profile
             </Button>
