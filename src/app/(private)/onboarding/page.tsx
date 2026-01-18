@@ -11,6 +11,8 @@ import { PageHeader } from "@/components/commons/page-header";
 import { TopProgressBar } from "@/features/partner-form/components/top-progress-bar";
 import { ProgressIndicator } from "@/features/partner-form/components/progress-indicator";
 import { PROTECTED_ROUTES } from "@/constants/routes";
+// Uncomment the line below to use mock data for testing the astrology chart screen
+// import { useMockProfileAnalysis } from "@/features/onboarding/mock-data";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -20,6 +22,9 @@ export default function OnboardingPage() {
   const totalSteps = 3;
   const progress = (currentStep / totalSteps) * 100;
   const stepTitles = ["Personal Information", "Birth Details", "Location"];
+
+  // Uncomment to use mock data for testing (bypasses API call)
+  // useMockProfileAnalysis();
 
   const handleSubmit = async (formData: TOnboardingFormData) => {
     const birthDay = `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`;

@@ -1,13 +1,14 @@
 "use client";
 
-import { Sun, Moon, Sunrise, Sparkles } from "lucide-react";
+import { Sun, Moon, ArrowUpRight, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/commons/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { useProfileAnalysisStore } from "@/stores/profile-analysis.store";
 import { extractBigThree } from "@/features/profile/user/utils/natal-chart";
-import { zodiacSymbols, zodiacColors } from "@/features/profile/user/const";
 import type { TNatalChart, TInsights } from "@/features/profile/user/types";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface BigThreeCardProps {
   readonly title: string;
@@ -17,24 +18,33 @@ interface BigThreeCardProps {
 }
 
 function BigThreeCard({ title, sign, icon, description }: BigThreeCardProps) {
-  const symbolColor = zodiacColors[sign] || "bg-gray-500";
-  const symbol = zodiacSymbols[sign] || "";
+  // Determine icon background color based on planet
+  let iconBgClass = "bg-yellow-100 dark:bg-yellow-900/30";
+  let iconColorClass = "text-yellow-600 dark:text-yellow-400";
+
+  
+  if (title.toLowerCase() === "moon") {
+    iconBgClass = "bg-indigo-100 dark:bg-indigo-900/30";
+    iconColorClass = "text-indigo-500 dark:text-indigo-400";
+  } else if (title.toLowerCase() === "rising") {
+    iconBgClass = "bg-pink-100 dark:bg-pink-900/30";
+    iconColorClass = "text-pink-500 dark:text-pink-400";
+  }
 
   return (
-    <Card className="flex flex-col items-center p-3 md:p-4">
-      <div className="mb-2">{icon}</div>
-      <div className="text-xs font-semibold text-muted-foreground mb-1">
+    <Card className="bg-card-light dark:bg-card-dark rounded-2xl p-4 flex flex-col items-center shadow-sm border border-gray-100 dark:border-gray-800">
+      <div className={`w-10 h-10 rounded-full ${iconBgClass} flex items-center justify-center mb-3 ${iconColorClass}`}>
+        {icon}
+      </div>
+      <span className="text-[10px] uppercase tracking-wider text-text-sub-light dark:text-text-sub-dark font-semibold mb-1">
         {title}
-      </div>
-      <div className="text-xl md:text-2xl font-bold mb-2">{sign}</div>
-      <div className="text-xs text-muted-foreground mb-3 text-center">
+      </span>
+      <span className="font-bold text-lg text-text-main-light dark:text-text-main-dark mb-1">
+        {sign}
+      </span>
+      <span className="text-[10px] text-center text-text-sub-light dark:text-text-sub-dark leading-tight">
         {description}
-      </div>
-      <div
-        className={`w-12 h-12 rounded-full ${symbolColor} flex items-center justify-center text-white text-xl md:text-2xl`}
-      >
-        {symbol}
-      </div>
+      </span>
     </Card>
   );
 }
@@ -138,19 +148,19 @@ function getBigThreeIcon(planet: string): {
   switch (planet) {
     case "Sun":
       return {
-        icon: <Sun className="h-6 w-6 text-yellow-500" />,
+        icon: <Sun className="text-xl" />,
       };
     case "Moon":
       return {
-        icon: <Moon className="h-6 w-6 text-blue-500" />,
+        icon: <Moon className="text-xl" />,
       };
     case "Ascendant":
       return {
-        icon: <Sunrise className="h-6 w-6 text-orange-500" />,
+        icon: <ArrowUpRight className="text-xl" />,
       };
     default:
       return {
-        icon: <Sun className="h-6 w-6 text-gray-500" />,
+        icon: <Sun className="text-xl" />,
       };
   }
 }
@@ -172,9 +182,8 @@ function convertInsights(insights: any): TInsights | null {
   };
 }
 
-// Helper function to parse and format insights text with bold astrological terms
+// Helper function to parse and format insights text with primary color for astrological terms
 function formatInsightsText(text: string): React.ReactNode[] {
-  // Common astrological terms to bold
   const astroTerms = [
     "Sun in",
     "Moon in",
@@ -194,7 +203,6 @@ function formatInsightsText(text: string): React.ReactNode[] {
     "Aquarius",
   ];
 
-  // Split by paragraphs
   const paragraphs = text.split("\n").filter((p) => p.trim().length > 0);
 
   return paragraphs.map((paragraph, idx) => {
@@ -202,29 +210,26 @@ function formatInsightsText(text: string): React.ReactNode[] {
     let lastIndex = 0;
     let key = 0;
 
-    // Find and bold astrological terms
     astroTerms.forEach((term) => {
       const regex = new RegExp(String.raw`\b${term}\b`, "gi");
       let match;
       while ((match = regex.exec(paragraph)) !== null) {
-        // Add text before match
         if (match.index > lastIndex) {
           formattedText.push(paragraph.substring(lastIndex, match.index));
         }
-        // Add bolded term
         formattedText.push(
-          <strong key={`${term}-${key++}`}>{match[0]}</strong>
+          <span key={`${term}-${key++}`} className="text-[#F26B7A] font-medium">
+            {match[0]}
+          </span>
         );
         lastIndex = match.index + match[0].length;
       }
     });
 
-    // Add remaining text
     if (lastIndex < paragraph.length) {
       formattedText.push(paragraph.substring(lastIndex));
     }
 
-    // If no terms were found, return original paragraph
     if (formattedText.length === 0) {
       formattedText = [paragraph];
     }
@@ -232,7 +237,7 @@ function formatInsightsText(text: string): React.ReactNode[] {
     return (
       <p
         key={`paragraph-${paragraph.substring(0, 20)}-${idx}`}
-        className="text-sm text-foreground leading-relaxed [&_strong]:font-semibold"
+        className="text-sm text-[#555555] dark:text-[#A0A0A0] leading-relaxed mt-4 first:mt-0"
       >
         {formattedText}
       </p>
@@ -247,6 +252,7 @@ interface AstrologyChartScreenProps {
 export default function AstrologyChartScreen({
   onNext,
 }: AstrologyChartScreenProps) {
+  const router = useRouter();
   const profileAnalysis = useProfileAnalysisStore(
     (state) => state.profileAnalysis
   );
@@ -275,34 +281,53 @@ export default function AstrologyChartScreen({
   const formattedInsights = formatInsightsText(insightsText);
 
   return (
-    <div className="flex flex-col h-full bg-background">
-      <PageHeader title="My Astrology Chart" />
-      {/* Decorative gradient progress bar */}
-      <div className="h-1 bg-gradient-to-r from-purple-500 to-pink-500" />
-      <div className="flex-1 max-h-[80vh] overflow-y-auto">
-        <div className="container mx-auto max-w-2xl px-4 py-6 pb-6 space-y-6">
+    <div className="relative min-h-screen bg-[#FFF9F5] dark:bg-[#1F1A1C] font-sans antialiased transition-colors duration-300">
+      {/* Decorative background blobs */}
+      <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[40%] rounded-full bg-[#FDECEF] dark:bg-[#F26B7A]/10 blur-3xl -z-10 opacity-60" />
+      <div className="fixed bottom-[-10%] right-[-10%] w-[60%] h-[50%] rounded-full bg-[#FDECEF] dark:bg-[#F26B7A]/10 blur-3xl -z-10 opacity-60" />
+
+      {/* Scrollable content container */}
+      <div className="w-full max-w-md mx-auto min-h-screen flex flex-col relative max-h-screen overflow-y-auto">
+                {/* Header */}
+
+      <PageHeader title="My Astrology Chart" onBackClick={() => router.back()} className="mb-6" />
+
+        {/* Scrollable content area */}
+        <div className="flex-1  px-6 py-6 pb-32">
+
           {/* Your Cosmic Blueprint Section */}
-          <div className="flex flex-col items-center space-y-4">
-            {/* Central Graphic */}
-            <div className="w-24 h-24 md:w-32 md:h-32 bg-black rounded-lg flex items-center justify-center mb-4">
-              <div className="w-20 h-20 md:w-24 md:h-24 border-2 border-blue-400 rounded-full flex items-center justify-center">
-                <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-400/20 rounded-full flex items-center justify-center">
-                  <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-400 rounded-full"></div>
+          <div className="flex flex-col items-center mb-8">
+            <div className="relative mb-6">
+              {/* Glow effect */}
+              <div className="absolute inset-0 bg-[#F26B7A]/20 blur-xl rounded-full transform scale-110" />
+              {/* Avatar container */}
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-[#2D2628] shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] relative z-10 bg-black flex items-center justify-center">
+                <Image
+                  alt="Cosmic Avatar"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuArXd0uh_b5aeki52B95_7Y0hVu8CMOzFOKd4672EK1kuN8wB7ua6QKNbd6sIOpiFQktPyamPscJM4ivNH4YMkpwNOUfH1iNAIKMJGo69sKN7UihRzGnyCLjQnJG-Naoam5ZEmrE0ejzIX-4WPAwFuK60V8W0AKtwJkIe6qRCoqNVPTXBf5IlC2YnuMFMNESJvJqeWcJJFZcfpQjoLANsoyj9Hc6VzFhyTb7zvq8UsasfRFSpuoqyNs12z78j8f2J2Y-yEts5PhnYFB"
+                  width={128}
+                  height={128}
+                  className="w-full h-full object-cover opacity-80 mix-blend-screen"
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Sparkles 
+                    className="text-6xl text-[#F26B7A] animate-pulse" 
+                    style={{ textShadow: "0 0 20px rgba(242,107,122,0.8)" }}
+                  />
                 </div>
               </div>
             </div>
-
-            <h1 className="text-2xl md:text-3xl font-bold text-center">
+            <h2 className="font-bold text-2xl text-center text-[#1A1A1A] dark:text-[#F0F0F0] mb-2 leading-tight">
               Your Cosmic Blueprint
-            </h1>
-            <p className="text-sm text-muted-foreground text-center">
+            </h2>
+            <p className="text-[#555555] dark:text-[#A0A0A0] text-center text-sm px-4">
               Analysis complete based on your birth details
             </p>
           </div>
 
           {/* Big Three Cards */}
           {bigThree?.length === 3 ? (
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-3 mb-8">
               {bigThree.map((item) => (
                 <BigThreeCard
                   key={item.title}
@@ -314,8 +339,8 @@ export default function AstrologyChartScreen({
               ))}
             </div>
           ) : (
-            <Card className="p-4 text-center">
-              <p className="text-sm text-muted-foreground">
+            <Card className="p-4 text-center mb-8">
+              <p className="text-sm text-[#555555] dark:text-[#A0A0A0]">
                 Chart data is being processed...
               </p>
             </Card>
@@ -323,31 +348,34 @@ export default function AstrologyChartScreen({
 
           {/* AI Personality Overview Section */}
           {formattedInsights.length > 0 && (
-            <Card>
-              <CardContent className="p-4 md:p-6 space-y-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Sparkles className="h-5 w-5 text-primary" />
+            <Card className="bg-[#FFFFFF] dark:bg-[#2D2628] rounded-3xl p-6 shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] border border-gray-50 dark:border-gray-800 relative mb-8">
+              <CardContent className="p-0">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-[#F26B7A] flex items-center justify-center text-white shadow-[0_0_20px_rgba(242,107,122,0.3)]">
+                    <Sparkles className="text-sm" />
                   </div>
-                  <h2 className="text-base md:text-lg font-semibold">
+                  <h3 className="font-semibold text-lg text-[#1A1A1A] dark:text-[#F0F0F0]">
                     AI Personality Overview
-                  </h2>
+                  </h3>
                 </div>
-                <div className="space-y-3">{formattedInsights}</div>
+                <div className="prose prose-sm dark:prose-invert max-w-none text-[#555555] dark:text-[#A0A0A0] leading-relaxed">
+                  {formattedInsights}
+                </div>
+                {/* Gradient fade at bottom */}
+                <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-[#FFFFFF] dark:from-[#2D2628] to-transparent rounded-b-3xl pointer-events-none" />
               </CardContent>
             </Card>
           )}
         </div>
-      </div>
 
-      {/* Next Button */}
-      <div className="border-t bg-background px-4 py-4">
-        <div className="container mx-auto max-w-2xl">
+        {/* Fixed Bottom Button */}
+        <div className="fixed bottom-0 left-0 right-0 w-full max-w-md mx-auto p-6 bg-gradient-to-t from-[#FFF9F5] dark:from-[#1F1A1C] via-[#FFF9F5] dark:via-[#1F1A1C] to-transparent z-50">
           <Button
             onClick={onNext}
-            className="w-full min-h-[44px] bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold"
+            className="w-full bg-[#F26B7A] hover:bg-[#D65A68] text-white font-medium py-4 rounded-xl shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] shadow-[#F26B7A]/30 transform transition active:scale-[0.98] flex items-center justify-center gap-2"
           >
-            Next
+            <span>Next Step</span>
+            <ArrowRight className="text-lg" />
           </Button>
         </div>
       </div>

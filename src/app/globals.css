@@ -75,6 +75,13 @@
   --color-cream-bg: #fdfbf7;
   --color-card-beige: #efece6;
   --color-text-dark: #1a1a1a;
+  /* Semantic color tokens for astrology chart */
+  --color-text-main-light: #1a1a1a;
+  --color-text-main-dark: #f0f0f0;
+  --color-text-sub-light: #555555;
+  --color-text-sub-dark: #a0a0a0;
+  --color-card-light: #ffffff;
+  --color-card-dark: #2d2628;
 }
 
 :root {
