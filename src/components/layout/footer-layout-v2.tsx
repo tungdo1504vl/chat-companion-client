@@ -28,7 +28,7 @@ export default function FooterLayoutV2(props: Readonly<PropsWithChildren>) {
       <div className="max-w-lg mx-auto h-screen flex flex-col bg-background fixed top-0 left-1/2 -translate-x-1/2 w-full">
         <div
           className={cn('flex-1 overflow-y-auto', {
-            'pb-24 max-h-[90vh]': !isPartnerChatDetailPath,
+            'pb-24 max-h-[90vh] min-h-screen': !isPartnerChatDetailPath,
             'h-screen pb-6': isPartnerChatDetailPath,
           })}
         >
