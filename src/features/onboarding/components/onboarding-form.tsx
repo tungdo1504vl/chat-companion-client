@@ -56,7 +56,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
   return (
     <div className="flex flex-col h-full min-h-screen overflow-y-auto max-h-screen">
       {/* Main Content */}
-      <main className="grow px-6 pt-8 pb-24 ">
+      <main className="grow px-6 pt-8 pb-14">
         <div className="max-w-md mx-auto">
           <h2 className="text-3xl font-bold mb-3 text-[#2D2424] dark:text-[#F9FAFB]">
             Enter Information
@@ -311,13 +311,13 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
       </main>
 
       {/* Footer with Button */}
-      <div className="flex-none bg-[#FFF9F5] dark:bg-[#1F1A1A] px-6 pt-4 pb-8 transition-colors duration-200">
+      <div className="flex-none bg-[#FFF9F5] dark:bg-[#1F1A1A] px-6 pt-3 pb-8 transition-colors duration-200">
         <div className="max-w-md mx-auto">
           <Button
             type="submit"
             form="onboarding-form"
             disabled={!canSubmit || isLoading}
-            className="w-full py-5 px-6 rounded-2xl bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-semibold transition-all duration-300 text-center shadow-[0_8px_20px_-4px_rgba(255,107,107,0.4)] transform hover:-translate-y-0.5 active:translate-y-0 text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="size-full py-5 px-6 rounded-2xl bg-[#FF6B6B] hover:bg-[#FF5252] text-white font-semibold transition-all duration-300 text-center shadow-[0_8px_20px_-4px_rgba(255,107,107,0.4)] transform hover:-translate-y-0.5 active:translate-y-0 text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {isLoading ? "Processing..." : "Next"}
           </Button>
