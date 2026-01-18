@@ -22,7 +22,7 @@ function BigThreeCard({ title, sign, icon, description }: BigThreeCardProps) {
   let iconBgClass = "bg-yellow-100 dark:bg-yellow-900/30";
   let iconColorClass = "text-yellow-600 dark:text-yellow-400";
 
-  
+
   if (title.toLowerCase() === "moon") {
     iconBgClass = "bg-indigo-100 dark:bg-indigo-900/30";
     iconColorClass = "text-indigo-500 dark:text-indigo-400";
@@ -265,15 +265,15 @@ export default function AstrologyChartScreen({
   // Transform Big Three data for display with mapped descriptors
   const bigThree = bigThreeData
     ? bigThreeData.map((item) => {
-        const { icon } = getBigThreeIcon(item.planet);
-        const description = getZodiacDescriptor(item.planet, item.sign);
-        return {
-          title: item.title,
-          sign: item.sign,
-          icon,
-          description,
-        };
-      })
+      const { icon } = getBigThreeIcon(item.planet);
+      const description = getZodiacDescriptor(item.planet, item.sign);
+      return {
+        title: item.title,
+        sign: item.sign,
+        icon,
+        description,
+      };
+    })
     : null;
 
   // Parse insights text
@@ -288,9 +288,9 @@ export default function AstrologyChartScreen({
 
       {/* Scrollable content container */}
       <div className="w-full max-w-md mx-auto min-h-screen flex flex-col relative max-h-screen overflow-y-auto">
-                {/* Header */}
+        {/* Header */}
 
-      <PageHeader title="My Astrology Chart" onBackClick={() => router.back()} className="mb-6" />
+        <PageHeader title="My Astrology Chart" onBackClick={() => router.back()} className="mb-6" />
 
         {/* Scrollable content area */}
         <div className="flex-1  px-6 py-6 pb-32">
@@ -310,8 +310,8 @@ export default function AstrologyChartScreen({
                   className="w-full h-full object-cover opacity-80 mix-blend-screen"
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Sparkles 
-                    className="text-6xl text-[#F26B7A] animate-pulse" 
+                  <Sparkles
+                    className="text-6xl text-[#F26B7A] animate-pulse"
                     style={{ textShadow: "0 0 20px rgba(242,107,122,0.8)" }}
                   />
                 </div>
@@ -324,6 +324,27 @@ export default function AstrologyChartScreen({
               Analysis complete based on your birth details
             </p>
           </div>
+
+          {/* AI Personality Overview Section */}
+          {formattedInsights.length > 0 && (
+            <Card className="bg-[#FFFFFF] dark:bg-[#2D2628] rounded-3xl p-6 shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] border border-gray-50 dark:border-gray-800 relative mb-8">
+              <CardContent className="p-0">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-[#F26B7A] flex items-center justify-center text-white shadow-[0_0_20px_rgba(242,107,122,0.3)]">
+                    <Sparkles className="text-sm" />
+                  </div>
+                  <h3 className="font-semibold text-lg text-[#1A1A1A] dark:text-[#F0F0F0]">
+                    AI Personality Overview
+                  </h3>
+                </div>
+                <div className="prose prose-sm dark:prose-invert max-w-none text-[#555555] dark:text-[#A0A0A0] leading-relaxed">
+                  {formattedInsights}
+                </div>
+                {/* Gradient fade at bottom */}
+                <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-[#FFFFFF] dark:from-[#2D2628] to-transparent rounded-b-3xl pointer-events-none" />
+              </CardContent>
+            </Card>
+          )}
 
           {/* Big Three Cards */}
           {bigThree?.length === 3 ? (
@@ -346,35 +367,16 @@ export default function AstrologyChartScreen({
             </Card>
           )}
 
-          {/* AI Personality Overview Section */}
-          {formattedInsights.length > 0 && (
-            <Card className="bg-[#FFFFFF] dark:bg-[#2D2628] rounded-3xl p-6 shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] border border-gray-50 dark:border-gray-800 relative mb-8">
-              <CardContent className="p-0">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg bg-[#F26B7A] flex items-center justify-center text-white shadow-[0_0_20px_rgba(242,107,122,0.3)]">
-                    <Sparkles className="text-sm" />
-                  </div>
-                  <h3 className="font-semibold text-lg text-[#1A1A1A] dark:text-[#F0F0F0]">
-                    AI Personality Overview
-                  </h3>
-                </div>
-                <div className="prose prose-sm dark:prose-invert max-w-none text-[#555555] dark:text-[#A0A0A0] leading-relaxed">
-                  {formattedInsights}
-                </div>
-                {/* Gradient fade at bottom */}
-                <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-[#FFFFFF] dark:from-[#2D2628] to-transparent rounded-b-3xl pointer-events-none" />
-              </CardContent>
-            </Card>
-          )}
+
         </div>
 
         {/* Fixed Bottom Button */}
         <div className="fixed bottom-0 left-0 right-0 w-full max-w-md mx-auto p-6 bg-gradient-to-t from-[#FFF9F5] dark:from-[#1F1A1C] via-[#FFF9F5] dark:via-[#1F1A1C] to-transparent z-50">
           <Button
             onClick={onNext}
-            className="w-full bg-[#F26B7A] hover:bg-[#D65A68] text-white font-medium py-4 rounded-xl shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] shadow-[#F26B7A]/30 transform transition active:scale-[0.98] flex items-center justify-center gap-2"
+            className="size-full bg-[#F26B7A] hover:bg-[#D65A68] text-white font-medium py-4 rounded-xl shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] shadow-[#F26B7A]/30 transform transition active:scale-[0.98] flex items-center justify-center gap-2"
           >
-            <span>Next Step</span>
+            <span>Build your relationship</span>
             <ArrowRight className="text-lg" />
           </Button>
         </div>

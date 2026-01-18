@@ -6,6 +6,7 @@ import {
   SPLASH_SCREEN_STEP_1_CONFIG,
   SPLASH_SCREEN_STEP_2_CONFIG,
 } from "./splash-screen-config";
+import { useRouter } from "next/navigation";
 
 type SplashScreenStep = 1 | 2;
 
@@ -15,6 +16,7 @@ const TRANSITION_DURATION_MS = 350; // Smooth 300-400ms transition
 export default function SplashScreenContainer() {
   const [currentStep, setCurrentStep] = useState<SplashScreenStep>(1);
   const [isExiting, setIsExiting] = useState(false);
+  const router = useRouter();
 
   const handleContinue = () => {
     if (currentStep === 1) {
@@ -22,7 +24,7 @@ export default function SplashScreenContainer() {
       setIsExiting(true);
     } else if (currentStep === 2) {
       // Handle final step completion if needed
-      console.log("Splash screen completed");
+      router.push("/onboarding");
     }
   };
 

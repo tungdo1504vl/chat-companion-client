@@ -1,19 +1,59 @@
+import { ComboboxOption } from '@/components/ui/combobox';
 import { TOnboardingFormData } from './types';
-import type { ComboboxOption } from '@/components/ui/combobox';
 
 export const defaultOnboardingFormValues: TOnboardingFormData = {
   name: '',
-  birthYear: '',
-  birthMonth: '',
-  birthDay: '',
-  birthHour: '12',
-  birthMinute: '30',
-  birthPeriod: 'PM',
-  birthTimeKnown: false,
-  genderAtBirth: '',
-  country: 'VN',
-  city: '',
+  gender: '',
+  dob: '',
+  country: '',
 };
+
+export const genders = [
+  { value: 'female', label: 'Female' },
+  { value: 'male', label: 'Male' },
+];
+
+// Common countries list
+export const countries = [
+  { value: 'US', label: 'United States' },
+  { value: 'VN', label: 'Vietnam' },
+  { value: 'GB', label: 'United Kingdom' },
+  { value: 'CA', label: 'Canada' },
+  { value: 'AU', label: 'Australia' },
+  { value: 'DE', label: 'Germany' },
+  { value: 'FR', label: 'France' },
+  { value: 'IT', label: 'Italy' },
+  { value: 'ES', label: 'Spain' },
+  { value: 'NL', label: 'Netherlands' },
+  { value: 'BE', label: 'Belgium' },
+  { value: 'CH', label: 'Switzerland' },
+  { value: 'AT', label: 'Austria' },
+  { value: 'SE', label: 'Sweden' },
+  { value: 'NO', label: 'Norway' },
+  { value: 'DK', label: 'Denmark' },
+  { value: 'FI', label: 'Finland' },
+  { value: 'PL', label: 'Poland' },
+  { value: 'CZ', label: 'Czech Republic' },
+  { value: 'IE', label: 'Ireland' },
+  { value: 'PT', label: 'Portugal' },
+  { value: 'GR', label: 'Greece' },
+  { value: 'JP', label: 'Japan' },
+  { value: 'KR', label: 'South Korea' },
+  { value: 'CN', label: 'China' },
+  { value: 'IN', label: 'India' },
+  { value: 'SG', label: 'Singapore' },
+  { value: 'MY', label: 'Malaysia' },
+  { value: 'TH', label: 'Thailand' },
+  { value: 'PH', label: 'Philippines' },
+  { value: 'ID', label: 'Indonesia' },
+  { value: 'BR', label: 'Brazil' },
+  { value: 'MX', label: 'Mexico' },
+  { value: 'AR', label: 'Argentina' },
+  { value: 'CL', label: 'Chile' },
+  { value: 'CO', label: 'Colombia' },
+  { value: 'ZA', label: 'South Africa' },
+  { value: 'NZ', label: 'New Zealand' },
+].sort((a, b) => a.label.localeCompare(b.label));
 
 // Generate years from 1900 to current year
 export const years = Array.from(
@@ -53,10 +93,6 @@ export const periods = [
   { value: 'PM', label: 'PM' },
 ];
 
-export const genders = [
-  { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' },
-];
 
 // Vietnamese Cities List
 export const VIETNAM_CITIES: ComboboxOption[] = [

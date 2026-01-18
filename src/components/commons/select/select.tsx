@@ -18,6 +18,8 @@ export interface SelectProps
   extends Omit<React.ComponentProps<typeof UISelect>, "children"> {
   options?: SelectOption[];
   placeholder?: string;
+  triggerClassName?: string;
+  optionClassName?: string;
   size?: "sm" | "default";
   children?: React.ReactNode;
 }
@@ -30,6 +32,8 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
       size = "default",
       value,
       defaultValue,
+      triggerClassName,
+      optionClassName,
       onValueChange,
       disabled,
       children,
@@ -47,12 +51,12 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
           disabled={disabled}
           {...props}
         >
-          <SelectTrigger size={size} disabled={disabled} ref={ref}>
+          <SelectTrigger size={size} disabled={disabled} ref={ref} className={triggerClassName}>
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
           <SelectContent>
             {options.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
+              <SelectItem key={option.value} value={option.value} className={optionClassName}>
                 {option.label}
               </SelectItem>
             ))}
