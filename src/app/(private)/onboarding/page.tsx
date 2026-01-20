@@ -8,8 +8,6 @@ import { useOnboarding } from "@/features/onboarding/hooks/use-onboarding";
 import { TOnboardingFormData } from "@/features/onboarding/types";
 import { TCommonPayload } from "@/services";
 import { PROTECTED_ROUTES } from "@/constants/routes";
-// Uncomment the line below to use mock data for testing the astrology chart screen
-// import { useMockProfileAnalysis } from "@/features/onboarding/mock-data";
 
 // Transition timing constants (matches splash screen)
 const TRANSITION_DURATION_MS = 350;
@@ -32,9 +30,6 @@ export default function OnboardingPage() {
   const mutateOnboarding = useOnboarding();
   const [showChartScreen, setShowChartScreen] = useState(false);
 
-  // Uncomment to use mock data for testing (bypasses API call)
-  // useMockProfileAnalysis();
-
   const handleSubmit = async (formData: TOnboardingFormData) => {
     // Default time to 12:30:00 (12:30 PM) when not provided
     const birthTime = "12:30:00";
@@ -52,10 +47,17 @@ export default function OnboardingPage() {
       priority: "high",
     };
 
-    await mutateOnboarding.mutateAsync(payload);
+    try {
+      // The mutation uses mock data internally (see use-onboarding.ts)
+      await mutateOnboarding.mutateAsync(payload);
 
-    // Show chart screen after successful submission
-    setShowChartScreen(true);
+      // Show chart screen after successful submission
+      // The mock data is already set in the store via onSuccess callback
+      setShowChartScreen(true);
+    } catch (error) {
+      // Error handling is done in the mutation's onError callback
+      console.error("Onboarding submission failed:", error);
+    }
   };
 
   const handleNext = () => {

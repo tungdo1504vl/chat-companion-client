@@ -19,7 +19,7 @@ export const mockProfileAnalysisData: UserProfileAnalysisResponse = {
     basic_info: {
       name: "Alex Johnson",
       avatar_url:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuArXd0uh_b5aeki52B95_7Y0hVu8CMOzFOKd4672EK1kuN8wB7ua6QKNbd6sIOpiFQktPyamPscJM4ivNH4YMkpwNOUfH1iNAIKMJGo69sKN7UihRzGnyCLjQnJG-Naoam5ZEmrE0ejzIX-4WPAwFuK60V8W0AKtwJkIe6qRCoqNVPTXBf5IlC2YnuMFMNESJvJqeWcJJFZcfpQjoLANsoyj9Hc6VzFhyTb7zvq8UsasfRFSpuoqyNs12z78j8f2J2Y-yEts5PhnYFB",
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuDdMVFtQ4CHYzz3feuBSCm1lt3CXPX73Mq-A-RiOlHt_HfRq3G6qtuMIMQ4mkABYWvYLWQrYAXHrgOXmbFIHTC5pk3nMux-bMkrJcCsoVBPA9Ki1ptCvrjlsrKuADoVNrgvhxgmHaPzKECTFIZCDe1kzh4zUzy8G6yG3nZuRycDqq9lP1amCBP9UOdfNLK03hXDE8n74qEcHSFTnfJz6a3viH4KjwTlSTM4S6-aDIvlX7eh1eBBRwKuLWuX0EdI4VR0MmXjXqXrufMD",
       gender: "example_Gender",
       dob: "1995-08-15",
       time_of_birth: "14:30:00",

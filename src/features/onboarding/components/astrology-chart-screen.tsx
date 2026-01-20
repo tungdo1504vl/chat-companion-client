@@ -304,17 +304,11 @@ export default function AstrologyChartScreen({
               <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-[#2D2628] shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] relative z-10 bg-black flex items-center justify-center">
                 <Image
                   alt="Cosmic Avatar"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuArXd0uh_b5aeki52B95_7Y0hVu8CMOzFOKd4672EK1kuN8wB7ua6QKNbd6sIOpiFQktPyamPscJM4ivNH4YMkpwNOUfH1iNAIKMJGo69sKN7UihRzGnyCLjQnJG-Naoam5ZEmrE0ejzIX-4WPAwFuK60V8W0AKtwJkIe6qRCoqNVPTXBf5IlC2YnuMFMNESJvJqeWcJJFZcfpQjoLANsoyj9Hc6VzFhyTb7zvq8UsasfRFSpuoqyNs12z78j8f2J2Y-yEts5PhnYFB"
+                  src={profileAnalysis?.profile?.basic_info?.avatar_url || ""}
                   width={128}
                   height={128}
                   className="w-full h-full object-cover opacity-80 mix-blend-screen"
                 />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Sparkles
-                    className="text-6xl text-[#F26B7A] animate-pulse"
-                    style={{ textShadow: "0 0 20px rgba(242,107,122,0.8)" }}
-                  />
-                </div>
               </div>
             </div>
             <h2 className="font-bold text-2xl text-center text-[#1A1A1A] dark:text-[#F0F0F0] mb-2 leading-tight">
