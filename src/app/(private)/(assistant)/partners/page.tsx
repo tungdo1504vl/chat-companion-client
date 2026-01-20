@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { getInitials } from '@/utils/helpers';
+import { getInitials, getCountryName } from '@/utils/helpers';
 import {
   Popover,
   PopoverContent,
@@ -25,20 +25,28 @@ import {
 } from '@/components/ui/popover';
 import { PageHeader } from '@/components/commons/page-header';
 import { usePartnerStoreState } from '@/stores/partner/provider';
-import { toast } from 'sonner';
 import { TPartner } from '@/stores/partner/types';
+import { PartnerCardSkeleton } from './partner-card-skeleton';
 
 export default function PartnersPage() {
   const router = useRouter();
   const partners = usePartnerStoreState((state) => state.partners);
   const initialize = usePartnerStoreState((state) => state.initialize);
   const [isMounted, setIsMounted] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(true);
   const { preloadRoute } = useRoutePreloader();
 
   // Initialize store on client side only to prevent hydration mismatch
   useEffect(() => {
     setIsMounted(true);
     initialize();
+
+    // Show skeleton for minimum 1000ms
+    const timer = setTimeout(() => {
+      setShowSkeleton(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, [initialize]);
 
   const handleCreatePartner = () => {
@@ -77,7 +85,13 @@ export default function PartnersPage() {
             Your Connections
           </h2>
 
-          {!isMounted ? null : partners && partners.length > 0 ? (
+          {!isMounted || showSkeleton ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <PartnerCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : partners && partners.length > 0 ? (
             <div className="space-y-4">
               {partners.map((partner: TPartner) => (
                 <div
@@ -120,10 +134,13 @@ export default function PartnersPage() {
                       </h3>
                       <p className="text-sm text-(--color-text-sub-light) dark:text-(--color-text-sub-dark)">
                         {partner.partner_profile?.basic_info?.age}
-                        {partner.partner_profile?.basic_info?.city_of_birth &&
-                          partner.partner_profile?.basic_info?.country_of_birth
-                          ? ` | ${partner.partner_profile?.basic_info?.city_of_birth}, ${partner.partner_profile?.basic_info?.country_of_birth}`
-                          : ''}
+                        {(() => {
+                          const city = partner.partner_profile?.basic_info?.city_of_birth;
+                          const countryCode = partner.partner_profile?.basic_info?.country_of_birth;
+                          const country = getCountryName(countryCode);
+                          const locationParts = [city, country].filter(Boolean);
+                          return locationParts.length > 0 ? ` | ${locationParts.join(', ')}` : '';
+                        })()}
                       </p>
                     </div>
 

@@ -35,5 +35,6 @@ export type TPartnerStoreAction = {
     addPartner: (partner: TPartner) => void;
     addPartnerFromProfile: (profile: PartnerProfile) => void;
     initialize: () => void;
+    getPartnerById: (partnerId: string) => TPartner | undefined;
 }
 export type TPartnerStore = TPartnerStoreState & TPartnerStoreAction;

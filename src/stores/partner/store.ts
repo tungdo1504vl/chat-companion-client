@@ -20,6 +20,10 @@ export const createPartnerStore = () => {
             const partner = partnerProfileToTPartner(profile);
             set((state) => ({ partners: [...state.partners, partner] }));
         },
+        getPartnerById: (partnerId: string) => {
+            const state = get();
+            return state.partners.find((p) => p.partner_id === partnerId);
+        },
     }));
 }
 

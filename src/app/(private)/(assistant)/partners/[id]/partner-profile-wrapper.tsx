@@ -1,7 +1,6 @@
 "use client";
 
 import { PartnerProfileClient } from "@/features/profile/partner/partner-profile-client";
-import { useGetPartnerProfile } from "@/features/profile/partner/hooks/use-partner-profile";
 import { MOCK_PARTNER_PROFILE } from "@/stores/partner/mock-data";
 
 type PartnerProfileWrapperProps = Readonly<{
@@ -13,26 +12,12 @@ export function PartnerProfileWrapper({
   partnerId,
   userId,
 }: PartnerProfileWrapperProps) {
-  const { profile, isLoading, error } = useGetPartnerProfile(partnerId, userId);
-
-  // Show error state
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-destructive mb-2">
-            Failed to load partner profile
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {error instanceof Error ? error.message : "An error occurred"}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Use fetched profile or fallback to mock (for development)
-  const profileToDisplay = profile ?? MOCK_PARTNER_PROFILE;
+  // Note: The store contains TPartner (simplified format with basic info only)
+  // PartnerProfileClient requires full PartnerProfile with all fields (goals, personality, etc.)
+  // Since TPartner cannot be converted to PartnerProfile, we use MOCK_PARTNER_PROFILE
+  // 
+  // Future improvement: Store full PartnerProfile in store or fetch from API when needed
+  const profileToDisplay = MOCK_PARTNER_PROFILE;
 
   return <PartnerProfileClient profile={profileToDisplay} />;
 }

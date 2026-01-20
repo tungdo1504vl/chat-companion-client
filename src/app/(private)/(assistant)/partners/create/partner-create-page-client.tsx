@@ -49,11 +49,6 @@ export default function PartnerCreatePageClient() {
 
 
   const handleSubmit = async (formData: SimplifiedPartnerFormData) => {
-    if (!userId) {
-      toast.error("Please sign in to create a partner profile");
-      return;
-    }
-
     // Validate required fields
     if (!formData.partnerName.trim()) {
       toast.error("Partner name is required");
