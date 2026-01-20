@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { OnboardingForm, AstrologyChartScreen } from "@/features/onboarding/components";
 import { useOnboarding } from "@/features/onboarding/hooks/use-onboarding";
 import { TOnboardingFormData } from "@/features/onboarding/types";
@@ -9,6 +10,22 @@ import { TCommonPayload } from "@/services";
 import { PROTECTED_ROUTES } from "@/constants/routes";
 // Uncomment the line below to use mock data for testing the astrology chart screen
 // import { useMockProfileAnalysis } from "@/features/onboarding/mock-data";
+
+// Transition timing constants (matches splash screen)
+const TRANSITION_DURATION_MS = 350;
+
+// Animation variants for smooth entrance
+const pageVariants = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+  },
+};
+
+const pageTransition = {
+  duration: TRANSITION_DURATION_MS / 1000,
+  ease: [0.4, 0, 0.2, 1] as const, // easeOut cubic bezier
+};
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -48,15 +65,30 @@ export default function OnboardingPage() {
 
   // Show astrology chart screen if onboarding is complete
   if (showChartScreen) {
-    return <AstrologyChartScreen onNext={handleNext} />;
+    return (
+      <motion.div
+        initial="initial"
+        animate="animate"
+        variants={pageVariants}
+        transition={pageTransition}
+      >
+        <AstrologyChartScreen onNext={handleNext} />
+      </motion.div>
+    );
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#FFF9F5]  dark:bg-[#1F1A1A]">
+    <motion.div
+      initial="initial"
+      animate="animate"
+      variants={pageVariants}
+      transition={pageTransition}
+      className="flex flex-col h-full bg-[#FFF9F5] dark:bg-[#1F1A1A]"
+    >
       <OnboardingForm
         onSubmit={handleSubmit}
         isLoading={mutateOnboarding.isPending}
       />
-    </div>
+    </motion.div>
   );
 }

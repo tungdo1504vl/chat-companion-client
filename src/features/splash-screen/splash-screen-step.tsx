@@ -29,6 +29,7 @@ export default function SplashScreenStep({
                 src={config.avatar.src}
                 width={config.avatar.size}
                 height={config.avatar.size}
+                priority
                 className="w-full h-full object-cover rounded-full filter saturate-[0.85] contrast-[1.1]"
               />
             </div>
