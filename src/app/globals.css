@@ -48,6 +48,7 @@
   --radius-xl: 1.5rem;
   --radius-2xl: 2rem;
   --radius-3xl: 2.5rem;
+  --animate-sonar: sonar 2s ease-out infinite;
   /* Romantic color palette */
   --color-romantic-50: #fff9f9;
   --color-romantic-100: #fff0f2;
@@ -525,4 +526,24 @@
 
 .shadow-inner-glow {
   box-shadow: inset 0 2px 4px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Sonar ring animation for microphone button */
+@keyframes sonar {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+.microphone-ring-wrapper::before {
+  animation: sonar 2s ease-out infinite;
+}
+
+.microphone-ring-wrapper::after {
+  animation: sonar 2s ease-out infinite 1s;
 }

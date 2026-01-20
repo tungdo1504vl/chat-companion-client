@@ -29,6 +29,7 @@ import { useSession } from '@/libs/better-auth/client';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import { cn } from '@/libs/tailwind/utils';
 
 const PARTNER_AVATAR_MEN = '/images/partner-men.png';
 const PARTNER_AVATAR_WOMEN = '/images/partner-women.jpeg';
@@ -67,14 +68,15 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
     resetTranscript,
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
-  useEffect(() => {
-    setTimeout(() => {
-      micBtnRef.current?.click();
-    }, 2000);
-    setTimeout(() => {
-      audioRef2.current?.play();
-    }, 5000);
-  }, []);
+
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     micBtnRef.current?.click();
+  //   }, 2000);
+  //   setTimeout(() => {
+  //     audioRef2.current?.play();
+  //   }, 5000);
+  // }, []);
 
   const handleInteractive = useCallback(
     async (text: string) => {
@@ -106,7 +108,7 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
         setIsLoading(false);
       }
     },
-    [mutateInteractive, userId, partnerId]
+    [mutateInteractive, userId, partnerId],
   );
 
   useEffect(() => {
@@ -258,6 +260,9 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
     return 'him';
   }, [partnerGender]);
 
+  const microRingClass =
+    'before:content-[""] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-20 before:h-20 before:rounded-full before:border-2 before:border-white/60 before:pointer-events-none before:z-0 after:content-[""] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-20 after:h-20 after:rounded-full after:border-2 after:border-white/60 after:pointer-events-none after:z-0';
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
@@ -302,14 +307,14 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
         </div>
 
         {/* Middle Section - Partner Avatar */}
-        <div className="flex-1 flex items-center justify-center px-6 py-8 z-10">
+        <div className="flex-1 flex items-center justify-center px-6 pb-4 z-10">
           <div
             className="relative"
             onMouseEnter={() => setIsAvatarHovered(true)}
             onMouseLeave={() => setIsAvatarHovered(false)}
           >
             {/* Circular frame with gradient border */}
-            <div className="relative w-64 h-64 rounded-full p-1 bg-gradient-to-br from-[#C9A882] via-[#B8956F] to-[#8B6F47]">
+            <div className="relative w-64 h-64 rounded-full p-1 bg-linear-to-br from-[#C9A882] via-[#B8956F] to-[#8B6F47]">
               <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center">
                 {partnerAvatarUrl ? (
                   <img
@@ -318,7 +323,7 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
                     className="object-cover rounded-full w-full"
                   />
                 ) : (
-                  <div className="w-full h-full rounded-full bg-gradient-to-br from-pink-200 to-pink-300 flex items-center justify-center text-6xl font-semibold text-pink-700">
+                  <div className="w-full h-full rounded-full bg-linear-to-br from-pink-200 to-pink-300 flex items-center justify-center text-6xl font-semibold text-pink-700">
                     {partnerName.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -360,26 +365,32 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
             <>
               {/* Microphone/Stop Button */}
               <div className="flex flex-col items-center gap-3">
-                <Button
-                  ref={micBtnRef}
-                  onClick={handleMicClick}
-                  className={`h-20 min-h-20! w-20 rounded-full ${
-                    listening
-                      ? 'bg-[#C9A882] hover:bg-[#B8956F]'
-                      : 'bg-[#D4B8A0] hover:bg-[#C9A882]'
-                  } ${
-                    !browserSupportsSpeechRecognition || isLoading
-                      ? 'opacity-50 cursor-not-allowed'
-                      : 'cursor-pointer'
-                  } shadow-lg transition-all active:scale-95 relative overflow-hidden`}
-                  disabled={!browserSupportsSpeechRecognition || isLoading}
-                >
-                  {listening ? (
-                    <Square className="size-8 text-[#5C4A3A] relative z-10" />
-                  ) : (
-                    <Mic className="size-8 text-[#5C4A3A]" />
+                <div
+                  className={cn(
+                    'relative flex items-center justify-center w-32 h-32 microphone-ring-wrapper',
+                    listening && microRingClass,
                   )}
-                </Button>
+                >
+                  <Button
+                    ref={micBtnRef}
+                    onClick={handleMicClick}
+                    className={cn(
+                      'relative h-20 min-h-20! w-20 rounded-full shadow-lg transition-all active:scale-95 overflow-hidden z-10',
+                      {
+                        'bg-[#C9A882] hover:bg-[#B8956F]': listening,
+                        'bg-[#D4B8A0] hover:bg-[#C9A882]': !listening,
+                        'opacity-50 cursor-not-allowed':
+                          !browserSupportsSpeechRecognition || isLoading,
+                        'cursor-pointer': !(
+                          !browserSupportsSpeechRecognition || isLoading
+                        ),
+                      },
+                    )}
+                    disabled={!browserSupportsSpeechRecognition || isLoading}
+                  >
+                    <Mic className="size-8 text-[#5C4A3A]" />
+                  </Button>
+                </div>
 
                 {/* Instruction text - hide when loading */}
                 {!isLoading && (
@@ -390,8 +401,6 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
                   </p>
                 )}
 
-                {listening ? <AudioVisualization /> : null}
-
                 {/* Control icons */}
                 <div className="flex items-center gap-4 mt-2">
                   {/* Speaker/Volume icon */}
@@ -401,11 +410,19 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
                       className="p-2 rounded-full hover:bg-white/20 transition-colors"
                       aria-label="Play audio"
                     >
-                      {isPlaying ? (
-                        <Pause className="size-5 text-gray-300" />
-                      ) : (
-                        <Volume2 className="size-5 text-gray-300" />
-                      )}
+                      <Volume2 className="size-5 text-gray-300" />
+                    </button>
+                  )}
+
+                  {/* Stop icon */}
+                  {listening && (
+                    <button
+                      onClick={handleStopRecording}
+                      className="p-2 rounded-full hover:bg-white/20 transition-colors"
+                      aria-label="Close"
+                      disabled={isLoading}
+                    >
+                      <Square className="size-5 text-gray-300" />
                     </button>
                   )}
 
@@ -468,41 +485,6 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
         </div>
       </DialogContent>
     </Dialog>
-  );
-};
-
-// Audio visualization component
-const AudioVisualization = () => {
-  const [heights, setHeights] = useState<number[]>([]);
-
-  useEffect(() => {
-    // Initialize heights - smaller for button display
-    const initialHeights = Array.from(
-      { length: 12 },
-      () => Math.random() * 50 + 30
-    );
-    setHeights(initialHeights);
-
-    // Update heights periodically for animation
-    const interval = setInterval(() => {
-      setHeights(Array.from({ length: 12 }, () => Math.random() * 50 + 30));
-    }, 150);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="flex items-end justify-center gap-0.5 h-12">
-      {heights.map((height, index) => (
-        <div
-          key={index}
-          className="w-0.5 bg-white/80 rounded-full transition-all duration-150"
-          style={{
-            height: `${height}%`,
-          }}
-        />
-      ))}
-    </div>
   );
 };
 
