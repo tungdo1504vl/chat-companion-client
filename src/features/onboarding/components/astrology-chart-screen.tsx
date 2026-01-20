@@ -2,13 +2,11 @@
 
 import { Sun, Moon, ArrowUpRight, Sparkles, ArrowRight } from "lucide-react";
 import { PrimaryActionButton } from "@/components/commons/primary-action-button";
-import { PageHeader } from "@/components/commons/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { useProfileAnalysisStore } from "@/stores/profile-analysis.store";
 import { extractBigThree } from "@/features/profile/user/utils/natal-chart";
 import type { TNatalChart, TInsights } from "@/features/profile/user/types";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 
 interface BigThreeCardProps {
   readonly title: string;
@@ -252,7 +250,6 @@ interface AstrologyChartScreenProps {
 export default function AstrologyChartScreen({
   onNext,
 }: AstrologyChartScreenProps) {
-  const router = useRouter();
   const profileAnalysis = useProfileAnalysisStore(
     (state) => state.profileAnalysis
   );
@@ -288,10 +285,6 @@ export default function AstrologyChartScreen({
 
       {/* Scrollable content container */}
       <div className="w-full max-w-md mx-auto min-h-screen flex flex-col relative max-h-screen overflow-y-auto">
-        {/* Header */}
-
-        <PageHeader title="My Astrology Chart" onBackClick={() => router.back()} className="mb-6" />
-
         {/* Scrollable content area */}
         <div className="flex-1  px-6 py-6 pb-32">
 
@@ -370,7 +363,8 @@ export default function AstrologyChartScreen({
             onClick={onNext}
             label="Build your relationship"
             icon={<ArrowRight />}
-            iconClassName="text-lg flex-row-reverse"
+            className="size-full flex-row-reverse"
+            iconClassName="text-lg"
           />
         </div>
       </div>

@@ -18,7 +18,6 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       position="top-right"
-      duration={15000}
       icons={{
         info: <InfoIcon width={24} height={24} />,
         success: <CircleCheckIcon width={20} height={20} />,

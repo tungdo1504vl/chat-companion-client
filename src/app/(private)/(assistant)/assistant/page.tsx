@@ -15,6 +15,7 @@ import Link from "next/link";
 import { ASSISTANT_ROUTES } from "@/constants/routes";
 import { TypographyH1 } from "@/components/ui/typgoraphy";
 import { useRoutePreloader } from "@/components/transitions/route-preloader";
+import { ChipGroup } from "@/components/ui/chip-group";
 
 interface FeatureCard {
   id: string;
@@ -93,15 +94,21 @@ const features: FeatureCard[] = [
   },
 ];
 
+const chipOptions = [
+  { value: "romantic", label: "Romantic", icon: "💖" },
+  { value: "work", label: "Work", icon: "💼" },
+  { value: "personal", label: "Personal", icon: "🤝" },
+];
+
 export default function AssistantPage() {
   const { preloadRoute } = useRoutePreloader();
 
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="px-4 pt-4 pb-6">
+      <div className="px-4 pt-6 pb-6">
         <div className="flex items-center justify-between">
-          <TypographyH1 className="text-4xl font-serif font-bold text-foreground">
+          <TypographyH1 className="text-5xl font-serif font-bold text-foreground">
             Your relationship friend
           </TypographyH1>
           <Image
@@ -109,9 +116,17 @@ export default function AssistantPage() {
             alt="Mascot"
             width={80}
             height={80}
-            className="object-contain opacity-80 scale-120"
+            className="object-contain opacity-80 scale-200"
           />
         </div>
+      </div>
+
+      {/* Chip Group */}
+      <div className="px-4">
+        <ChipGroup
+          options={chipOptions}
+          defaultValue="romantic"
+        />
       </div>
 
       {/* Feature Cards List */}
@@ -129,8 +144,8 @@ export default function AssistantPage() {
           // Ensure gradient class always exists for new cards with fallback
           const gradientClass = isNew
             ? newCardGradients[
-                newCardGradientIndex % newCardGradients.length
-              ] || newCardGradients[0] // Fallback to first gradient if somehow undefined
+            newCardGradientIndex % newCardGradients.length
+            ] || newCardGradients[0] // Fallback to first gradient if somehow undefined
             : "";
 
           return (
@@ -145,19 +160,24 @@ export default function AssistantPage() {
                 <div
                   className={cn(
                     gradientClass, // Apply gradient class first to ensure it's not overridden
-                    "relative w-full rounded-4xl px-4 h-32 flex flex-col justify-center text-white shadow-soft overflow-hidden group cursor-pointer active:scale-[0.98] transition-transform"
+                    "relative w-full items-start justify-start rounded-4xl min-h-[152px] px-6 py-6 flex flex-col  text-white shadow-soft overflow-hidden group cursor-pointer active:scale-[0.98] transition-transform"
                   )}
                 >
-                  {/* Badge */}
-                  <div className="absolute top-5 right-5 bg-white/30 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold tracking-wide">
-                    New
-                  </div>
+
                   {/* Content */}
-                  <div className="w-full">
-                    <h2 className="font-serif text-2xl font-bold mb-1 leading-tight pr-8">
-                      {feature.title}
-                    </h2>
-                    <div className="flex items-center justify-between gap-2">
+                  <div className="size-ful flex flex-col gap-2">
+                    <div className="flex justify-start w-full">
+                      <h2 className="font-serif text-2xl font-bold leading-tight pr-12">
+                        {feature.title}
+                      </h2>
+                      {/* Badge */}
+
+                      <div className=" bg-white/30 size-fit backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold tracking-wide">
+                        New
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-4">
                       <p className="font-sans text-white/90 text-sm font-medium">
                         {feature.description}
                       </p>
@@ -170,15 +190,18 @@ export default function AssistantPage() {
                 </div>
               ) : (
                 <div className="bg-[#EFECE6] rounded-3xl p-4 flex items-center relative h-24">
-                  <span className="absolute top-1 rounded-2xl right-4 bg-amber-200 px-2 py-1 text-gray-500 text-[10px] font-bold uppercase tracking-wider">
-                    Up Coming
-                  </span>
-                  <div className="w-10 h-10 rounded-full bg-stone-200/60 shadow-md flex items-center justify-center text-stone-700 shrink-0 mr-3">
-                    <Icon className="text-lg" />
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 rounded-full bg-stone-50/80 shadow-md flex items-center justify-center text-stone-700 shrink-0 mr-3">
+                      <Icon className="text-lg" />
+                    </div>
+                    <h3 className="font-serif text-lg font-bold text-gray-800 leading-snug pr-6">
+                      {feature.title}
+                    </h3>
+                    <span className="size-fit text-nowrap rounded-2xl  bg-amber-200 px-2 py-1 text-gray-500 text-xs  font-bold uppercase tracking-wider">
+                      Up Coming
+                    </span>
                   </div>
-                  <h3 className="font-serif text-lg font-bold text-gray-800 leading-snug pr-8">
-                    {feature.title}
-                  </h3>
+
                 </div>
               )}
             </Link>

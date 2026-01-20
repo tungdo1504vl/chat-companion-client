@@ -26,7 +26,7 @@ export const useOnboarding = () => {
             task_type: "user_profile_validate",
             result: mockProfileAnalysisData,
           });
-        }, 1000);
+        }, 3500);
       });
     },
     onMutate: () => {

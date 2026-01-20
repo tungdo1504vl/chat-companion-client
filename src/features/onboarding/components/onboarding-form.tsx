@@ -62,7 +62,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                   <FormField
                     label="Name"
                     htmlFor={field.name}
-                    error={field.state.meta.errors}
+                    error={field.state.meta.isTouched && field.state.meta.errors ? field.state.meta.errors : undefined}
                     labelClassName="text-sm font-semibold font-serif text-[#2D2424] dark:text-[#F9FAFB] tracking-wide"
                   >
                     <FormInput
@@ -83,7 +83,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                   <FormField
                     label="Gender"
                     htmlFor="gender"
-                    error={field.state.meta.errors}
+                    error={field.state.meta.isTouched && field.state.meta.errors ? field.state.meta.errors : undefined}
                     labelClassName="text-sm font-semibold font-serif text-[#2D2424] dark:text-[#F9FAFB] tracking-wide"
                   >
                     <FormSelect
@@ -102,7 +102,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                   <FormField
                     label="Date of Birth"
                     htmlFor="dob"
-                    error={field.state.meta.errors}
+                    error={field.state.meta.isTouched && field.state.meta.errors ? field.state.meta.errors : undefined}
                     labelClassName="text-sm font-semibold font-serif text-[#2D2424] dark:text-[#F9FAFB] tracking-wide"
                   >
                     <FormInput
@@ -122,7 +122,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                   <FormField
                     label="Country"
                     htmlFor="country"
-                    error={field.state.meta.errors}
+                    error={field.state.meta.isTouched && field.state.meta.errors.length > 0 ? field.state.meta.errors : undefined}
                     labelClassName="text-sm font-semibold font-serif text-[#2D2424] dark:text-[#F9FAFB] tracking-wide"
                   >
                     <FormSelect

@@ -73,7 +73,7 @@ export default function PartnerCreatePageClient() {
 
     try {
       // Mock API call with setTimeout to show loading state
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
 
       // Calculate age from DOB
       const calculateAge = (dob: string): number => {
