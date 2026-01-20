@@ -2,11 +2,9 @@
 
 import { useEffect, useRef, useState, useMemo, useId } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
-import ReactTagsInput from "react-tagsinput";
-import { BrainCog, Coffee, Share2, CheckCircle } from "lucide-react";
+import { Brain, Coffee, ChevronDown, Plus, Settings, Sparkles, Zap } from "lucide-react";
 import { siInstagram } from "simple-icons";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Dialog,
   DialogContent,
@@ -15,27 +13,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Select } from "@/components/commons/select";
-import { RadioGroup, RadioGroupItem } from "@/components/commons/radio-group";
-import {
-  CheckboxGroup,
-  CheckboxGroupItem,
-} from "@/components/commons/checkbox-group";
 import {
   defaultProfileFormValues,
   loveLanguages,
   attachmentStyles,
-  communicationStyles,
-  workSchedules,
   socialEnergyLevels,
 } from "../const";
+import { DEAL_BREAKER_OPTIONS, DATE_BUDGET_LABELS, DATE_BUDGET_TO_VALUE } from "@/features/profile/partner/const";
 import { profileFormSchema } from "../validate-schema";
 import { TProfileFormProps, TProfileFormData } from "../types";
-import ProfileSaveButton from "./profile-save-button";
+import { cn } from "@/libs/tailwind/utils";
 
 /**
  * Instagram icon component using simple-icons
@@ -107,10 +102,42 @@ function deepEqual(a: TProfileFormData, b: TProfileFormData): boolean {
   return true;
 }
 
+// Helper functions for date budget conversion
+function convertDateBudgetToPosition(value: number): "low" | "balanced" | "high" {
+  if (value <= 50) return "low";
+  if (value <= 150) return "balanced";
+  return "high";
+}
+
+function convertDateBudgetPositionToValue(position: "low" | "balanced" | "high"): number {
+  return DATE_BUDGET_TO_VALUE[position] ?? 50;
+}
+
+// Work schedule mapping
+const WORK_RHYTHM_OPTIONS = [
+  { value: "nine_to_five", label: "Busy / Set Hours", partnerValue: "busy_set_hours" },
+  { value: "flexible_remote", label: "Flexible", partnerValue: "flexible" },
+] as const;
+
+// Social energy mapping
+const SOCIAL_ENERGY_MAPPING = {
+  low: "introvert",
+  balanced: "balanced",
+  high: "extrovert",
+} as const;
+
+const SOCIAL_ENERGY_REVERSE_MAPPING = {
+  introvert: "low",
+  balanced: "balanced",
+  extrovert: "high",
+} as const;
+
 export default function ProfileForm(props: Readonly<TProfileFormProps>) {
   const { onSubmit, isLoading, isSuccess, defaultValues } = props;
   const previousValuesRef = useRef<string | undefined>(undefined);
   const [showResetDialog, setShowResetDialog] = useState(false);
+  const [dealBreakerPopoverOpen, setDealBreakerPopoverOpen] = useState(false);
+  const [loveLanguagePopoverOpen, setLoveLanguagePopoverOpen] = useState(false);
 
   // Track initial values for change detection
   const initialValuesRef = useRef<TProfileFormData>(
@@ -190,270 +217,373 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
   return (
     <form className="flex flex-col" onSubmit={(e) => e.preventDefault()}>
       {/* Success Message */}
-      {isSuccess && (
+      {/* {isSuccess && (
         <Alert className="mb-6 border-green-500/50 bg-green-50/50 dark:bg-green-950/10 animate-in fade-in-0 duration-200">
           <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
           <AlertDescription className="text-green-700 dark:text-green-300">
             Profile saved successfully!
           </AlertDescription>
         </Alert>
-      )}
+      )} */}
 
       {/* Form Content */}
       <div className="space-y-6">
         {/* Personality & Preference */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <BrainCog className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <h3 className="text-lg font-semibold">
-                  Personality & Preference
-                </h3>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  How you connect and communicate
-                </p>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-5">
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 px-2">
+            <Brain className="text-primary text-xl" />
+            <h3 className="font-display text-xl font-bold">Personality & Preference</h3>
+          </div>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm space-y-6">
+            {/* Love Language */}
             <form.Field name="primaryLoveLanguage">
-              {(field) => (
-                <Field className="flex flex-col gap-2">
-                  <FieldLabel>Primary Love Language</FieldLabel>
-                  <Select
-                    value={field.state.value}
-                    onValueChange={(value) => {
-                      field.handleChange(value);
-                      field.handleBlur();
-                    }}
-                    options={loveLanguages}
-                    placeholder="Select your primary love language"
-                    disabled={isLoading}
-                  />
-                  <FieldError errors={field.state.meta.errors} />
-                </Field>
-              )}
-            </form.Field>
+              {(field) => {
+                const getLoveLanguageLabel = (value?: string): string => {
+                  if (!value) return "";
+                  const option = loveLanguages.find((opt) => opt.value === value);
+                  return option?.label || value;
+                };
 
-            <form.Field name="communicationStyles">
-              {(field) => (
-                <Field className="flex flex-col gap-2">
-                  <FieldLabel>Communication Style</FieldLabel>
-                  {field.state.value.length === 0 && (
-                    <p className="text-sm text-muted-foreground">
-                      Select one or more communication styles
-                    </p>
-                  )}
-                  <CheckboxGroup
-                    value={field.state.value}
-                    onValueChange={(value) => {
-                      field.handleChange(value);
-                      field.handleBlur();
-                    }}
-                    disabled={isLoading}
-                  >
-                    {communicationStyles.map((style) => (
-                      <CheckboxGroupItem key={style.value} value={style.value}>
-                        {style.label}
-                      </CheckboxGroupItem>
-                    ))}
-                  </CheckboxGroup>
-                  <FieldError errors={field.state.meta.errors} />
-                </Field>
-              )}
-            </form.Field>
-
-            <form.Field name="attachmentStyle">
-              {(field) => (
-                <Field className="flex flex-col gap-2">
-                  <FieldLabel>Attachment Style</FieldLabel>
-                  <p className="text-sm text-muted-foreground">
-                    How you typically form emotional bonds
-                  </p>
-                  <Select
-                    value={field.state.value}
-                    onValueChange={(value) => {
-                      field.handleChange(value);
-                      field.handleBlur();
-                    }}
-                    options={attachmentStyles}
-                    placeholder="Select your attachment style"
-                    disabled={isLoading}
-                  />
-                  <FieldError errors={field.state.meta.errors} />
-                </Field>
-              )}
-            </form.Field>
-
-            <form.Field name="dealBreakers">
-              {(field) => (
-                <Field className="flex flex-col gap-2">
-                  <FieldLabel>Deal-breakers</FieldLabel>
-                  <div className="react-tagsinput-wrapper">
-                    <ReactTagsInput
-                      value={field.state.value}
-                      onChange={(tags) => {
-                        field.handleChange(tags);
-                        field.handleBlur();
-                      }}
-                      disabled={isLoading}
-                      inputProps={{
-                        placeholder: "Add a deal-breaker (e.g., Smoking)",
-                        className: "react-tagsinput-input",
-                        onBlur: () => field.handleBlur(),
-                      }}
-                      tagProps={{
-                        className:
-                          "react-tagsinput-tag bg-primary text-primary-foreground",
-                        classNameRemove: "react-tagsinput-remove",
-                      }}
-                    />
+                return (
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase mb-3">Love Language</p>
+                    <Popover open={loveLanguagePopoverOpen} onOpenChange={setLoveLanguagePopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          disabled={isLoading}
+                          className="w-full flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <span className="text-sm font-medium">
+                            {getLoveLanguageLabel(field.state.value) || "Select..."}
+                          </span>
+                          <ChevronDown className="text-slate-400" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-2">
+                        <div className="flex flex-col gap-1">
+                          {loveLanguages.map((option) => (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => {
+                                field.handleChange(option.value);
+                                field.handleBlur();
+                                setLoveLanguagePopoverOpen(false);
+                              }}
+                              className="text-left px-2 py-1.5 text-sm rounded hover:bg-accent"
+                            >
+                              {option.label}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <FieldError errors={field.state.meta.errors} />
                   </div>
-                  <FieldError errors={field.state.meta.errors} />
-                </Field>
-              )}
+                );
+              }}
             </form.Field>
-          </CardContent>
-        </Card>
+
+            {/* Attachment Style */}
+            <form.Field name="attachmentStyle">
+              {(field) => {
+                const getAttachmentStyleLabel = (value?: string): string => {
+                  if (!value) return "";
+                  const option = attachmentStyles.find((opt) => opt.value === value);
+                  return option?.label || value;
+                };
+
+                if (field.state.value) {
+                  return (
+                    <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border-l-4 border-purple-400">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400">
+                          <Settings className="text-[18px]" />
+                          <span className="text-[10px] font-bold uppercase tracking-widest">
+                            Attachment Style
+                          </span>
+                        </div>
+                      </div>
+                      <h4 className="text-sm font-bold mb-1">
+                        {getAttachmentStyleLabel(field.state.value)}
+                      </h4>
+                      <FieldError errors={field.state.meta.errors} />
+                    </div>
+                  );
+                }
+
+                return (
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase mb-3">Attachment Style</p>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          disabled={isLoading}
+                          className="w-full flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <span className="text-sm font-medium">Select...</span>
+                          <ChevronDown className="text-slate-400" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-2">
+                        <div className="flex flex-col gap-1">
+                          {attachmentStyles.map((option) => (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => {
+                                field.handleChange(option.value);
+                                field.handleBlur();
+                              }}
+                              className="text-left px-2 py-1.5 text-sm rounded hover:bg-accent"
+                            >
+                              {option.label}
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <FieldError errors={field.state.meta.errors} />
+                  </div>
+                );
+              }}
+            </form.Field>
+
+            {/* Deal-Breakers */}
+            <form.Field name="dealBreakers">
+              {(field) => {
+                const getDealBreakerLabel = (value: string): string => {
+                  const option = DEAL_BREAKER_OPTIONS.find((opt) => opt.value === value);
+                  return option?.label || value;
+                };
+
+                const handleRemoveDealBreaker = (dealBreaker: string) => {
+                  const updated = field.state.value.filter((db) => db !== dealBreaker);
+                  field.handleChange(updated);
+                  field.handleBlur();
+                };
+
+                const handleAddDealBreaker = (dealBreaker: string) => {
+                  if (!field.state.value.includes(dealBreaker)) {
+                    field.handleChange([...field.state.value, dealBreaker]);
+                    field.handleBlur();
+                  }
+                  setDealBreakerPopoverOpen(false);
+                };
+
+                const availableDealBreakers = DEAL_BREAKER_OPTIONS.filter(
+                  (db) => !field.state.value.includes(db.value)
+                );
+
+                return (
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase mb-3">Deal-Breakers</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {field.state.value.map((dealBreaker) => (
+                        <span
+                          key={dealBreaker}
+                          className="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-800 px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-2"
+                        >
+                          {getDealBreakerLabel(dealBreaker)}
+                          {!isLoading && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveDealBreaker(dealBreaker)}
+                              className="hover:text-rose-700 dark:hover:text-rose-300"
+                              aria-label={`Remove ${getDealBreakerLabel(dealBreaker)}`}
+                            >
+                              ×
+                            </button>
+                          )}
+                        </span>
+                      ))}
+                      {!isLoading && availableDealBreakers.length > 0 && (
+                        <Popover
+                          open={dealBreakerPopoverOpen}
+                          onOpenChange={setDealBreakerPopoverOpen}
+                        >
+                          <PopoverTrigger asChild>
+                            <button
+                              type="button"
+                              className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                            >
+                              <Plus className="size-4" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-64 p-2">
+                            <div className="flex flex-col gap-1">
+                              {availableDealBreakers.map((dealBreaker) => (
+                                <button
+                                  key={dealBreaker.value}
+                                  type="button"
+                                  onClick={() => handleAddDealBreaker(dealBreaker.value)}
+                                  className="text-left px-2 py-1.5 text-sm rounded hover:bg-accent"
+                                >
+                                  {dealBreaker.label}
+                                </button>
+                              ))}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      )}
+                    </div>
+                    <FieldError errors={field.state.meta.errors} />
+                  </div>
+                );
+              }}
+            </form.Field>
+          </div>
+        </section>
 
         {/* Lifestyle Snapshot */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <Coffee className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <h3 className="text-lg font-semibold">Lifestyle Snapshot</h3>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Your daily rhythms and preferences
-                </p>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-5">
+        <section className="space-y-4 pb-8">
+          <div className="flex items-center gap-2 px-2">
+            <Coffee className="text-primary text-xl" />
+            <h3 className="font-display text-xl font-bold">Lifestyle Snapshot</h3>
+          </div>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm space-y-8">
+            {/* Work Rhythm */}
             <form.Field name="workSchedule">
-              {(field) => (
-                <Field className="flex flex-col gap-2">
-                  <FieldLabel>Work Schedule</FieldLabel>
-                  <RadioGroup
-                    value={field.state.value}
-                    onValueChange={(value) => {
-                      field.handleChange(value);
-                    }}
-                    disabled={isLoading}
-                    className="flex gap-2"
-                  >
-                    {workSchedules.map((schedule) => (
-                      <RadioGroupItem
-                        key={schedule.value}
-                        value={schedule.value}
-                      >
-                        {schedule.label}
-                      </RadioGroupItem>
-                    ))}
-                  </RadioGroup>
-                  <FieldError errors={field.state.meta.errors} />
-                </Field>
-              )}
+              {(field) => {
+                const currentWorkRhythm = field.state.value || "";
+                return (
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase mb-3">Work Rhythm</p>
+                    <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl">
+                      {WORK_RHYTHM_OPTIONS.map((option) => {
+                        const isSelected = currentWorkRhythm === option.value;
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => {
+                              field.handleChange(option.value);
+                              field.handleBlur();
+                            }}
+                            disabled={isLoading}
+                            className={cn(
+                              "flex-1 py-3 text-xs font-semibold rounded-xl transition-all duration-150 ease-out",
+                              isSelected
+                                ? "bg-primary text-white shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+                                : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300",
+                              isLoading && "opacity-50 cursor-not-allowed"
+                            )}
+                          >
+                            {option.label}
+                            {isSelected && option.value === "flexible_remote" && (
+                              <Sparkles size={14} className="fill-current" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <FieldError errors={field.state.meta.errors} />
+                  </div>
+                );
+              }}
             </form.Field>
 
+            {/* Date Budget Tendency */}
             <form.Field name="dateBudget">
-              {(field) => (
-                <Field className="flex flex-col gap-2">
-                  <FieldLabel>Date Budget</FieldLabel>
-                  <p className="text-sm text-muted-foreground">
-                    Typical amount you're comfortable spending per date
-                  </p>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-muted-foreground">Low</span>
-                      <span className="text-base font-semibold">
-                        ${field.state.value}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        High
+              {(field) => {
+                const currentDateBudgetPosition = convertDateBudgetToPosition(field.state.value);
+                const dateBudgetPosition = DATE_BUDGET_TO_VALUE[currentDateBudgetPosition] ?? 50;
+                const dateBudgetLabel = DATE_BUDGET_LABELS[dateBudgetPosition]?.label || "$$ (Balanced)";
+
+                return (
+                  <div>
+                    <div className="flex justify-between items-center mb-4">
+                      <p className="text-xs font-bold text-slate-400 uppercase">Date Budget Tendency</p>
+                      <span className="text-[11px] font-bold text-primary">
+                        {dateBudgetLabel}
                       </span>
                     </div>
-                    <Slider
-                      min={10}
-                      max={1000}
-                      step={10}
-                      value={[field.state.value]}
-                      onValueChange={(values) => {
-                        field.handleChange(values[0]);
-                      }}
-                      disabled={isLoading}
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground/80">
-                      <span>Budget-friendly: $20-50</span>
-                      <span>Moderate: $50-150</span>
-                      <span>Premium: $150+</span>
+                    <div className="relative pt-1">
+                      <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full w-full">
+                        <div
+                          className="absolute left-0 top-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full transition-all duration-200 ease-out"
+                          style={{ width: `${dateBudgetPosition}%` }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            // Cycle through positions: low -> balanced -> high -> low
+                            const nextPosition =
+                              currentDateBudgetPosition === "low"
+                                ? "balanced"
+                                : currentDateBudgetPosition === "balanced"
+                                  ? "high"
+                                  : "low";
+                            const newValue = convertDateBudgetPositionToValue(nextPosition);
+                            field.handleChange(newValue);
+                            field.handleBlur();
+                          }}
+                          disabled={isLoading}
+                          className={cn(
+                            "absolute w-6 h-6 bg-primary rounded-full border-4 border-white dark:border-slate-900 shadow-md -ml-3 transition-all duration-200 ease-out hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+                            isLoading && "opacity-50 cursor-not-allowed"
+                          )}
+                          style={{
+                            left: `${dateBudgetPosition}%`,
+                            top: "-2px",
+                          }}
+                          aria-label={`Date budget: ${dateBudgetLabel}`}
+                        />
+                      </div>
                     </div>
+                    <FieldError errors={field.state.meta.errors} />
                   </div>
-                  <FieldError errors={field.state.meta.errors} />
-                </Field>
-              )}
+                );
+              }}
             </form.Field>
 
+            {/* Social Energy Battery */}
             <form.Field name="socialEnergy">
-              {(field) => (
-                <Field className="flex flex-col gap-2">
-                  <FieldLabel>Social Energy Battery</FieldLabel>
-                  <p className="text-sm text-muted-foreground">
-                    Your preference for social interaction frequency
-                  </p>
-                  <RadioGroup
-                    value={field.state.value}
-                    onValueChange={(value) => {
-                      field.handleChange(value);
-                    }}
-                    disabled={isLoading}
-                    className="flex gap-2"
-                  >
-                    {socialEnergyLevels.map((level) => (
-                      <RadioGroupItem key={level.value} value={level.value}>
-                        {level.label}
-                      </RadioGroupItem>
-                    ))}
-                  </RadioGroup>
-                  <FieldError errors={field.state.meta.errors} />
-                </Field>
-              )}
-            </form.Field>
-
-            <form.Field name="hobbies">
-              {(field) => (
-                <Field className="flex flex-col gap-2">
-                  <FieldLabel>Hobbies & Interests</FieldLabel>
-                  <div className="react-tagsinput-wrapper">
-                    <ReactTagsInput
-                      value={field.state.value}
-                      onChange={(tags) => {
-                        field.handleChange(tags);
-                        field.handleBlur();
-                      }}
-                      disabled={isLoading}
-                      inputProps={{
-                        placeholder: "Gym, Coffee hopping, Traveling”,...",
-                        className: "react-tagsinput-input",
-                        onBlur: () => field.handleBlur(),
-                      }}
-                      tagProps={{
-                        className:
-                          "react-tagsinput-tag bg-primary text-primary-foreground",
-                        classNameRemove: "react-tagsinput-remove",
-                      }}
-                    />
+              {(field) => {
+                const currentSocialEnergy = field.state.value || "";
+                return (
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase mb-3">Social Energy Battery</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {socialEnergyLevels.map((option) => {
+                        const isSelected = currentSocialEnergy === option.value;
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => {
+                              field.handleChange(option.value);
+                              field.handleBlur();
+                            }}
+                            disabled={isLoading}
+                            className={cn(
+                              "p-3 text-center rounded-2xl text-[11px] transition-all duration-150 ease-out",
+                              isSelected
+                                ? "bg-white dark:bg-slate-800 ring-2 ring-primary/40 font-bold text-primary flex items-center justify-center gap-1 shadow-sm"
+                                : "border border-slate-100 dark:border-slate-800 text-slate-400 hover:border-primary/30",
+                              isLoading && "opacity-50 cursor-not-allowed"
+                            )}
+                          >
+                            {option.label}
+                            {isSelected && option.value === "balanced" && (
+                              <Zap size={14} className="text-[14px]" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <FieldError errors={field.state.meta.errors} />
                   </div>
-                  <FieldError errors={field.state.meta.errors} />
-                </Field>
-              )}
+                );
+              }}
             </form.Field>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
 
         {/* Social Signals */}
-        <Card>
+        {/* <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
               <Share2 className="h-5 w-5 text-muted-foreground" />
@@ -464,10 +594,10 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                 </p>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            {/* Instagram */}
-            <form.Field name="instagramUrl">
+          </CardHeader> */}
+        {/* <CardContent className="space-y-5"> */}
+        {/* Instagram */}
+        {/* <form.Field name="instagramUrl">
               {(field) => {
                 const hasUrl =
                   field.state.value && field.state.value.trim() !== "";
@@ -512,9 +642,9 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                   </Field>
                 );
               }}
-            </form.Field>
-          </CardContent>
-        </Card>
+            </form.Field> */}
+        {/* </CardContent> */}
+        {/* </Card> */}
       </div>
 
       {/* Reset Confirmation Dialog */}
@@ -538,14 +668,14 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
       </Dialog>
 
       {/* Sticky Save and Reset Buttons */}
-      <ProfileSaveButton
+      {/* <ProfileSaveButton
         hasChanges={hasChanges}
         isValid={isValid}
         isLoading={Boolean(isLoading)}
         isSuccess={isSuccess}
         onSave={handleFormSubmit}
         onReset={handleResetClick}
-      />
+      /> */}
     </form>
   );
 }

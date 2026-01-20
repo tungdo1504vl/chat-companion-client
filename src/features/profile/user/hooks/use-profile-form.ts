@@ -1,8 +1,8 @@
 import { useMemo, useRef, useEffect } from "react";
-import { useUserProfile } from "./use-user-profile";
+import { useUserStoreState } from "@/stores/user/provider";
 import { useUpdateProfile } from "./use-update-profile";
 import { profileToFormData } from "../utils/transform";
-import { TProfileFormData } from "../types";
+import { TProfileFormData, TUserProfile } from "../types";
 
 /**
  * Unified hook for profile form operations
@@ -10,12 +10,17 @@ import { TProfileFormData } from "../types";
  * Tracks initial form values for change detection
  */
 export const useProfileForm = () => {
-  const {
-    user,
-    isLoading: isFetching,
-    error: fetchError,
-    refetch,
-  } = useUserProfile();
+  const userInfo = useUserStoreState((state) => state.userInfo);
+  const isLoading = useUserStoreState((state) => state.isLoading);
+  const loadUserInfo = useUserStoreState((state) => state.loadUserInfo);
+
+  // Load user info on mount if not already loaded
+  useEffect(() => {
+    if (!userInfo && !isLoading) {
+      loadUserInfo();
+    }
+  }, [userInfo, isLoading, loadUserInfo]);
+
   const {
     updateProfileAsync,
     isLoading: isUpdating,
@@ -26,9 +31,10 @@ export const useProfileForm = () => {
 
   // Transform profile data to form data format
   // Memoize to prevent unnecessary re-renders
+  // Cast UserProfileInfo to TUserProfile as they have compatible structures
   const formData: TProfileFormData = useMemo(() => {
-    return profileToFormData(user?.profile ?? null);
-  }, [user?.profile]);
+    return profileToFormData((userInfo?.profile ?? null) as TUserProfile | null);
+  }, [userInfo?.profile]);
 
   // Track initial values for change detection
   const initialValuesRef = useRef<TProfileFormData | null>(null);
@@ -36,7 +42,7 @@ export const useProfileForm = () => {
 
   // Update initial values when formData changes (after fetch or successful update)
   useEffect(() => {
-    if (formData && !isFetching) {
+    if (formData && !isLoading) {
       const currentFormDataString = JSON.stringify(formData);
       // Update initial values when data changes (first load or after successful update)
       if (previousFormDataRef.current !== currentFormDataString) {
@@ -44,7 +50,7 @@ export const useProfileForm = () => {
         previousFormDataRef.current = currentFormDataString;
       }
     }
-  }, [formData, isFetching]);
+  }, [formData, isLoading]);
 
   // Reset initial values after successful update
   useEffect(() => {
@@ -62,13 +68,13 @@ export const useProfileForm = () => {
   return {
     formData,
     initialValues: initialValuesRef.current,
-    isLoading: isFetching || isUpdating,
-    isFetching,
+    isLoading: isLoading || isUpdating,
+    isFetching: isLoading,
     isUpdating,
-    error: fetchError || updateError,
+    error: updateError ?? null,
     handleSubmit,
     isSuccess,
     reset,
-    refetch,
+    refetch: loadUserInfo,
   };
 };

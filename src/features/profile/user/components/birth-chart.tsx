@@ -1,15 +1,13 @@
 "use client";
 
 import {
-  Check,
   Globe,
-  MessageCircle,
   Sparkles,
   Sun,
   Moon,
   Sunrise,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import type { TNatalChart, TInsights } from "../types";
 import { zodiacSymbols, planetSymbols, zodiacColors } from "../const";
 import {
@@ -75,6 +73,69 @@ function getBigThreeIcon(planet: string): {
   }
 }
 
+// Helper function to parse and format insights text with primary color for astrological terms
+function formatInsightsText(text: string): React.ReactNode[] {
+  const astroTerms = [
+    "Sun in",
+    "Moon in",
+    "Rising",
+    "Ascendant",
+    "Leo",
+    "Pisces",
+    "Libra",
+    "Aries",
+    "Taurus",
+    "Gemini",
+    "Cancer",
+    "Virgo",
+    "Scorpio",
+    "Sagittarius",
+    "Capricorn",
+    "Aquarius",
+  ];
+
+  const paragraphs = text.split("\n").filter((p) => p.trim().length > 0);
+
+  return paragraphs.map((paragraph, idx) => {
+    let formattedText: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let key = 0;
+
+    astroTerms.forEach((term) => {
+      const regex = new RegExp(String.raw`\b${term}\b`, "gi");
+      let match;
+      while ((match = regex.exec(paragraph)) !== null) {
+        if (match.index > lastIndex) {
+          formattedText.push(paragraph.substring(lastIndex, match.index));
+        }
+        formattedText.push(
+          <span key={`${term}-${key++}`} className="text-[#F26B7A] font-medium">
+            {match[0]}
+          </span>
+        );
+        lastIndex = match.index + match[0].length;
+      }
+    });
+
+    if (lastIndex < paragraph.length) {
+      formattedText.push(paragraph.substring(lastIndex));
+    }
+
+    if (formattedText.length === 0) {
+      formattedText = [paragraph];
+    }
+
+    return (
+      <p
+        key={`paragraph-${paragraph.substring(0, 20)}-${idx}`}
+        className="text-sm text-[#555555] dark:text-[#A0A0A0] leading-relaxed mt-4 first:mt-0"
+      >
+        {formattedText}
+      </p>
+    );
+  });
+}
+
 function BirthChart({ natalChart, insights }: BirthChartProps) {
   const bigThreeData = extractBigThree(natalChart);
   const planetaryPositions = extractPlanetaryPositions(natalChart);
@@ -82,91 +143,67 @@ function BirthChart({ natalChart, insights }: BirthChartProps) {
   // Transform Big Three data for display
   const bigThree = bigThreeData
     ? bigThreeData.map((item) => {
-        const { icon, iconColor } = getBigThreeIcon(item.planet);
-        return {
-          title: item.title,
-          sign: item.sign,
-          icon,
-          iconColor,
-        };
-      })
+      const { icon, iconColor } = getBigThreeIcon(item.planet);
+      return {
+        title: item.title,
+        sign: item.sign,
+        icon,
+        iconColor,
+      };
+    })
     : null;
 
-  // Parse insights text into paragraphs
+  // Parse insights text
   const insightsText = insights?.analysis_text || "";
-  const insightsParagraphs = insightsText
-    .split("\n")
-    .filter((p) => p.trim().length > 0);
+  const formattedInsights = formatInsightsText(insightsText);
 
   const hasData = !!natalChart;
-  const hasBigThree = !!bigThree;
   const hasPlanetaryPositions = planetaryPositions.length > 0;
-  const hasInsights = insightsParagraphs.length > 0;
 
   return (
     <div className="w-full space-y-6">
       {/* AI Chart Analysis Banner */}
-      <div className="bg-red-500 rounded-lg p-4 flex items-center justify-between text-white">
-        <div className="flex-1">
-          <p className="font-medium text-sm">
-            Discover compatibility insights based on your planetary positions.
-          </p>
-        </div>
-        <div className="ml-4 bg-white/20 rounded-full p-2">
-          <Sparkles className="h-5 w-5 text-white" />
-        </div>
-      </div>
 
       {/* Chart Insights Section */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <MessageCircle className="h-4 w-4 text-red-500" />
-          <h3 className="text-lg font-semibold">Chart Insights</h3>
+      {formattedInsights.length > 0 && (
+        <Card className="bg-[#FFFFFF] dark:bg-[#2D2628] rounded-3xl p-6 shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] border border-gray-50 dark:border-gray-800 relative mb-8">
+          <CardContent className="p-0">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-[#F26B7A] flex items-center justify-center text-white shadow-[0_0_20px_rgba(242,107,122,0.3)]">
+                <Sparkles size={16} className="text-sm" />
+              </div>
+              <h3 className="font-semibold text-lg text-[#1A1A1A] dark:text-[#F0F0F0]">
+                AI Personality Overview
+              </h3>
+            </div>
+            <div className="prose prose-sm dark:prose-invert max-w-none text-[#555555] dark:text-[#A0A0A0] leading-relaxed">
+              {formattedInsights}
+            </div>
+            {/* Gradient fade at bottom */}
+            <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-[#FFFFFF] dark:from-[#2D2628] to-transparent rounded-b-3xl pointer-events-none" />
+          </CardContent>
+        </Card>
+      )}
+      {/* Big Three Cards */}
+      {bigThree?.length === 3 ? (
+        <div className="grid grid-cols-3 gap-3 mb-8">
+          {bigThree.map((item) => (
+            <BigThreeCard
+              key={item.title}
+              title={item.title}
+              sign={item.sign}
+              icon={item.icon}
+              iconColor={item.iconColor}
+            />
+          ))}
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
-          {hasInsights ? (
-            insightsParagraphs.map((paragraph) => (
-              <p
-                key={paragraph.substring(0, 50)}
-                className="text-sm text-gray-700 leading-relaxed"
-              >
-                {paragraph}
-              </p>
-            ))
-          ) : (
-            <p className="text-sm text-gray-500 italic">
-              Insights not available
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* The Big Three Section */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Check className="h-4 w-4 text-red-500" />
-          <h3 className="text-lg font-semibold">The Big Three</h3>
-        </div>
-        {hasBigThree ? (
-          <div className="grid grid-cols-3 gap-3">
-            {bigThree.map((item) => (
-              <BigThreeCard
-                key={item.title}
-                title={item.title}
-                sign={item.sign}
-                icon={item.icon}
-                iconColor={item.iconColor}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg border border-gray-200 p-4 text-center text-sm text-gray-500">
-            {hasData
-              ? "Big Three data is incomplete"
-              : "Birth chart data not available"}
-          </div>
-        )}
-      </div>
+      ) : (
+        <Card className="p-4 text-center mb-8">
+          <p className="text-sm text-[#555555] dark:text-[#A0A0A0]">
+            Chart data is being processed...
+          </p>
+        </Card>
+      )}
 
       {/* Planetary Positions Section */}
       <div className="space-y-3">

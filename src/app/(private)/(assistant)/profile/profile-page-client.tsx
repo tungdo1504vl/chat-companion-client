@@ -1,22 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ProfileForm,
   BirthChart,
-  ProfileHeader,
   ProfileFormSkeleton,
   ProfileErrorState,
   ProfileEmptyState,
 } from "@/features/profile/user/components";
+import { ProfileInfo } from "@/features/profile/common/header";
+import { PageHeader } from "@/components/commons/page-header";
 import { useProfileForm } from "@/features/profile/user/hooks/use-profile-form";
-import { useUserProfile } from "@/features/profile/user/hooks/use-user-profile";
+import { useUserStoreState } from "@/stores/user/provider";
+import { useSession } from "@/libs/better-auth/client";
 import { useUpdateUserImage } from "@/features/profile/user/hooks/use-update-user-image";
 import { ImageUploadDialog } from "@/features/profile/common/components/image-upload-dialog";
 import { ASSISTANT_ROUTES } from "@/constants/routes";
 
 export default function ProfilePageClient() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("settings");
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
 
@@ -29,7 +33,69 @@ export default function ProfilePageClient() {
     refetch,
     isSuccess,
   } = useProfileForm();
-  const { user } = useUserProfile();
+
+  const userInfo = useUserStoreState((state) => state.userInfo);
+  const loadUserInfo = useUserStoreState((state) => state.loadUserInfo);
+  const { data: session } = useSession();
+
+  // Calculate age from DOB
+  const age = useMemo(() => {
+    const dob = userInfo?.profile?.basic_info?.dob;
+    if (!dob) return undefined;
+
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      calculatedAge--;
+    }
+    return calculatedAge;
+  }, [userInfo?.profile?.basic_info?.dob]);
+
+  // Format location from city and country
+  const location = useMemo(() => {
+    const city = userInfo?.profile?.basic_info?.city_of_birth;
+    const country = userInfo?.profile?.basic_info?.country_of_birth;
+    if (!city && !country) return undefined;
+    if (city && country) return `${city}, ${country}`;
+    return city || country;
+  }, [
+    userInfo?.profile?.basic_info?.city_of_birth,
+    userInfo?.profile?.basic_info?.country_of_birth,
+  ]);
+
+  // Get user display name
+  const userName = useMemo(() => {
+    return userInfo?.profile?.basic_info?.name || session?.user?.name || "";
+  }, [userInfo?.profile?.basic_info?.name, session?.user?.name]);
+
+  // Get avatar URL
+  const avatarUrl = useMemo(() => {
+    return (
+      userInfo?.profile?.basic_info?.avatar_url || session?.user?.image || undefined
+    );
+  }, [userInfo?.profile?.basic_info?.avatar_url, session?.user?.image]);
+
+  // Get initials
+  const initials = useMemo(() => {
+    return userName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+  }, [userName]);
+
+  // Load user info on mount if not already loaded
+  useEffect(() => {
+    if (!userInfo && !isFetching) {
+      loadUserInfo();
+    }
+  }, [userInfo, isFetching, loadUserInfo]);
+
   const { updateImageAsync, isUpdating: isUpdatingImage } = useUpdateUserImage({
     onSuccess: () => {
       setIsImageDialogOpen(false);
@@ -72,12 +138,25 @@ export default function ProfilePageClient() {
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Scrollable Content */}
-      <div className="flex-1  overflow-y-auto">
-        <ProfileHeader
+      <div className="flex-1 overflow-y-auto">
+        {/* Header */}
+        <PageHeader
+          title="My Profile"
+          onBackClick={() => router.push(ASSISTANT_ROUTES.ASSISTANT)}
           backHref={ASSISTANT_ROUTES.ASSISTANT}
-          isLoading={isFetching}
-          onAvatarEditClick={handleAvatarEditClick}
         />
+        <main className="max-w-md mx-auto px-4 space-y-6">
+          {/* Profile Info */}
+          <ProfileInfo
+            name={userName}
+            avatarUrl={avatarUrl}
+            initials={initials}
+            age={age}
+            location={location}
+            isLoading={isFetching}
+            onAvatarEditClick={handleAvatarEditClick}
+          />
+        </main>
 
         <div className="px-4 pb-6">
           {/* Loading State */}
@@ -108,16 +187,16 @@ export default function ProfilePageClient() {
               onValueChange={setActiveTab}
               className="w-full"
             >
-              <TabsList className="w-full grid grid-cols-2 bg-muted">
+              <TabsList className="w-full h-14 grid grid-cols-2 bg-muted">
                 <TabsTrigger
                   value="settings"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className="data-[state=active]:bg-primary  py-3  data-[state=active]:text-primary-foreground"
                 >
                   Settings
                 </TabsTrigger>
                 <TabsTrigger
                   value="birth-chart"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className="data-[state=active]:bg-primary  py-3  data-[state=active]:text-primary-foreground"
                 >
                   Birth Chart
                 </TabsTrigger>
@@ -136,8 +215,8 @@ export default function ProfilePageClient() {
               {/* Birth Chart Tab */}
               <TabsContent value="birth-chart" className="mt-6">
                 <BirthChart
-                  natalChart={user?.natal_chart ?? null}
-                  insights={user?.insights ?? null}
+                  natalChart={userInfo?.natal_chart ?? null}
+                  insights={userInfo?.insights ?? null}
                 />
               </TabsContent>
             </Tabs>
@@ -151,7 +230,7 @@ export default function ProfilePageClient() {
         onOpenChange={setIsImageDialogOpen}
         onImageSelect={handleImageSelect}
         isUploading={isUpdatingImage}
-        currentAvatarUrl={user?.image || undefined}
+        currentAvatarUrl={avatarUrl}
       />
     </div>
   );

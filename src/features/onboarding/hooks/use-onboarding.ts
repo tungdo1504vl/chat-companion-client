@@ -1,15 +1,13 @@
 import { useMutation } from "@/libs/react-query";
 import { TCommonPayload } from "@/services";
 import { toast } from "sonner";
-import { useProfileAnalysisStore } from "@/stores/profile-analysis.store";
+import { useUserStoreState } from "@/stores/user/provider";
 import type { UserProfileAnalysisResponse } from "@/stores/types";
 import type { TCommonResponse } from "@/services/types";
-import { mockProfileAnalysisData } from "../mock-data";
+import { mockProfileAnalysisData } from "@/stores/user/store";
 
 export const useOnboarding = () => {
-  const setProfileAnalysis = useProfileAnalysisStore(
-    (state) => state.setProfileAnalysis
-  );
+  const setUserInfo = useUserStoreState((state) => state.setUserInfo);
 
   const onboardingMutation = useMutation<
     TCommonResponse<UserProfileAnalysisResponse>,
@@ -35,9 +33,9 @@ export const useOnboarding = () => {
     onSuccess: async (response) => {
       toast.dismiss();
 
-      // Set mock profile analysis data in store
+      // Set mock profile analysis data in UserStore
       // The response.result contains the UserProfileAnalysisResponse
-      setProfileAnalysis(response.result);
+      setUserInfo(response.result);
 
       toast.success("Onboarding completed successfully");
     },

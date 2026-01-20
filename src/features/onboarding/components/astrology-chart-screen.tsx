@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { Sun, Moon, ArrowUpRight, Sparkles, ArrowRight } from "lucide-react";
 import { PrimaryActionButton } from "@/components/commons/primary-action-button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useProfileAnalysisStore } from "@/stores/profile-analysis.store";
+import { useUserStoreState } from "@/stores/user/provider";
 import { extractBigThree } from "@/features/profile/user/utils/natal-chart";
 import type { TNatalChart, TInsights } from "@/features/profile/user/types";
 import Image from "next/image";
@@ -250,12 +251,19 @@ interface AstrologyChartScreenProps {
 export default function AstrologyChartScreen({
   onNext,
 }: AstrologyChartScreenProps) {
-  const profileAnalysis = useProfileAnalysisStore(
-    (state) => state.profileAnalysis
-  );
+  const userInfo = useUserStoreState((state) => state.userInfo);
+  const isLoading = useUserStoreState((state) => state.isLoading);
+  const loadUserInfo = useUserStoreState((state) => state.loadUserInfo);
 
-  const natalChart = convertNatalChart(profileAnalysis?.natal_chart ?? null);
-  const insights = convertInsights(profileAnalysis?.insights ?? null);
+  // Load user info on mount if not already loaded
+  useEffect(() => {
+    if (!userInfo && !isLoading) {
+      loadUserInfo();
+    }
+  }, [userInfo, isLoading, loadUserInfo]);
+
+  const natalChart = convertNatalChart(userInfo?.natal_chart ?? null);
+  const insights = convertInsights(userInfo?.insights ?? null);
 
   const bigThreeData = extractBigThree(natalChart);
 
@@ -297,7 +305,7 @@ export default function AstrologyChartScreen({
               <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-[#2D2628] shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] relative z-10 bg-black flex items-center justify-center">
                 <Image
                   alt="Cosmic Avatar"
-                  src={profileAnalysis?.profile?.basic_info?.avatar_url || ""}
+                  src={userInfo?.profile?.basic_info?.avatar_url || ""}
                   width={128}
                   height={128}
                   className="w-full h-full object-cover opacity-80 mix-blend-screen"
@@ -318,7 +326,7 @@ export default function AstrologyChartScreen({
               <CardContent className="p-0">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 rounded-lg bg-[#F26B7A] flex items-center justify-center text-white shadow-[0_0_20px_rgba(242,107,122,0.3)]">
-                    <Sparkles className="text-sm" />
+                    <Sparkles size={16} className="text-sm" />
                   </div>
                   <h3 className="font-semibold text-lg text-[#1A1A1A] dark:text-[#F0F0F0]">
                     AI Personality Overview
