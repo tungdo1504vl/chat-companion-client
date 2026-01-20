@@ -8,6 +8,7 @@ import {
   buildPartnerChatRoute,
   buildWinACrushRoute,
 } from '@/constants/routes';
+import { useRoutePreloader } from '@/components/transitions/route-preloader';
 import {
   Heart,
   ChevronRight,
@@ -32,6 +33,7 @@ export default function PartnersPage() {
   const partners = usePartnerStoreState((state) => state.partners);
   const initialize = usePartnerStoreState((state) => state.initialize);
   const [isMounted, setIsMounted] = useState(false);
+  const { preloadRoute } = useRoutePreloader();
 
   // Initialize store on client side only to prevent hydration mismatch
   useEffect(() => {
@@ -86,6 +88,8 @@ export default function PartnersPage() {
                   onClick={() => {
                     router.push(buildWinACrushRoute(partner.partner_id));
                   }}
+                  onMouseEnter={() => preloadRoute(buildWinACrushRoute(partner.partner_id))}
+                  onTouchStart={() => preloadRoute(buildWinACrushRoute(partner.partner_id))}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
@@ -147,6 +151,8 @@ export default function PartnersPage() {
                                 buildPartnerDetailRoute(partner.partner_id)
                               );
                             }}
+                            onMouseEnter={() => preloadRoute(buildPartnerDetailRoute(partner.partner_id))}
+                            onTouchStart={() => preloadRoute(buildPartnerDetailRoute(partner.partner_id))}
                           >
                             <InfoIcon className="size-5 text-muted-foreground shrink-0" />
                             <span>View Detail</span>
@@ -159,6 +165,18 @@ export default function PartnersPage() {
                               const partnerId = partner.partner_id;
                               if (partnerId) {
                                 router.push(buildPartnerChatRoute(partnerId));
+                              }
+                            }}
+                            onMouseEnter={() => {
+                              const partnerId = partner.partner_id;
+                              if (partnerId) {
+                                preloadRoute(buildPartnerChatRoute(partnerId));
+                              }
+                            }}
+                            onTouchStart={() => {
+                              const partnerId = partner.partner_id;
+                              if (partnerId) {
+                                preloadRoute(buildPartnerChatRoute(partnerId));
                               }
                             }}
                           >
@@ -185,7 +203,10 @@ export default function PartnersPage() {
             onClick={handleCreatePartner}
             aria-label="Continue to next step"
             size="lg"
-            className="size-full bg-primary  text-white font-bold py-5 px-6 rounded-full shadow-lg shadow-primary/30 flex items-center justify-center space-x-2 hover:opacity-90 transition-opacity duration-200 ease-out transform active:scale-95 group text-lg motion-reduce:transition-none [&_svg:not([class*='size-'])]:size-6"          >
+            className="size-full bg-primary  text-white font-bold py-5 px-6 rounded-full shadow-lg shadow-primary/30 flex items-center justify-center space-x-2 hover:opacity-90 transition-opacity duration-200 ease-out transform active:scale-95 group text-lg motion-reduce:transition-none [&_svg:not([class*='size-'])]:size-6"
+            onMouseEnter={() => preloadRoute(ASSISTANT_ROUTES.PARTNER_CREATE)}
+            onTouchStart={() => preloadRoute(ASSISTANT_ROUTES.PARTNER_CREATE)}
+          >
             <Heart className="text-3xl group-hover:animate-pulse motion-reduce:animate-none"
               size={24} />
             <span className="font-bold text-lg tracking-wide">

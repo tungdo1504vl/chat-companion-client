@@ -10,6 +10,7 @@ import {
   ASSISTANT_ROUTES,
 } from '@/constants/routes';
 import { useIsPartnerChatDetail } from '@/hooks/use-is-partner-chat-detail';
+import { useRoutePreloader } from '@/components/transitions/route-preloader';
 
 function isNavItemActive(item: NavigationItem, pathname: string): boolean {
   if (item.matchPrefix) {
@@ -22,6 +23,7 @@ export default function FooterLayoutV2(props: Readonly<PropsWithChildren>) {
   const { children } = props;
   const pathname = usePathname();
   const isPartnerChatDetailPath = useIsPartnerChatDetail();
+  const { preloadRoute } = useRoutePreloader();
 
   return (
     <>
@@ -63,6 +65,8 @@ export default function FooterLayoutV2(props: Readonly<PropsWithChildren>) {
                       'flex items-center justify-center transition-colors',
                       'flex-1'
                     )}
+                    onMouseEnter={() => item.href && preloadRoute(item.href)}
+                    onTouchStart={() => item.href && preloadRoute(item.href)}
                     onClick={(e) => {
                       if (!item.href) {
                         e.preventDefault();
@@ -98,6 +102,8 @@ export default function FooterLayoutV2(props: Readonly<PropsWithChildren>) {
                       'transition-all duration-200',
                       'active:scale-95'
                     )}
+                    onMouseEnter={() => item.href && preloadRoute(item.href)}
+                    onTouchStart={() => item.href && preloadRoute(item.href)}
                   >
                     <Icon className="size-6 text-white" strokeWidth={2.5} />
                   </Link>

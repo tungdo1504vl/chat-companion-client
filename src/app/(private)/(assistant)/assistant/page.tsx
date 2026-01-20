@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Settings,
   Heart,
@@ -12,6 +14,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ASSISTANT_ROUTES } from "@/constants/routes";
 import { TypographyH1 } from "@/components/ui/typgoraphy";
+import { useRoutePreloader } from "@/components/transitions/route-preloader";
 
 interface FeatureCard {
   id: string;
@@ -91,6 +94,8 @@ const features: FeatureCard[] = [
 ];
 
 export default function AssistantPage() {
+  const { preloadRoute } = useRoutePreloader();
+
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
@@ -133,6 +138,8 @@ export default function AssistantPage() {
               className="block"
               href={ASSISTANT_ROUTES.PARTNERS}
               key={feature.id}
+              onMouseEnter={() => preloadRoute(ASSISTANT_ROUTES.PARTNERS)}
+              onTouchStart={() => preloadRoute(ASSISTANT_ROUTES.PARTNERS)}
             >
               {isNew ? (
                 <div

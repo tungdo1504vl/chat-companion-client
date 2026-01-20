@@ -573,3 +573,45 @@
 .shadow-button {
   box-shadow: 0 8px 20px -4px rgba(242, 92, 117, 0.4);
 }
+
+/* Page Transition Utilities - Fade-only (Mobile Web-View Optimized) */
+.page-fade-transition {
+  /* Hardware acceleration for opacity transitions */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Optimize opacity transitions for mobile */
+@supports (will-change: opacity) {
+  .page-fade-transition {
+    will-change: opacity;
+  }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .page-fade-transition {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Link hover preloading enhancement */
+a[href] {
+  transition: opacity 120ms ease-out, transform 120ms ease-out;
+}
+
+a[href]:hover {
+  transition-duration: 150ms;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
