@@ -526,3 +526,50 @@
 .shadow-inner-glow {
   box-shadow: inset 0 2px 4px 0 rgba(255, 255, 255, 0.3);
 }
+
+/* Partner Create Form Custom Utilities */
+.bg-card-white {
+  background-color: #ffffff;
+}
+
+.dark .bg-card-white {
+  background-color: var(--color-card-dark);
+}
+
+.bg-background-cream {
+  background-color: var(--color-cream-50);
+}
+
+.dark .bg-background-cream {
+  background-color: var(--color-surface-dark);
+}
+
+.text-text-soft {
+  color: var(--color-text-sub-light);
+}
+
+.dark .text-text-soft {
+  color: var(--color-text-sub-dark);
+}
+
+.text-text-placeholder {
+  color: var(--color-text-sub-light);
+  opacity: 0.6;
+}
+
+.dark .text-text-placeholder {
+  color: var(--color-text-sub-dark);
+  opacity: 0.6;
+}
+
+.text-text-dark {
+  color: var(--color-text-dark);
+}
+
+.dark .text-text-dark {
+  color: var(--color-text-main-dark);
+}
+
+.shadow-button {
+  box-shadow: 0 8px 20px -4px rgba(242, 92, 117, 0.4);
+}

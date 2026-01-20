@@ -1,180 +1,130 @@
 "use client";
 
-import { useState } from "react";
+import { useForm, useStore } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { ASSISTANT_ROUTES } from "@/constants/routes";
-import { PartnerForm } from "@/features/partner-form";
 import { PageHeader } from "@/components/commons/page-header";
-import { TopProgressBar } from "@/features/partner-form/components/top-progress-bar";
-import { TPartnerFormData } from "@/features/partner-form/types";
+import { PrimaryActionButton } from "@/components/commons/primary-action-button";
+import { FormField, FormInput, FormSelect } from "@/components/forms";
+import { countries } from "@/features/onboarding/const";
 import { toast } from "sonner";
-import { TCommonPayload } from "@/types/common";
-import { useCommonCompute } from "@/hooks/use-compute";
 import { useSession } from "@/libs/better-auth/client";
-import { TASK_TYPE } from "@/constants/task";
-import { useQueryClient } from "@/libs/react-query";
-import { ProgressIndicator } from "@/features/partner-form/components/progress-indicator";
-import { convertTo24HourFormat } from "@/utils";
-import userService from "@/services/user.service";
-import type { TTaskInputArgs } from "@/services/types";
+import { useState, startTransition } from "react";
+import { usePartnerStoreState } from "@/stores/partner/provider";
+import { TPartner } from "@/stores/partner/types";
 
-const STEP_TITLES = [
-  "Partner's Basic Information",
-  "Describe Your Current Situation",
-  "What Do You Want to Achieve?",
-  "Additional Information (Optional)",
-];
+type SimplifiedPartnerFormData = {
+  partnerName: string;
+  dob: string; // YYYY-MM-DD format
+  socialLink: string;
+  country: string;
+};
 
 export default function PartnerCreatePageClient() {
   const router = useRouter();
-  const mutatePartner = useCommonCompute();
   const { data: session } = useSession();
-  const queryClient = useQueryClient();
   const userId = session?.user.id;
-  const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
-  const progress = (currentStep / totalSteps) * 100;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const addPartner = usePartnerStoreState((state) => state.addPartner);
 
-  const handleSubmit = async (formData: TPartnerFormData) => {
-    console.log("Partner form data:", formData);
-    if (!userId) return;
+  const form = useForm({
+    defaultValues: {
+      partnerName: "",
+      dob: "",
+      socialLink: "",
+      country: "",
+    },
+    onSubmit: async ({ value }) => {
+      await handleSubmit(value);
+    },
+  });
 
-    // Show loading toast when mutation starts
+  const partnerName = useStore(form.store, (state) => state.values.partnerName);
+  const errors = useStore(form.store, (state) => state.errors);
+  const dob = useStore(form.store, (state) => state.values.dob);
+  const country = useStore(form.store, (state) => state.values.country);
+
+
+  const isFormValid = partnerName && dob && country && Object.keys(errors).length === 0;
+
+
+  const handleSubmit = async (formData: SimplifiedPartnerFormData) => {
+    if (!userId) {
+      toast.error("Please sign in to create a partner profile");
+      return;
+    }
+
+    // Validate required fields
+    if (!formData.partnerName.trim()) {
+      toast.error("Partner name is required");
+      return;
+    }
+    if (!formData.dob) {
+      toast.error("Date of birth is required");
+      return;
+    }
+    if (!formData.country) {
+      toast.error("Country is required");
+      return;
+    }
+
+    setIsSubmitting(true);
     const loadingToastId = toast.loading("Creating partner profile...");
 
     try {
-      // Format date of birth (YYYY-MM-DD) - following onboarding form pattern
-      const dob =
-        formData.birthYear && formData.birthMonth && formData.birthDay
-          ? `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`
-          : undefined;
+      // Mock API call with setTimeout to show loading state
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // Format time of birth (HH:mm:ss) if known - following onboarding form pattern
-      const timeOfBirth =
-        formData.birthTimeKnown &&
-        formData.birthHour &&
-        formData.birthMinute &&
-        formData.birthPeriod
-          ? convertTo24HourFormat(
-              formData.birthHour,
-              formData.birthMinute,
-              formData.birthPeriod
-            )
-          : undefined;
-
-      // Calculate age from age range (approximate conversion)
-      const calculateAgeFromRange = (ageRange: string): number | undefined => {
-        if (!ageRange || ageRange === "") return undefined;
-        // Convert age range to approximate age
-        if (ageRange === "Teens") return 17;
-        if (ageRange === "Early 20s") return 22;
-        if (ageRange === "Late 20s") return 27;
-        if (ageRange === "30s") return 35;
-        if (ageRange === "40+") return 45;
-        return undefined;
-      };
-
-      // Build basic_info object, excluding undefined values
-      const basicInfo: Record<string, string | number> = {
-        name: formData.partnerName,
-      };
-      if (formData.partnerGender) {
-        basicInfo.gender = formData.partnerGender;
-      }
-      const age = calculateAgeFromRange(formData.partnerAgeRange);
-      if (age !== undefined) {
-        basicInfo.age = age;
-      }
-      if (dob) {
-        basicInfo.dob = dob;
-      }
-      if (timeOfBirth) {
-        basicInfo.time_of_birth = timeOfBirth;
-      }
-      if (formData.country) {
-        basicInfo.country_of_birth = formData.country;
-      }
-      if (formData.city) {
-        basicInfo.city_of_birth = formData.city;
-      }
-
-      // Build partner_profile object, excluding undefined values
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const partner_profile: any = {
-        basic_info: basicInfo,
-        current_situation: formData.situationDescription,
-      };
-      if (formData.keyQuestion) {
-        partner_profile.what_you_want = formData.keyQuestion;
-      }
-      if (formData.goalForRelationship) {
-        partner_profile.what_ultimately_want = formData.goalForRelationship;
-        partner_profile.goals = [formData.goalForRelationship];
-      }
-      if (formData.partnerPersonality) {
-        partner_profile.partner_personality = formData.partnerPersonality;
-      }
-      if (formData.majorPastEvents) {
-        partner_profile.past_events_summary = formData.majorPastEvents;
-      }
-      if (formData.currentFeelings) {
-        partner_profile.current_feelings = formData.currentFeelings;
-      }
-
-      const payload: TCommonPayload = {
-        task_type: TASK_TYPE.PARTNER_PROFILE_CREATE,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        input_args: {
-          user_id: userId,
-          partner_profile: partner_profile,
-        } as any,
-        priority: "high",
-      };
-      const res = await mutatePartner.mutateAsync(payload);
-      console.log("res:", res);
-
-      // Extract partner_id from response
-      // The response structure may vary, adjust based on actual API response
-      const partnerId =
-        (res as any)?.result?.partner_id || (res as any)?.partner_id;
-
-      // Handle voice upload if provided
-      if (formData.voiceAudio && partnerId) {
-        try {
-          const voicePayload: TTaskInputArgs = {
-            user_id: userId,
-            partner_id: partnerId,
-            audio_base64: formData.voiceAudio.base64,
-            audio_format: formData.voiceAudio.format,
-            metadata: { source: "upload" },
-          } as unknown as TTaskInputArgs;
-
-          await userService.createPartnerVoiceProfile(voicePayload, "high");
-          console.log("Voice profile created successfully");
-        } catch (voiceError) {
-          console.error("Failed to upload voice:", voiceError);
-          // Don't fail the entire creation if voice upload fails
-          toast.error("Partner created, but voice upload failed", {
-            description:
-              voiceError instanceof Error
-                ? voiceError.message
-                : "Could not upload voice recording",
-          });
+      // Calculate age from DOB
+      const calculateAge = (dob: string): number => {
+        const birthDate = new Date(dob);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (
+          monthDiff < 0 ||
+          (monthDiff === 0 && today.getDate() < birthDate.getDate())
+        ) {
+          age--;
         }
+        return age;
+      };
+
+      // Generate unique partner_id
+      const partnerId = crypto.randomUUID();
+
+      // Build basic_info object
+      const basicInfo: TPartner["partner_profile"]["basic_info"] = {
+        name: formData.partnerName,
+        dob: formData.dob,
+        country_of_birth: formData.country,
+        age: calculateAge(formData.dob),
+      };
+
+      // Add social link if provided
+      if (formData.socialLink.trim()) {
+        basicInfo.social_link = formData.socialLink;
       }
 
-      await queryClient.invalidateQueries({
-        queryKey: ["compute", TASK_TYPE.PARTNER_PROFILE_LIST],
-      });
+      // Create partner object matching the expected structure
+      const newPartner: TPartner = {
+        partner_id: partnerId,
+        partner_profile: {
+          basic_info: basicInfo,
+        },
+      };
+
+      // Add partner to Zustand store
+      addPartner(newPartner);
 
       // Dismiss loading toast and show success
       toast.dismiss(loadingToastId);
       toast.success("Partner created successfully");
 
-      // Navigate to partners page after form submission
-      // Using router.push for programmatic navigation after async operation
-      router.push(ASSISTANT_ROUTES.PARTNERS);
+      // Navigate to partners page with smooth transition
+      startTransition(() => {
+        router.push(ASSISTANT_ROUTES.PARTNERS);
+      });
     } catch (error) {
       // Dismiss loading toast and show error
       toast.dismiss(loadingToastId);
@@ -185,6 +135,8 @@ export default function PartnerCreatePageClient() {
             ? error.message
             : "An unexpected error occurred",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -194,17 +146,142 @@ export default function PartnerCreatePageClient() {
         title="Create Partner"
         backHref={ASSISTANT_ROUTES.PARTNERS}
       />
-      <TopProgressBar progress={progress} />
-      <div className="container mx-auto max-w-2xl py-8 px-4">
-        <div className="mb-6">
-          <ProgressIndicator
-            currentStep={currentStep}
-            totalSteps={totalSteps}
-            stepTitles={STEP_TITLES}
-          />
-        </div>
-        <PartnerForm onSubmit={handleSubmit} onStepChange={setCurrentStep} />
-      </div>
+      <main className="grow px-6 pb-24 overflow-y-auto flex flex-col items-center">
+        <p className="text-center text-text-soft mt-2 mb-8 text-sm leading-relaxed max-w-xs mx-auto">
+          Fill up info to analyze the matching of you and partner
+        </p>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+          className="w-full max-w-md"
+        >
+          <div className="w-full bg-card-white rounded-[2rem] p-6 shadow-soft space-y-5">
+            {/* Partner Name Field */}
+            <form.Field
+              name="partnerName"
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value || !value.trim()) {
+                    return "Partner name is required";
+                  }
+                  return undefined;
+                },
+              }}
+            >
+              {(field) => (
+                <FormField
+                  label="Partner name"
+                  htmlFor="partner-name"
+                  error={field.state.meta.errors}
+                >
+                  <FormInput
+                    id="partner-name"
+                    name={field.name}
+                    type="text"
+                    field={field}
+                    disabled={isSubmitting}
+                    placeholder="Ex. Sarah"
+                  />
+                </FormField>
+              )}
+            </form.Field>
+
+            {/* Date of Birth Field */}
+            <form.Field
+              name="dob"
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value) {
+                    return "Date of birth is required";
+                  }
+                  return undefined;
+                },
+              }}
+            >
+              {(field) => (
+                <FormField
+                  label="DoB"
+                  htmlFor="dob"
+                  error={field.state.meta.errors}
+                >
+                  <FormInput
+                    id="dob"
+                    name={field.name}
+                    type="date"
+                    field={field}
+                    disabled={isSubmitting}
+                  />
+                </FormField>
+              )}
+            </form.Field>
+
+            {/* Social Link Field */}
+            <form.Field
+              name="socialLink"
+
+            >
+              {(field) => (
+                <FormField
+                  label="Social link"
+                  htmlFor="social-link"
+                  helperText="to know what's your partner like or their vibe"
+                  error={field.state.meta.errors}
+                >
+                  <FormInput
+                    id="social-link"
+                    name={field.name}
+                    type="url"
+                    field={field}
+                    disabled={isSubmitting}
+                    placeholder="Instagram, Twitter, etc."
+                  />
+                </FormField>
+              )}
+            </form.Field>
+
+            {/* Country Field */}
+            <form.Field
+              name="country"
+              validators={{
+                onChange: ({ value }) => {
+                  if (!value) {
+                    return "Country is required";
+                  }
+                  return undefined;
+                },
+              }}
+            >
+              {(field) => (
+                <FormField
+                  label="Country"
+                  htmlFor="country"
+                  error={field.state.meta.errors}
+                >
+                  <FormSelect
+                    field={field}
+                    options={countries}
+                    placeholder="Select country"
+                    disabled={isSubmitting}
+                  />
+                </FormField>
+              )}
+            </form.Field>
+          </div>
+
+          {/* Submit Button */}
+          <div className="w-full mt-8 mb-4">
+            <PrimaryActionButton
+              type="submit"
+              disabled={isSubmitting || !isFormValid}
+              label={isSubmitting ? "Creating..." : "Create Profile"}
+              className="size-full"
+            />
+          </div>
+        </form>
+      </main>
     </div>
   );
 }

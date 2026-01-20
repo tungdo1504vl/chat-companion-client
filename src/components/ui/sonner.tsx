@@ -18,6 +18,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       position="top-right"
+      duration={15000}
       icons={{
         info: <InfoIcon width={24} height={24} />,
         success: <CircleCheckIcon width={20} height={20} />,
@@ -36,7 +37,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           description: "text-xs text-muted-foreground",
           content: "peer-[.is-exist]:w-[calc(100%-56px)] pr-0 gap-0",
           closeButton: "hidden",
-          icon: "size-5 shrink-0 mr-2.5 flex justify-center items-center text-foreground/70",
+          icon: "size-5  relative shrink-0 mr-2.5 flex justify-center items-center text-foreground/70",
           default:
             "bg-background/95 backdrop-blur-sm border-border text-foreground",
           info: "bg-blue-50/95 dark:bg-blue-950/30 backdrop-blur-sm border-blue-200/50 dark:border-blue-800/30 text-blue-700 dark:text-blue-300",

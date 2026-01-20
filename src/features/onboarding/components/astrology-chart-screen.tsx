@@ -1,7 +1,7 @@
 "use client";
 
 import { Sun, Moon, ArrowUpRight, Sparkles, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { PrimaryActionButton } from "@/components/commons/primary-action-button";
 import { PageHeader } from "@/components/commons/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { useProfileAnalysisStore } from "@/stores/profile-analysis.store";
@@ -366,13 +366,13 @@ export default function AstrologyChartScreen({
 
         {/* Fixed Bottom Button */}
         <div className="fixed bottom-0 left-0 right-0 w-full max-w-md mx-auto p-6 bg-gradient-to-t from-[#FFF9F5] dark:from-[#1F1A1C] via-[#FFF9F5] dark:via-[#1F1A1C] to-transparent z-50">
-          <Button
+          <PrimaryActionButton
             onClick={onNext}
-            className="size-full bg-[#F26B7A] hover:bg-[#D65A68] text-white font-medium py-4 rounded-xl shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] shadow-[#F26B7A]/30 transform transition active:scale-[0.98] flex items-center justify-center gap-2"
-          >
-            <span>Build your relationship</span>
-            <ArrowRight className="text-lg" />
-          </Button>
+            label="Build your relationship"
+            icon={<ArrowRight />}
+            className="bg-[#F26B7A] hover:bg-[#D65A68] rounded-xl shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] shadow-[#F26B7A]/30 active:scale-[0.98]"
+            iconClassName="text-lg"
+          />
         </div>
       </div>
     </div>

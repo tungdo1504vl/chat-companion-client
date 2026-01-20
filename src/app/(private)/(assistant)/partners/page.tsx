@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import {
   ASSISTANT_ROUTES,
   buildPartnerDetailRoute,
@@ -22,38 +23,21 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { PageHeader } from '@/components/commons/page-header';
-
-// Mock data - replace with actual API call
-const mockPartners = [
-  {
-    partner_id: '62cc15de2b57420e82199606f2e86b40',
-    avatarUrl:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuDFBu7ihKfRsIjq6dEDQDkTqn4LzycaeVwJi-A8kD9EBRvazPeVl5o7enP19JsooIn6KBCFf-gl-JkhWnsJIfsQ1vb7ie0Jz2NOWaM_jCk9v15OTwILMkpv1yMyGNWoQ2mJIxRKZ9pzLAB32lk_5W15IJubeE7TcRxF2w1OrZLPJejDL_6KU3b_74wVpY8yoj2ejsuWIsNNDEYCwSF27MqvL_RjMapch817j9wSP9qmTFL5Sog3s2uXlxVubLske_JWd_TbNqcD8w',
-    partner_profile: {
-      basic_info: {
-        name: 'Bao Quyen',
-        age: 28,
-        city_of_birth: 'Da Nang',
-        country_of_birth: 'Vietnam',
-      },
-    },
-  },
-  // {
-  //   partner_id: "2",
-  //   avatarUrl: "/images/placeholder-avatar.png",
-  //   partner_profile: {
-  //     basic_info: {
-  //       name: "Maria Rodriguez",
-  //       age: 26,
-  //       city_of_birth: "Los Angeles",
-  //       country_of_birth: "United States",
-  //     },
-  //   },
-  // },
-];
+import { usePartnerStoreState } from '@/stores/partner/provider';
+import { toast } from 'sonner';
+import { TPartner } from '@/stores/partner/types';
 
 export default function PartnersPage() {
   const router = useRouter();
+  const partners = usePartnerStoreState((state) => state.partners);
+  const initialize = usePartnerStoreState((state) => state.initialize);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Initialize store on client side only to prevent hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+    initialize();
+  }, [initialize]);
 
   const handleCreatePartner = () => {
     router.push(ASSISTANT_ROUTES.PARTNER_CREATE);
@@ -91,10 +75,9 @@ export default function PartnersPage() {
             Your Connections
           </h2>
 
-          {mockPartners && (
+          {!isMounted ? null : partners && partners.length > 0 ? (
             <div className="space-y-4">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {mockPartners.map((partner: any) => (
+              {partners.map((partner: TPartner) => (
                 <div
                   key={partner.partner_id}
                   role="button"
@@ -188,6 +171,10 @@ export default function PartnersPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-(--color-text-sub-light) dark:text-(--color-text-sub-dark)">
+              <p className="text-sm">No partners yet. Create your first partner profile!</p>
             </div>
           )}
         </div>

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { PrimaryActionButton } from "@/components/commons/primary-action-button";
 import type { SplashScreenStepConfig } from "./splash-screen-config";
 
 interface SplashScreenStepProps {
@@ -45,18 +45,13 @@ export default function SplashScreenStep({
           </p>
         </div>
         <div className="w-full mb-4">
-          <Button
+          <PrimaryActionButton
             onClick={onContinue}
             aria-label="Continue to next step"
-            size="lg"
-            className="size-full bg-primary  text-white font-bold py-5 px-6 rounded-full shadow-lg shadow-primary/30 flex items-center justify-center space-x-2 hover:opacity-90 transition-opacity duration-200 ease-out transform active:scale-95 group text-lg motion-reduce:transition-none [&_svg:not([class*='size-'])]:size-6"
-          >
-            <Heart
-              className="text-3xl group-hover:animate-pulse motion-reduce:animate-none"
-              aria-hidden="true"
-            />
-            <span >{config.button.text}</span>
-          </Button>
+            label={config.button.text}
+            icon={<Heart />}
+            className="size-full"
+          />
         </div>
       </main>
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0 overflow-hidden">

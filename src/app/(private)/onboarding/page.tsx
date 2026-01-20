@@ -8,6 +8,7 @@ import { useOnboarding } from "@/features/onboarding/hooks/use-onboarding";
 import { TOnboardingFormData } from "@/features/onboarding/types";
 import { TCommonPayload } from "@/services";
 import { PROTECTED_ROUTES } from "@/constants/routes";
+import Link from "next/link";
 
 // Transition timing constants (matches splash screen)
 const TRANSITION_DURATION_MS = 350;
@@ -68,14 +69,18 @@ export default function OnboardingPage() {
   // Show astrology chart screen if onboarding is complete
   if (showChartScreen) {
     return (
-      <motion.div
-        initial="initial"
-        animate="animate"
-        variants={pageVariants}
-        transition={pageTransition}
-      >
-        <AstrologyChartScreen onNext={handleNext} />
-      </motion.div>
+      <>
+        <Link href="/assistant" prefetch className="hidden" aria-hidden="true" />
+        <motion.div
+          initial="initial"
+          animate="animate"
+          variants={pageVariants}
+          transition={pageTransition}
+        >
+          <AstrologyChartScreen onNext={handleNext} />
+        </motion.div>
+      </>
+
     );
   }
 
