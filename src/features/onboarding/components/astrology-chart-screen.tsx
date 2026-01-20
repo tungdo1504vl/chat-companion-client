@@ -370,7 +370,7 @@ export default function AstrologyChartScreen({
             onClick={onNext}
             label="Build your relationship"
             icon={<ArrowRight />}
-            iconClassName="text-lg"
+            iconClassName="text-lg flex-row-reverse"
           />
         </div>
       </div>
