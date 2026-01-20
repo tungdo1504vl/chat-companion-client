@@ -370,7 +370,6 @@ export default function AstrologyChartScreen({
             onClick={onNext}
             label="Build your relationship"
             icon={<ArrowRight />}
-            className="bg-[#F26B7A] hover:bg-[#D65A68] rounded-xl shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] shadow-[#F26B7A]/30 active:scale-[0.98]"
             iconClassName="text-lg"
           />
         </div>
