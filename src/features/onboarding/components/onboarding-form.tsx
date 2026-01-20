@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
 import { PrimaryActionButton } from "@/components/commons/primary-action-button";
 import { FormField, FormInput, FormSelect } from "@/components/forms";
 import {
@@ -23,12 +23,16 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
     },
   });
 
+  const name = useStore(form.store, (state) => state.values.name);
+  const gender = useStore(form.store, (state) => state.values.gender);
+  const dob = useStore(form.store, (state) => state.values.dob);
+  const country = useStore(form.store, (state) => state.values.country);
+  const errors = useStore(form.store, (state) => state.errors);
+
+
   // Check if required fields are filled
-  const isFormValid =
-    form.state.values.name.trim() !== "" &&
-    form.state.values.gender !== "" &&
-    form.state.values.dob !== "" &&
-    form.state.values.country !== "";
+  const isFormValid = name && gender && dob && country && Object.keys(errors).length === 0;
+
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
