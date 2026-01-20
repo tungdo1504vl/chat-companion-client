@@ -1,15 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { Select, type SelectOption, type SelectProps } from "@/components/commons/select";
+import { Select, type SelectProps } from "@/components/commons/select";
 import { cn } from "@/libs/tailwind/utils";
 import type { FieldApi } from "@tanstack/react-form";
 
 export interface FormSelectProps
   extends Omit<SelectProps, "value" | "onValueChange" | "triggerClassName"> {
-  field?: FieldApi<any, any, any, any>;
+  field?: FieldApi<any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any>;
   error?: boolean;
   triggerClassName?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
 }
 
 /**
@@ -40,7 +42,7 @@ export const FormSelect = React.forwardRef<HTMLButtonElement, FormSelectProps>(
         options={options}
         value={value}
         onValueChange={handleValueChange}
-        disabled={disabled ?? field?.state.meta.isDisabled}
+        disabled={disabled}
         triggerClassName={cn(
           // Base styles - consistent across all forms
           "w-full !h-full",

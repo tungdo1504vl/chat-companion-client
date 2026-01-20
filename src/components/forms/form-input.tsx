@@ -7,9 +7,12 @@ import type { FieldApi } from "@tanstack/react-form";
 
 export interface FormInputProps
   extends Omit<React.ComponentProps<typeof Input>, "value" | "onChange" | "onBlur"> {
-  field?: FieldApi<any, any, any, any>;
+  field?: FieldApi<any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any>;
   error?: boolean;
   className?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
 
 /**
@@ -47,7 +50,7 @@ export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
         value={value}
         onChange={handleChange}
         onBlur={handleBlur}
-        disabled={disabled ?? field?.state.meta.isDisabled}
+        disabled={disabled}
         aria-invalid={hasError}
         className={cn(
           // Base styles - consistent across all forms
