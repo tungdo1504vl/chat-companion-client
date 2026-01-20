@@ -15,4 +15,5 @@ export type TProfileInfoProps = Readonly<{
   location?: string;
   stage?: StageType;
   isPremium?: boolean;
+  nickname?: string;
 }>;

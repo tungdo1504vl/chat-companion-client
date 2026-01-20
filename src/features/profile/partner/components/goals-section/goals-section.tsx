@@ -1,11 +1,9 @@
 "use client";
 
 import { Flag } from "lucide-react";
-import { PillButtonGroup, type PillButtonOption } from "../pill-button-group";
-import { AiIndicator } from "../ai-indicator";
 import { GOAL_OPTIONS } from "../../const";
 import type { GoalType } from "../../types";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { cn } from "@/libs/tailwind/utils";
 
 interface GoalsSectionProps {
   goals: GoalType[];
@@ -20,40 +18,47 @@ export function GoalsSection({
   onChange,
   className,
 }: GoalsSectionProps) {
-  const options: PillButtonOption<GoalType>[] = GOAL_OPTIONS.map((goal) => ({
-    value: goal.value,
-    label: goal.label,
-  }));
+  const handleGoalClick = (goalValue: GoalType) => {
+    if (!onChange) return;
+    
+    if (goals.includes(goalValue)) {
+      // Remove if already selected
+      onChange(goals.filter((g) => g !== goalValue));
+    } else {
+      // Add to selection
+      onChange([...goals, goalValue]);
+    }
+  };
 
   return (
-    <Card className={className}>
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <Flag className="h-5 w-5 text-muted-foreground" />
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold">Goals</h3>
-              {isAiGenerated && <AiIndicator size="sm" />}
-            </div>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Relationship goals and intentions
-            </p>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        <PillButtonGroup
-          options={options}
-          value={goals}
-          multiple={true}
-          onValueChange={(value) => {
-            if (Array.isArray(value)) {
-              onChange?.(value as GoalType[]);
-            }
-          }}
-          disabled={!onChange}
-        />
-      </CardContent>
-    </Card>
+    <section className={cn("space-y-4", className)}>
+      <div className="flex items-center gap-2 px-2">
+        <Flag className="text-primary text-xl" />
+        <h3 className="font-display text-xl font-bold">Goals</h3>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        {GOAL_OPTIONS.map((option) => {
+          const isSelected = goals.includes(option.value);
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => handleGoalClick(option.value)}
+              disabled={!onChange}
+              className={cn(
+                "p-4 rounded-2xl text-center transition-all duration-150 ease-out",
+                isSelected
+                  ? "bg-primary text-white shadow-md shadow-primary/20 ring-2 ring-primary/10"
+                  : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-primary/50",
+                !onChange && "cursor-default",
+                onChange && "cursor-pointer"
+              )}
+            >
+              <span className="text-sm font-semibold">{option.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }

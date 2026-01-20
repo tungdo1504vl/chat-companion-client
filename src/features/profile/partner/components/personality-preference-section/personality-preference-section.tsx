@@ -1,75 +1,42 @@
 "use client";
 
 import { useState } from "react";
-import { BrainCog, Plus, X } from "lucide-react";
-import { Select } from "@/components/commons/select";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { Brain, ChevronDown, Plus, Settings } from "lucide-react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { AiIndicator } from "../ai-indicator";
-import { PillButtonGroup, type PillButtonOption } from "../pill-button-group";
 import {
   LOVE_LANGUAGE_OPTIONS,
-  COMMUNICATION_STYLE_OPTIONS,
   DEAL_BREAKER_OPTIONS,
 } from "../../const";
 import type {
   PartnerProfile,
   LoveLanguage,
-  CommunicationStyle,
   DealBreaker,
-  AttachmentTendency,
   AttachmentTendencyData,
 } from "../../types";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { cn } from "@/libs/tailwind/utils";
 
-const ATTACHMENT_TENDENCY_OPTIONS: {
-  value: AttachmentTendency;
-  label: string;
-}[] = [
-  { value: "secure", label: "Secure" },
-  { value: "anxious", label: "Anxious" },
-  { value: "avoidant", label: "Avoidant" },
-  { value: "secure_leaning_anxious", label: "Secure-Leaning Anxious" },
-  { value: "secure_leaning_avoidant", label: "Secure-Leaning Avoidant" },
-  { value: "anxious_avoidant", label: "Anxious-Avoidant" },
-  { value: "not_sure", label: "Not sure" },
-  { value: "exploring", label: "Exploring" },
-];
 
 interface PersonalityPreferenceSectionProps {
   profile: PartnerProfile;
   onLoveLanguageChange?: (loveLanguage: LoveLanguage) => void;
-  onCommunicationStylesChange?: (styles: CommunicationStyle[]) => void;
   onAttachmentTendencyChange?: (tendency: AttachmentTendencyData) => void;
   onDealBreakersChange?: (dealBreakers: DealBreaker[]) => void;
-  onAppreciatedThingsChange?: (things: string[]) => void;
   className?: string;
 }
 
 export function PersonalityPreferenceSection({
   profile,
   onLoveLanguageChange,
-  onCommunicationStylesChange,
   onAttachmentTendencyChange,
   onDealBreakersChange,
-  onAppreciatedThingsChange,
   className,
 }: PersonalityPreferenceSectionProps) {
   const [dealBreakerPopoverOpen, setDealBreakerPopoverOpen] = useState(false);
-  const [appreciatedThingInput, setAppreciatedThingInput] = useState("");
-
-  const communicationStyleOptions: PillButtonOption<CommunicationStyle>[] =
-    COMMUNICATION_STYLE_OPTIONS.map((style) => ({
-      value: style.value,
-      label: style.label,
-    }));
+  const [loveLanguagePopoverOpen, setLoveLanguagePopoverOpen] = useState(false);
 
   const handleRemoveDealBreaker = (dealBreaker: DealBreaker) => {
     if (!onDealBreakersChange) return;
@@ -85,32 +52,6 @@ export function PersonalityPreferenceSection({
     setDealBreakerPopoverOpen(false);
   };
 
-  const handleAddAppreciatedThing = () => {
-    if (!onAppreciatedThingsChange || !appreciatedThingInput.trim()) return;
-    if (!profile.appreciatedThings.includes(appreciatedThingInput.trim())) {
-      onAppreciatedThingsChange([
-        ...profile.appreciatedThings,
-        appreciatedThingInput.trim(),
-      ]);
-    }
-    setAppreciatedThingInput("");
-  };
-
-  const handleRemoveAppreciatedThing = (thing: string) => {
-    if (!onAppreciatedThingsChange) return;
-    const updated = profile.appreciatedThings.filter((t) => t !== thing);
-    onAppreciatedThingsChange(updated);
-  };
-
-  const handleAttachmentTendencySelect = (tendency: AttachmentTendency) => {
-    if (!onAttachmentTendencyChange || !profile.attachmentTendency) return;
-    onAttachmentTendencyChange({
-      ...profile.attachmentTendency,
-      tendency,
-      isAiGenerated: false,
-    });
-  };
-
   const availableDealBreakers = DEAL_BREAKER_OPTIONS.filter(
     (db) => !profile.dealBreakers.includes(db.value)
   );
@@ -120,123 +61,116 @@ export function PersonalityPreferenceSection({
     return option?.label || value;
   };
 
-  const getAttachmentTendencyLabel = (value: AttachmentTendency): string => {
-    const option = ATTACHMENT_TENDENCY_OPTIONS.find(
-      (opt) => opt.value === value
-    );
+  const getLoveLanguageLabel = (value?: LoveLanguage): string => {
+    if (!value) return "";
+    const option = LOVE_LANGUAGE_OPTIONS.find((opt) => opt.value === value);
     return option?.label || value;
   };
 
+  const getAttachmentTendencyLabel = (tendency?: string): string => {
+    if (!tendency) return "";
+    const labels: Record<string, string> = {
+      secure: "Secure",
+      anxious: "Anxious",
+      avoidant: "Avoidant",
+      secure_leaning_anxious: "Secure-Leaning Anxious",
+      secure_leaning_avoidant: "Secure-Leaning Avoidant",
+      anxious_avoidant: "Anxious-Avoidant",
+      not_sure: "Not sure",
+      exploring: "Exploring",
+    };
+    return labels[tendency] || tendency;
+  };
+
   return (
-    <Card className={className}>
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <BrainCog className="h-5 w-5 text-muted-foreground" />
-          <div>
-            <h3 className="text-lg font-semibold">Personality & Preference</h3>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              How you connect and communicate
-            </p>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-5">
+    <section className={cn("space-y-4", className)}>
+      <div className="flex items-center gap-2 px-2">
+        <Brain className="text-primary text-xl" />
+        <h3 className="font-display text-xl font-bold">Personality & Preference</h3>
+      </div>
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm space-y-6">
         {/* Love Language */}
-        <Field className="flex flex-col gap-2">
-          <FieldLabel className="flex items-center gap-2">
-            Love Language
-            {profile.loveLanguageIsAiGenerated && <AiIndicator size="sm" />}
-          </FieldLabel>
-          <Select
-            value={profile.loveLanguage}
-            options={LOVE_LANGUAGE_OPTIONS}
-            onValueChange={(value) => {
-              onLoveLanguageChange?.(value as LoveLanguage);
-            }}
-            disabled={!onLoveLanguageChange}
-          />
-        </Field>
-        {/* Communication Style */}
-        <Field className="flex flex-col gap-2">
-          <FieldLabel className="flex items-center gap-2">
-            Communication Style
-            {profile.communicationStylesIsAiGenerated && (
-              <AiIndicator size="sm" />
-            )}
-          </FieldLabel>
-          <PillButtonGroup
-            options={communicationStyleOptions}
-            value={profile.communicationStyles}
-            multiple={true}
-            onValueChange={(value) => {
-              if (Array.isArray(value)) {
-                onCommunicationStylesChange?.(value as CommunicationStyle[]);
-              }
-            }}
-            disabled={!onCommunicationStylesChange}
-          />
-        </Field>
+        <div>
+          <p className="text-xs font-bold text-slate-400 uppercase mb-3">Love Language</p>
+          {onLoveLanguageChange ? (
+            <Popover open={loveLanguagePopoverOpen} onOpenChange={setLoveLanguagePopoverOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="w-full flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <span className="text-sm font-medium">
+                    {getLoveLanguageLabel(profile.loveLanguage) || "Select..."}
+                  </span>
+                  <ChevronDown className="text-slate-400" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-2">
+                <div className="flex flex-col gap-1">
+                  {LOVE_LANGUAGE_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        onLoveLanguageChange(option.value);
+                        setLoveLanguagePopoverOpen(false);
+                      }}
+                      className="text-left px-2 py-1.5 text-sm rounded hover:bg-accent"
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          ) : (
+            <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl">
+              <span className="text-sm font-medium">
+                {getLoveLanguageLabel(profile.loveLanguage)}
+              </span>
+              <ChevronDown className="text-slate-400" />
+            </div>
+          )}
+        </div>
+
         {/* Attachment Tendency */}
         {profile.attachmentTendency && (
-          <Field className="flex flex-col gap-2">
-            <FieldLabel className="flex items-center gap-2">
-              Attachment Tendency
-              {profile.attachmentTendency.isAiGenerated && (
-                <AiIndicator size="sm" />
-              )}
-            </FieldLabel>
-            {onAttachmentTendencyChange ? (
-              <Select
-                value={profile.attachmentTendency.tendency}
-                options={ATTACHMENT_TENDENCY_OPTIONS}
-                onValueChange={(value) => {
-                  handleAttachmentTendencySelect(value as AttachmentTendency);
-                }}
-              />
-            ) : (
-              <div className="rounded-lg border bg-card p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-medium">
-                    {getAttachmentTendencyLabel(
-                      profile.attachmentTendency.tendency
-                    )}
-                  </span>
-                  {profile.attachmentTendency.label && (
-                    <Badge variant="outline" className="text-xs">
-                      {profile.attachmentTendency.label}
-                    </Badge>
-                  )}
-                </div>
-                {profile.attachmentTendency.description && (
-                  <p className="text-sm text-muted-foreground">
-                    {profile.attachmentTendency.description}
-                  </p>
-                )}
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border-l-4 border-purple-400">
+            <div className="flex justify-between items-start mb-2">
+              <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400">
+                <Settings className="text-[18px]" />
+                <span className="text-[10px] font-bold uppercase tracking-widest">
+                  Attachment Tendency
+                </span>
               </div>
+              {profile.attachmentTendency.label && (
+                <span className="text-[9px] bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-1.5 py-0.5 rounded uppercase font-bold">
+                  {profile.attachmentTendency.label}
+                </span>
+              )}
+            </div>
+            <h4 className="text-sm font-bold mb-1">
+              {getAttachmentTendencyLabel(profile.attachmentTendency.tendency)}
+            </h4>
+            {profile.attachmentTendency.description && (
+              <p className="text-[11px] text-slate-500 leading-tight">
+                {profile.attachmentTendency.description}
+              </p>
             )}
-          </Field>
+          </div>
         )}
-        {/* Deal-breakers */}
-        <Field className="flex flex-col gap-2">
-          <FieldLabel>Deal-breakers</FieldLabel>
-          <div className="flex flex-wrap gap-2">
+
+        {/* Deal-Breakers */}
+        <div>
+          <p className="text-xs font-bold text-slate-400 uppercase mb-3">Deal-Breakers</p>
+          <div className="flex gap-2 flex-wrap">
             {profile.dealBreakers.map((dealBreaker) => (
-              <Badge
+              <span
                 key={dealBreaker}
-                variant="destructive"
-                className="rounded-full flex items-center gap-1"
+                className="bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-800 px-4 py-1.5 rounded-full text-xs font-medium"
               >
                 {getDealBreakerLabel(dealBreaker)}
-                {onDealBreakersChange && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveDealBreaker(dealBreaker)}
-                    className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
-                  >
-                    <X className="size-3" />
-                  </button>
-                )}
-              </Badge>
+              </span>
             ))}
             {onDealBreakersChange && availableDealBreakers.length > 0 && (
               <Popover
@@ -244,13 +178,12 @@ export function PersonalityPreferenceSection({
                 onOpenChange={setDealBreakerPopoverOpen}
               >
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full border-destructive text-destructive hover:bg-destructive/10"
+                  <button
+                    type="button"
+                    className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                   >
                     <Plus className="size-4" />
-                  </Button>
+                  </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-64 p-2">
                   <div className="flex flex-col gap-1">
@@ -269,64 +202,8 @@ export function PersonalityPreferenceSection({
               </Popover>
             )}
           </div>
-        </Field>
-        {/* Things They Appreciate */}
-        <Field className="flex flex-col gap-2">
-          <FieldLabel className="flex items-center gap-2">
-            Things They Appreciate
-            {profile.appreciatedThingsIsAiGenerated && (
-              <AiIndicator size="sm" />
-            )}
-          </FieldLabel>
-          <div className="flex flex-wrap gap-2">
-            {profile.appreciatedThings.map((item, index) => (
-              <Badge
-                key={index}
-                variant="outline"
-                className="rounded-full bg-muted flex items-center gap-1"
-              >
-                {item}
-                {onAppreciatedThingsChange && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveAppreciatedThing(item)}
-                    className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5"
-                  >
-                    <X className="size-3" />
-                  </button>
-                )}
-              </Badge>
-            ))}
-            {onAppreciatedThingsChange && (
-              <div className="flex items-center gap-1">
-                <Input
-                  value={appreciatedThingInput}
-                  onChange={(e) => setAppreciatedThingInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddAppreciatedThing();
-                    }
-                  }}
-                  placeholder="Add..."
-                  className="h-8 w-24 rounded-full text-sm"
-                />
-                {appreciatedThingInput.trim() && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={handleAddAppreciatedThing}
-                    className="h-8 w-8 rounded-full p-0"
-                  >
-                    <Plus className="size-4" />
-                  </Button>
-                )}
-              </div>
-            )}
-          </div>
-        </Field>
-      </CardContent>
-    </Card>
+        </div>
+      </div>
+    </section>
   );
 }

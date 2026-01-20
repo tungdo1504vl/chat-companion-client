@@ -6,6 +6,7 @@ import {
   PersonalityPreferenceSection,
   LifestyleSnapshotSection,
   SocialSignalsSection,
+  ChemistryInsightSection,
 } from "../components";
 import { VoiceUpload } from "@/components/ui/voice-upload";
 import { useUploadPartnerVoice } from "../hooks/use-upload-partner-voice";
@@ -95,6 +96,9 @@ export default function PartnerProfileOverview({
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Chemistry & Insight Section */}
+      <ChemistryInsightSection profile={profile} />
+
       {/* Goals Section */}
       <GoalsSection
         goals={profile.goals}
@@ -102,14 +106,20 @@ export default function PartnerProfileOverview({
         onChange={onGoalsChange}
       />
 
+      {/* Social Signals Section */}
+      <SocialSignalsSection
+        profile={profile}
+        instagramUrl={profile.instagramUrl || ""}
+        savedInstagramUrl={savedInstagramUrl}
+        onInstagramUrlChange={onInstagramUrlChange}
+      />
+
       {/* Personality & Preference Section */}
       <PersonalityPreferenceSection
         profile={profile}
         onLoveLanguageChange={onLoveLanguageChange}
-        onCommunicationStylesChange={onCommunicationStylesChange}
         onAttachmentTendencyChange={onAttachmentTendencyChange}
         onDealBreakersChange={onDealBreakersChange}
-        onAppreciatedThingsChange={onAppreciatedThingsChange}
       />
 
       {/* Lifestyle Snapshot Section */}
@@ -118,15 +128,6 @@ export default function PartnerProfileOverview({
         onWorkRhythmChange={onWorkRhythmChange}
         onSocialEnergyChange={onSocialEnergyChange}
         onDateBudgetChange={onDateBudgetChange}
-        onHobbiesChange={onHobbiesChange}
-        onFavoriteHobbiesChange={onFavoriteHobbiesChange}
-      />
-
-      {/* Social Signals Section */}
-      <SocialSignalsSection
-        instagramUrl={profile.instagramUrl || ""}
-        savedInstagramUrl={savedInstagramUrl}
-        onInstagramUrlChange={onInstagramUrlChange}
       />
 
       {/* Voice Profile Section */}

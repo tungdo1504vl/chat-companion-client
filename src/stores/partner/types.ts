@@ -27,10 +27,13 @@ export type TPartnerStoreState = {
 
 }
 
+import type { PartnerProfile } from "@/features/profile/partner/types";
+
 export type TPartnerStoreAction = {
     setPartners: (partners: TPartner[]) => void;
     setLoading: (loading: boolean) => void;
     addPartner: (partner: TPartner) => void;
+    addPartnerFromProfile: (profile: PartnerProfile) => void;
     initialize: () => void;
 }
 export type TPartnerStore = TPartnerStoreState & TPartnerStoreAction;

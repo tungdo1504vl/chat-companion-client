@@ -2,7 +2,7 @@
 
 import { WinACrushClient, WinACrushSkeleton } from "@/features/win-a-crush";
 import { useGetPartnerProfile } from "@/features/profile/partner/hooks/use-partner-profile";
-import { MOCK_PARTNER_PROFILE } from "@/features/profile/partner/const";
+import { MOCK_PARTNER_PROFILE } from "@/stores/partner/mock-data";
 
 type WinACrushWrapperProps = Readonly<{
   partnerId: string;

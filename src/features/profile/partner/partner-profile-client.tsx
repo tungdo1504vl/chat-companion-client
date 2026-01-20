@@ -1,13 +1,11 @@
 'use client';
 
-import { lazy, useState, useCallback, Suspense } from 'react';
+import { lazy, useState, useCallback, Suspense, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Pencil } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/commons/page-header';
 import { ProfileInfo } from '@/features/profile/common/header';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { MOCK_PARTNER_PROFILE } from './const';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { MOCK_PARTNER_PROFILE } from '@/stores/partner/mock-data';
 import { useUpdatePartnerImage } from './hooks/use-update-partner-image';
 import { ImageUploadDialog } from '@/features/profile/common/components/image-upload-dialog';
 import { usePartnerProfileStore } from './store/hooks';
@@ -51,6 +49,7 @@ export function PartnerProfileClient({
 }: PartnerProfileClientProps) {
   const router = useRouter();
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Use custom hook for form state management
   const {
@@ -83,6 +82,15 @@ export function PartnerProfileClient({
   };
 
   const [activeTab, setActiveTab] = useState<string>(getDefaultTab);
+
+  // Loading state with setTimeout 1500ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Handle tab change and persist preference
   const handleTabChange = useCallback((tab: string) => {
@@ -134,17 +142,21 @@ export function PartnerProfileClient({
       <div className="flex-1 overflow-y-auto">
         {/* Header */}
         <PageHeader title="Partner Profile" onBackClick={() => router.back()} />
-        {/* Profile Info */}
-        <ProfileInfo
-          name={displayProfile.name}
-          avatarUrl={displayProfile.avatarUrl}
-          initials={initials}
-          age={displayProfile.age}
-          location={displayProfile.location}
-          stage={displayProfile.stage}
-          isPremium={displayProfile.isPremium}
-          onAvatarEditClick={handleAvatarEditClick}
-        />
+        <main className="max-w-md mx-auto px-4 space-y-6">
+          {/* Profile Info */}
+          <ProfileInfo
+            name={displayProfile.name}
+            avatarUrl={displayProfile.avatarUrl}
+            initials={initials}
+            age={displayProfile.age}
+            location={displayProfile.location}
+            stage={displayProfile.stage}
+            isPremium={displayProfile.isPremium}
+            nickname={displayProfile.nickname}
+            isLoading={isLoading}
+            onAvatarEditClick={handleAvatarEditClick}
+          />
+        </main>
         <div className="px-4 pb-6">
           {/* Tabs */}
           <Tabs
@@ -152,7 +164,7 @@ export function PartnerProfileClient({
             onValueChange={handleTabChange}
             className="w-full"
           >
-            <TabsList className="w-full grid grid-cols-3 bg-muted">
+            {/* <TabsList className="w-full grid grid-cols-3 bg-muted">
               <TabsTrigger
                 value="overview"
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -171,42 +183,56 @@ export function PartnerProfileClient({
               >
                 Special Things
               </TabsTrigger>
-            </TabsList>
+            </TabsList> */}
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="mt-6 overflow-y-auto">
-              <Suspense
-                fallback={
-                  <div className="flex items-center justify-center py-12">
-                    <p className="text-muted-foreground">Loading...</p>
+              {isLoading ? (
+                <div className="space-y-6">
+                  <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 animate-pulse">
+                    <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-48 mb-6"></div>
+                    <div className="grid grid-cols-2 gap-4 mb-8">
+                      <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-2xl h-20"></div>
+                      <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-2xl h-20"></div>
+                    </div>
+                    <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
+                    <div className="h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl"></div>
                   </div>
-                }
-              >
-                <PartnerProfileOverview
-                  profile={displayProfile}
-                  savedInstagramUrl={savedProfile?.instagramUrl}
-                  onGoalsChange={updateHandlers.onGoalsChange}
-                  onLoveLanguageChange={updateHandlers.onLoveLanguageChange}
-                  onCommunicationStylesChange={
-                    updateHandlers.onCommunicationStylesChange
+                </div>
+              ) : (
+                <Suspense
+                  fallback={
+                    <div className="flex items-center justify-center py-12">
+                      <p className="text-muted-foreground">Loading...</p>
+                    </div>
                   }
-                  onAttachmentTendencyChange={
-                    updateHandlers.onAttachmentTendencyChange
-                  }
-                  onDealBreakersChange={updateHandlers.onDealBreakersChange}
-                  onAppreciatedThingsChange={
-                    updateHandlers.onAppreciatedThingsChange
-                  }
-                  onWorkRhythmChange={updateHandlers.onWorkRhythmChange}
-                  onSocialEnergyChange={updateHandlers.onSocialEnergyChange}
-                  onDateBudgetChange={updateHandlers.onDateBudgetChange}
-                  onHobbiesChange={updateHandlers.onHobbiesChange}
-                  onFavoriteHobbiesChange={
-                    updateHandlers.onFavoriteHobbiesChange
-                  }
-                  onInstagramUrlChange={updateHandlers.onInstagramUrlChange}
-                />
-              </Suspense>
+                >
+                  <PartnerProfileOverview
+                    profile={displayProfile}
+                    savedInstagramUrl={savedProfile?.instagramUrl}
+                    onGoalsChange={updateHandlers.onGoalsChange}
+                    onLoveLanguageChange={updateHandlers.onLoveLanguageChange}
+                    onCommunicationStylesChange={
+                      updateHandlers.onCommunicationStylesChange
+                    }
+                    onAttachmentTendencyChange={
+                      updateHandlers.onAttachmentTendencyChange
+                    }
+                    onDealBreakersChange={updateHandlers.onDealBreakersChange}
+                    onAppreciatedThingsChange={
+                      updateHandlers.onAppreciatedThingsChange
+                    }
+                    onWorkRhythmChange={updateHandlers.onWorkRhythmChange}
+                    onSocialEnergyChange={updateHandlers.onSocialEnergyChange}
+                    onDateBudgetChange={updateHandlers.onDateBudgetChange}
+                    onHobbiesChange={updateHandlers.onHobbiesChange}
+                    onFavoriteHobbiesChange={
+                      updateHandlers.onFavoriteHobbiesChange
+                    }
+                    onInstagramUrlChange={updateHandlers.onInstagramUrlChange}
+                  />
+                </Suspense>
+              )}
             </TabsContent>
 
             {/* Insights History Tab */}
@@ -242,7 +268,7 @@ export function PartnerProfileClient({
       </div>
 
       {/* Bottom Actions */}
-      <div className="border-t bg-background">
+      {/* <div className="border-t bg-background">
         <div className="container mx-auto max-w-2xl px-4 py-4">
           <div className="flex gap-3">
             <Button
@@ -283,7 +309,7 @@ export function PartnerProfileClient({
             </Button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Image Upload Dialog */}
       <ImageUploadDialog

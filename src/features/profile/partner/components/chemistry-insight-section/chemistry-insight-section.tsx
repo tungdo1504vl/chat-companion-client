@@ -1,9 +1,8 @@
 "use client";
 
-import { Star, TrendingUp } from "lucide-react";
+import { Sparkles, TrendingUp } from "lucide-react";
 import { cn } from "@/libs/tailwind/utils";
 import type { PartnerProfile } from "../../types";
-import { ContentCard } from "@/features/profile/common/content-card";
 
 interface ChemistryInsightSectionProps {
   profile: PartnerProfile;
@@ -30,11 +29,11 @@ export function ChemistryInsightSection({
   const getInterestLevelColor = (level?: string) => {
     switch (level) {
       case "high":
-        return "text-green-600";
+        return "text-emerald-500";
       case "medium":
-        return "text-yellow-600";
+        return "text-yellow-500";
       case "low":
-        return "text-red-600";
+        return "text-red-500";
       default:
         return "text-muted-foreground";
     }
@@ -58,105 +57,92 @@ export function ChemistryInsightSection({
   };
 
   return (
-    <ContentCard className={className}>
-      <div className="flex items-center gap-2 mb-4">
-        <Star className="size-5 text-muted-foreground" />
-        <h3 className="text-base font-semibold">Chemistry & Insight</h3>
+    <div
+      className={cn(
+        "bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800",
+        className
+      )}
+    >
+      <div className="flex items-center gap-2 mb-6">
+        <Sparkles className="size-5 text-primary" />
+        <h3 className="font-display text-xl font-bold">Chemistry & Insight</h3>
       </div>
 
-      <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-2 gap-4 mb-8">
         {/* Interest Level */}
         {profile.interestLevel && (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Interest Level
-              </span>
-            </div>
-            <div className="rounded-lg border bg-card p-4">
-              <div className="flex flex-col gap-1">
-                <span
-                  className={cn(
-                    "text-lg font-semibold",
-                    getInterestLevelColor(profile.interestLevel)
-                  )}
-                >
-                  {getInterestLevelLabel(profile.interestLevel)}
-                </span>
-                {profile.interestLevelConfidence && (
-                  <span className="text-sm text-muted-foreground">
-                    {profile.interestLevelConfidence}% Confidence
-                  </span>
-                )}
-              </div>
-            </div>
+          <div className="bg-background-light dark:bg-slate-800 p-4 rounded-2xl text-center">
+            <p className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">
+              Interest Level
+            </p>
+            <p
+              className={cn(
+                "font-bold text-xl mb-0",
+                getInterestLevelColor(profile.interestLevel)
+              )}
+            >
+              {getInterestLevelLabel(profile.interestLevel)}
+            </p>
+            {profile.interestLevelConfidence && (
+              <p className="text-[10px] text-slate-400">
+                {profile.interestLevelConfidence}% Confidence
+              </p>
+            )}
           </div>
         )}
 
         {/* Mood Trend */}
         {profile.moodTrend && (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Mood Trend
-              </span>
-            </div>
-            <div className="rounded-lg border bg-card p-4">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="size-5 text-primary" />
-                <span className="text-lg font-semibold text-primary">
-                  {getMoodTrendLabel(profile.moodTrend)}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Chemistry Score */}
-        {profile.chemistryScore !== undefined && (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Chemistry Score
-              </span>
-            </div>
-            <div className="flex flex-col gap-2">
-              <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full bg-primary transition-all"
-                  style={{ width: `${profile.chemistryScore}%` }}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-primary">
-                  {profile.chemistryScore}%
-                </span>
-                {profile.chemistryScoreDescription && (
-                  <span className="text-xs text-muted-foreground">
-                    {profile.chemistryScoreDescription}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* What Works Well */}
-        {profile.whatWorksWell && (
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                What Works Well
-              </span>
-            </div>
-            <div className="rounded-lg border bg-card p-4">
-              <p className="text-sm leading-relaxed text-foreground">
-                {profile.whatWorksWell}
+          <div className="bg-background-light dark:bg-slate-800 p-4 rounded-2xl text-center">
+            <p className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">
+              Mood Trend
+            </p>
+            <div className="flex items-center justify-center gap-1">
+              <TrendingUp className="text-amber-500 text-lg" />
+              <p className="text-amber-600 dark:text-amber-500 font-bold text-xl">
+                {getMoodTrendLabel(profile.moodTrend)}
               </p>
             </div>
           </div>
         )}
       </div>
-    </ContentCard>
+
+      {/* Chemistry Score */}
+      {profile.chemistryScore !== undefined && (
+        <div className="mb-8">
+          <div className="flex justify-between items-end mb-2">
+            <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+              Chemistry Score
+            </span>
+            <span className="text-2xl font-bold text-primary font-display">
+              {profile.chemistryScore}%
+            </span>
+          </div>
+          <div className="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+            <div
+              className="bg-gradient-to-r from-primary to-rose-400 h-full rounded-full transition-all duration-300"
+              style={{ width: `${profile.chemistryScore}%` }}
+            />
+          </div>
+          {profile.chemistryScoreDescription && (
+            <p className="text-[11px] text-slate-400 mt-2 italic">
+              {profile.chemistryScoreDescription}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* What Works Well */}
+      {profile.whatWorksWell && (
+        <div className="bg-rose-50/50 dark:bg-primary/5 rounded-2xl p-5 border border-rose-100 dark:border-primary/10">
+          <p className="text-[10px] uppercase font-extrabold text-primary mb-2 tracking-widest">
+            What Works Well
+          </p>
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic">
+            {profile.whatWorksWell}
+          </p>
+        </div>
+      )}
+    </div>
   );
 }

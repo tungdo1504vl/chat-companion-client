@@ -140,7 +140,7 @@ export default function PartnersPage() {
                           <ChevronRight className="size-5 shrink-0" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-36 p-2" onClick={(e) => e.stopPropagation()}>
+                      <PopoverContent align='start' className="max-w-40 p-2" onClick={(e) => e.stopPropagation()}>
                         <div className="flex flex-col gap-1.5">
                           <button
                             type="button"

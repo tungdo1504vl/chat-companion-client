@@ -1,112 +1,92 @@
 "use client";
 
-import { useId } from "react";
-import { Share2 } from "lucide-react";
-import { siInstagram } from "simple-icons";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Network, Palette, Heart } from "lucide-react";
+import { cn } from "@/libs/tailwind/utils";
+import type { PartnerProfile } from "../../types";
 
 interface SocialSignalsSectionProps {
+  profile: PartnerProfile;
   instagramUrl?: string;
   savedInstagramUrl?: string; // Instagram URL from API (saved profile)
   onInstagramUrlChange?: (url: string) => void;
   className?: string;
 }
 
-/**
- * Instagram icon component using simple-icons
- * Renders the Instagram brand icon with Instagram's gradient colors
- */
-function InstagramIcon({ className }: Readonly<{ className?: string }>) {
-  const viewBoxRegex = /viewBox="([^"]*)"/;
-  const viewBoxMatch = viewBoxRegex.exec(siInstagram.svg);
-  const viewBox = viewBoxMatch ? viewBoxMatch[1] : "0 0 24 24";
-  const gradientId = useId();
 
-  return (
-    <svg
-      className={className}
-      viewBox={viewBox}
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label="Instagram"
-    >
-      <defs>
-        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#833AB4" />
-          <stop offset="50%" stopColor="#FD1D1D" />
-          <stop offset="100%" stopColor="#FCB045" />
-        </linearGradient>
-      </defs>
-      <path d={siInstagram.path} fill={`url(#${gradientId})`} />
-    </svg>
-  );
-}
+const getSignalIcon = (iconName?: string) => {
+  if (!iconName) return Palette;
+  // Map icon names to Lucide icons
+  const iconMap: Record<string, React.ComponentType<any>> = {
+    palette: Palette,
+    pets: Heart,
+    paw: Heart,
+  };
+  return iconMap[iconName.toLowerCase()] || Palette;
+};
 
 export function SocialSignalsSection({
+  profile,
   instagramUrl = "",
   savedInstagramUrl,
   onInstagramUrlChange,
   className,
 }: SocialSignalsSectionProps) {
-  const hasUrl = instagramUrl && instagramUrl.trim() !== "";
-  // Only show "Linked" when saved profile has Instagram URL from API
-  const isLinkedFromApi =
-    savedInstagramUrl && savedInstagramUrl.trim() !== "";
+  // const hasInstagram = profile.instagramUrl || instagramUrl || savedInstagramUrl;
+  // const hasTiktok = profile.tiktokUrl;
+
+  const hasInstagram = true;
+  const hasTiktok = false;
 
   return (
-    <Card className={className}>
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <Share2 className="h-5 w-5 text-muted-foreground" />
-          <div>
-            <h3 className="text-lg font-semibold">Social Signals</h3>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Connect your social presence
-            </p>
-          </div>
+    <section className={cn("bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800", className)}>
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-2">
+          <Network className="text-primary" />
+          <h3 className="font-display text-xl font-bold">Social Signals</h3>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        {/* Instagram */}
-        <Field className="flex flex-col gap-2">
-          <div className="flex items-center justify-between mb-1">
-            <FieldLabel className="flex items-center gap-2">
-              <InstagramIcon className="h-5 w-5 shrink-0" />
-              Instagram
-            </FieldLabel>
-            {isLinkedFromApi && (
-              <span className="text-sm text-green-600 dark:text-green-400">
-                ✓ Linked
-              </span>
+        {(hasInstagram || hasTiktok) && (
+          <div className="flex -space-x-2">
+            {hasInstagram && (
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 border-2 border-white dark:border-slate-900 flex items-center justify-center">
+                <span className="text-[10px] text-white font-bold">IG</span>
+              </div>
+            )}
+            {hasTiktok && (
+              <div className="w-8 h-8 rounded-full bg-black border-2 border-white dark:border-slate-900 flex items-center justify-center">
+                <span className="text-[10px] text-white font-bold">TT</span>
+              </div>
             )}
           </div>
-          <div className="flex gap-2">
-            <Input
-              type="url"
-              name="instagramUrl"
-              value={instagramUrl}
-              onChange={(e) => onInstagramUrlChange?.(e.target.value)}
-              placeholder="https://instagram.com/username"
-              disabled={!onInstagramUrlChange}
-              className="flex-1"
-            />
-            {hasUrl && onInstagramUrlChange && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => onInstagramUrlChange("")}
-                disabled={!onInstagramUrlChange}
+        )}
+      </div>
+      <div className="space-y-6">
+        {profile.socialSignals?.map((signal, index) => {
+          const Icon = getSignalIcon(signal.icon);
+          return (
+            <div key={index} className="flex gap-4">
+              <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
+                <Icon className="text-slate-400" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold">{signal.title}</h4>
+                <p className="text-xs text-slate-500">{signal.description}</p>
+              </div>
+            </div>
+          );
+        })}
+        {profile.socialSignalTags && profile.socialSignalTags.length > 0 && (
+          <div className="flex gap-2 pt-2">
+            {profile.socialSignalTags.map((tag, index) => (
+              <span
+                key={index}
+                className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight"
               >
-                Remove
-              </Button>
-            )}
+                {tag}
+              </span>
+            ))}
           </div>
-        </Field>
-      </CardContent>
-    </Card>
+        )}
+      </div>
+    </section>
   );
 }

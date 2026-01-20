@@ -3,9 +3,16 @@
 import { Pencil, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { TProfileInfoProps } from "./types";
+
+const STAGE_LABELS: Record<string, string> = {
+  dating: "Dating",
+  dating_exclusively: "Dating Exclusively",
+  in_a_relationship: "In a Relationship",
+  engaged: "Engaged",
+  married: "Married",
+};
 
 export function ProfileInfo({
   name,
@@ -17,26 +24,30 @@ export function ProfileInfo({
   location,
   stage,
   isPremium = false,
-}: TProfileInfoProps) {
+  nickname,
+}: TProfileInfoProps & { nickname?: string }) {
+  const stageLabel = stage ? STAGE_LABELS[stage] || stage : undefined;
+
   return (
-    <div className="flex flex-col items-center space-y-3 mb-6 pt-6">
-      <div className="relative">
+    <section className="flex flex-col items-center pt-4 pb-2">
+      <div className="relative mb-4">
         {isLoading ? (
-          <Skeleton className="h-24 w-24 rounded-full" />
+          <Skeleton className="h-28 w-28 rounded-full" />
         ) : (
-          <Avatar className="h-24 w-24 border-2 border-primary">
-            <AvatarImage
-              src={avatarUrl || "/images/placeholder-avatar.png"}
-              alt={name || "Profile"}
-            />
-            <AvatarFallback>{initials || "?"}</AvatarFallback>
-          </Avatar>
+          <div className="w-28 h-28 rounded-full border-4 border-white dark:border-slate-800 overflow-hidden shadow-xl ring-2 ring-primary/20">
+            <Avatar className="h-full w-full">
+              <AvatarImage
+                src={avatarUrl || "/images/placeholder-avatar.png"}
+                alt={name || "Profile"}
+                className="object-cover"
+              />
+              <AvatarFallback className="text-lg">{initials || "?"}</AvatarFallback>
+            </Avatar>
+          </div>
         )}
         {!isLoading && isPremium && (
-          <div className="absolute -bottom-1 -right-1 rounded-full bg-background p-0.5">
-            <div className="rounded-full bg-yellow-400 p-1">
-              <Star className="size-3 fill-yellow-400 text-yellow-600" />
-            </div>
+          <div className="absolute bottom-1 right-1 bg-yellow-400 text-white p-1 rounded-full border-2 border-white dark:border-slate-800 flex items-center justify-center">
+            <Star className="size-[14px] fill-white text-white" />
           </div>
         )}
         {!isLoading && onAvatarEditClick && (
@@ -50,25 +61,38 @@ export function ProfileInfo({
           </Button>
         )}
       </div>
-      <div className="text-center space-y-1">
+      <div className="text-center">
         {isLoading ? (
-          <Skeleton className="h-8 w-32" />
+          <>
+            <Skeleton className="h-9 w-48 mx-auto mb-2" />
+            <Skeleton className="h-4 w-32 mx-auto mb-3" />
+            <Skeleton className="h-6 w-40 mx-auto" />
+          </>
         ) : (
-          <h2 className="text-2xl font-bold">{name}</h2>
-        )}
-        {!isLoading && (age !== undefined || location) && (
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            {age !== undefined && <span>{age}</span>}
-            {age !== undefined && location && <span>•</span>}
-            {location && <span>{location}</span>}
-          </div>
+          <>
+            <h2 className="font-display text-3xl font-bold tracking-tight">
+              {name}
+              {/* {nickname && (
+                <span className="text-slate-400 font-normal text-xl italic">
+                  {" "}"{nickname}"
+                </span>
+              )} */}
+            </h2>
+            {(age !== undefined || location) && (
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+                {age !== undefined && age}
+                {age !== undefined && location && " • "}
+                {location}
+              </p>
+            )}
+            {stageLabel && (
+              <div className="mt-3 inline-block bg-primary/10 dark:bg-primary/20 text-primary px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider">
+                Stage: {stageLabel}
+              </div>
+            )}
+          </>
         )}
       </div>
-      {!isLoading && stage && (
-        <Badge variant="default" className="rounded-full px-3 py-1">
-          Stage: {stage}
-        </Badge>
-      )}
-    </div>
+    </section>
   );
 }
