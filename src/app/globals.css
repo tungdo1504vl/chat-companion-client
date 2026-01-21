@@ -540,10 +540,30 @@
   }
 }
 
+/* Sonar ring animation for partner */
+@keyframes sonar2 {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+}
+
 .microphone-ring-wrapper::before {
   animation: sonar 2s ease-out infinite;
 }
 
 .microphone-ring-wrapper::after {
   animation: sonar 2s ease-out infinite 1s;
+}
+
+.partner-ring-wrapper::before {
+  animation: sonar2 2s ease-out infinite;
+}
+
+.partner-ring-wrapper::after {
+  animation: sonar2 2s ease-out infinite 1s;
 }

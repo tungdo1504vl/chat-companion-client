@@ -6,11 +6,11 @@ import { useComputeGet } from '@/hooks/use-compute-get';
 import { useSession } from '@/libs/better-auth/client';
 import { createTaskParams } from '@/utils/helpers';
 import { useState, useEffect, useRef } from 'react';
-import { Heart, Home, LoaderCircle, MicIcon, Send } from 'lucide-react';
+import { Home, LoaderCircle, MicIcon, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/commons/page-header';
 import Image from 'next/image';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ASSISTANT_ROUTES } from '@/constants/routes';
 import { TCommonPayload } from '@/types/common';
 import { LoadingSkeleton } from '@/components/commons/loading-skeleton';
@@ -25,6 +25,18 @@ import {
 } from '@/components/ui/popover';
 import InteractiveModal from '@/features/chat/interactive-modal/interactive-modal';
 import { toast } from 'sonner';
+import {
+  ChatInputData,
+  ChatInputRef,
+} from '@/components/commons/chat-input/types';
+import {
+  buildInputItems,
+  formatAudioBase64,
+  formatImageBase64,
+  formatUserInput,
+} from '@/utils/chat';
+import { AudioPlayer } from '@/components/commons/audio-player';
+import { cn } from '@/libs/tailwind/utils';
 
 const ScrollToBottom = dynamic(() => import('react-scroll-to-bottom'), {
   ssr: false,
@@ -40,6 +52,9 @@ interface Message {
   content: string;
   role: (typeof MESSAGE_ROLE)[keyof typeof MESSAGE_ROLE];
   timestamp: Date;
+  data_base64?: string;
+  mime_type?: string;
+  type?: string;
 }
 
 interface TSendMessageOptions {
@@ -57,11 +72,13 @@ export default function PartnerChatPageClient({
   const { data: session } = useSession();
   const [openInteractiveModal, setOpenInteractiveModal] = useState(false);
   const [openPopover, setOpenPopover] = useState(false);
+  const [chatInputData, setChatInputData] = useState<ChatInputData>();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [inputValue, setInputValue] = useState('');
   const [isError, setIsError] = useState(false);
   const [lastestMessage, setLastestMessage] = useState<Message>();
+  const chatInputRef = useRef<ChatInputRef>(null);
 
   const mutateChat = useCommonCompute();
   const userId = session?.user.id;
@@ -75,7 +92,7 @@ export default function PartnerChatPageClient({
     {
       enabled,
       queryKeys: [partnerId],
-    }
+    },
   );
   const { data: partnerData, isLoading: isLoadingPartnerData } = useComputeGet(
     createTaskParams(TASK_TYPE.PARTNER_PROFILE_GET, {
@@ -85,7 +102,7 @@ export default function PartnerChatPageClient({
     {
       enabled,
       queryKeys: [partnerId],
-    }
+    },
   );
 
   const existingVoice = partnerData?.result?.partner_voice;
@@ -129,20 +146,68 @@ export default function PartnerChatPageClient({
 
   function setNewMessageState(
     queryKey: string[],
-    newMessage: Message,
-    options?: TSendMessageOptions
+    messages: Message[],
+    options?: TSendMessageOptions & {
+      existingImage?: boolean;
+      existingAudio?: boolean;
+      images?: string[];
+      audio?: string | null;
+    },
   ) {
-    const { isResend = false } = options || {};
+    const {
+      isResend = false,
+      existingImage,
+      existingAudio,
+      images,
+      audio,
+    } = options || {};
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [queryResult] = queryClient.getQueriesData<any>({
       queryKey: queryKey,
     });
     const [, queryData] = queryResult;
-    const currentMessages = queryData?.result?.messages;
-    const newMessages = [
-      ...currentMessages,
-      ...(!isResend ? [newMessage] : []),
-    ];
+    const currentMessages = queryData?.result?.messages || [];
+
+    // Build message list based on existingImage and existingAudio
+    const messageList: Message[] = [];
+
+    // Only add messages if not resend
+    if (!isResend) {
+      // Add text messages first
+      if (messages.length > 0) {
+        messageList.push(...messages);
+      }
+
+      // Add image messages if existingImage is true
+      if (existingImage && images && images.length > 0) {
+        images.forEach((image, index) => {
+          messageList.push({
+            id: `image-${Date.now()}-${index}`,
+            content: 'image attachment: image/png',
+            role: MESSAGE_ROLE.USER,
+            timestamp: new Date(),
+            data_base64: `${image}`,
+            mime_type: 'image/png',
+            type: 'image',
+          });
+        });
+      }
+
+      // Add audio message if existingAudio is true
+      if (existingAudio && audio) {
+        messageList.push({
+          id: `audio-${Date.now()}`,
+          content: 'audio attachment: audio/wav',
+          role: MESSAGE_ROLE.USER,
+          timestamp: new Date(),
+          data_base64: audio,
+          mime_type: 'audio/wav',
+          type: 'audio',
+        });
+      }
+    }
+
+    const newMessages = [...currentMessages, ...messageList];
     const newQueryData = {
       ...queryData,
       result: {
@@ -152,36 +217,47 @@ export default function PartnerChatPageClient({
     };
     queryClient.setQueryData(
       ['compute', TASK_TYPE.RELATIONSHIP_CHAT_HISTORY, partnerId],
-      newQueryData
+      newQueryData,
     );
   }
 
   const handleSend = async (
     _userId: string,
     _partnerId: string,
-    options?: TSendMessageOptions
+    data: ChatInputData,
+    options?: TSendMessageOptions,
   ) => {
     const { content: messageContent } = options || {};
+    const { images, audio } = data || {};
+    const existingImage = images.length > 0;
+    const existingAudio = Boolean(audio);
     const queryKey = [
       'compute',
       TASK_TYPE.RELATIONSHIP_CHAT_HISTORY,
       partnerId,
     ];
     const userMessage = inputValue.trim() || messageContent || '';
+    // TODO: format newMessage with images or audio if exits
     const newMessage: Message = {
       id: Date.now().toString(),
       content: userMessage,
       role: MESSAGE_ROLE.USER,
       timestamp: new Date(),
+      type: 'text',
     };
     setInputValue('');
+    chatInputRef.current?.resetImage();
+    chatInputRef.current?.resetAudio();
     try {
       if (userMessage) {
         setLastestMessage(newMessage);
+        const chatInputData = buildInputItems(data);
         const inputArgs = {
           user_id: _userId,
           partner_id: _partnerId,
+          usecase: 'crush_strategy',
           user_message: userMessage,
+          input_items: chatInputData,
         };
         const payload: TCommonPayload = {
           task_type: TASK_TYPE.RELATIONSHIP_CHAT,
@@ -189,7 +265,13 @@ export default function PartnerChatPageClient({
           priority: 'high',
         };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setNewMessageState(queryKey, newMessage);
+        setNewMessageState(queryKey, [newMessage], {
+          isResend: false,
+          existingImage,
+          existingAudio,
+          images,
+          audio,
+        });
         const res = await mutateChat.mutateAsync(payload);
 
         setIsError(false);
@@ -202,34 +284,28 @@ export default function PartnerChatPageClient({
     } catch (error) {
       setIsError(true);
       // handle error
-      setNewMessageState(queryKey, newMessage, { isResend: true });
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      if (!userId || !partnerId) return;
-      if (isError) return;
-      handleSend(userId, partnerId);
-    }
-  };
-
-  const onSendMessage = () => {
-    if (!userId || !partnerId) return;
-    handleSend(userId, partnerId);
-    // Close interactive modal when sending message
-    if (openInteractiveModal) {
-      setOpenInteractiveModal(false);
+      setNewMessageState(queryKey, [newMessage], {
+        isResend: true,
+        existingImage,
+        existingAudio,
+        images,
+        audio,
+      });
     }
   };
 
   const onResendMessage = () => {
-    if (!userId || !partnerId || !lastestMessage) return;
-    handleSend(userId, partnerId, {
-      content: lastestMessage?.content,
-      isResend: true,
-    });
+    if (!userId || !partnerId || !lastestMessage || !chatInputData) return;
+    handleSend(userId, partnerId, chatInputData);
+  };
+
+  const handleSendMessage = (data: ChatInputData) => {
+    setChatInputData(data);
+    const chatInputData = buildInputItems(data);
+    // return;
+    if (!userId || !partnerId) return;
+    if (isError) return;
+    handleSend(userId, partnerId, data);
   };
 
   const messageList = data?.result?.messages;
@@ -246,7 +322,7 @@ export default function PartnerChatPageClient({
     <>
       <div className="flex flex-col h-full relative overflow-hidden">
         {/* Gradient Background */}
-        <div className="absolute inset-0 bg-[#FFF0F2] -z-10" />
+        <div className="absolute inset-0 bg-[#fef9f8] -z-10" />
 
         {/* Header */}
         <div className="bg-transparent z-10 relative">
@@ -284,7 +360,7 @@ export default function PartnerChatPageClient({
         </div>
 
         {/* Partner Info Section */}
-        <div className="flex flex-col items-center bg-[#FFF9F9] pt-6 pb-4 px-4 z-10">
+        <div className="flex flex-col items-center pt-2 pb-2 px-4 z-10">
           {!isLoadingPartnerData && (
             <>
               {/* Partner Avatar */}
@@ -309,9 +385,9 @@ export default function PartnerChatPageClient({
               </h2>
 
               {/* Subtitle */}
-              <p className="text-sm text-[#FF8A9B] mb-4 text-center px-4">
-                You're talking to {partnerName}, based on how she usually thinks
-                and responds
+              <p className="text-sm text-gray-400 font-normal mb-4 text-center px-4">
+                Practice what you want to say to crush. I'm here to help you
+                find the way to crush's heart
               </p>
             </>
           )}
@@ -331,11 +407,11 @@ export default function PartnerChatPageClient({
           ) : (
             <ScrollToBottom
               className="h-full"
-              scrollViewClassName="flex flex-col gap-4 px-4 py-4"
+              scrollViewClassName="flex flex-col gap-4 px-1 py-4"
               followButtonClassName="scroll-to-bottom-button"
             >
-              <p className="text-sm text-center font-medium text-[#FFB6C1] uppercase tracking-wide">
-                SAFE SPACE
+              <p className="text-xs text-center font-semibold text-[#FFB6C1] uppercase tracking-wide">
+                Your secret space
               </p>
               <div className="flex flex-col gap-4">
                 {hasMessages &&
@@ -343,22 +419,25 @@ export default function PartnerChatPageClient({
                   messageList.map((message: any, index: number) => {
                     const isAssistant = message.role === 'assistant';
                     const messageContent = message.content;
+                    const messageType = message.type;
+                    const messageDataBase64 = message.data_base64;
                     const isLastMessage = index === messageList.length - 1;
                     const isUserTyping =
                       isLastMessage && !isAssistant && inputValue.trim() === '';
 
                     const nextMessage = messageList[index + 1];
                     const nextIsAssistant = nextMessage?.role === 'assistant';
+                    const isMediaMessage = messageType === 'image' || 'audio';
 
                     return (
                       <div
-                        key={message.id || message.timestamp || index}
+                        key={`${message.id || message.timestamp}${index}`}
                         className="flex flex-col"
                       >
                         {/* Assistant Message */}
                         {isAssistant && (
                           <div className="flex flex-col items-start">
-                            <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-white text-foreground ">
+                            <div className="max-w-[85%] rounded-ss-xs rounded-se-2xl rounded-es-2xl rounded-ee-2xl px-4 py-3 bg-white text-foreground ">
                               <p className="text-sm leading-relaxed text-black">
                                 {messageContent}
                               </p>
@@ -375,10 +454,39 @@ export default function PartnerChatPageClient({
                         {/* User Message */}
                         {!isAssistant && (
                           <div className="flex flex-col items-end">
-                            <div className="max-w-[85%] rounded-2xl px-4 py-3 shadow-sm bg-[#FFE5E9] text-foreground">
-                              <p className="text-sm leading-relaxed text-black">
-                                {messageContent}
-                              </p>
+                            <div
+                              className={cn(
+                                'max-w-[85%] rounded-ss-2xl rounded-se-xs px-4 py-3 shadow-sm bg-[#FFE5E9] text-foreground',
+                                {
+                                  'rounded-ss-lg rounded-es-lg rounded-ee-lg p-1!':
+                                    isMediaMessage,
+                                  'rounded-ss-2xl rounded-es-2xl rounded-ee-2xl':
+                                    !isMediaMessage,
+                                },
+                              )}
+                            >
+                              {messageType === 'text' && (
+                                <p className="text-sm leading-relaxed text-black px-2 py-2">
+                                  {formatUserInput(messageContent)}
+                                </p>
+                              )}
+                              {messageType === 'image' && messageDataBase64 && (
+                                <div className="w-32 rounded-md overflow-hidden">
+                                  <img
+                                    alt="chat image"
+                                    className="object-cover"
+                                    src={formatImageBase64(messageDataBase64)}
+                                  />
+                                </div>
+                              )}
+                              {messageType === 'audio' && messageDataBase64 && (
+                                <p className="w-1/2">
+                                  <AudioPlayer
+                                    hasBg={true}
+                                    src={formatAudioBase64(messageDataBase64)}
+                                  />
+                                </p>
+                              )}
                             </div>
                             {/* Show partner name label after user message if next message is from assistant or if this is the last message */}
                             {(!nextMessage || nextIsAssistant) && (
@@ -429,24 +537,14 @@ export default function PartnerChatPageClient({
         </div>
 
         {/* Input Bar */}
-        <div className="px-4 pb-4 pt-2 bg-[#FFF9F9] z-10">
-          <div className="flex items-center gap-2">
-            <ChatInput
-              inputValue={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-            />
-            <Button
-              onClick={() => {
-                onSendMessage();
-              }}
-              disabled={!inputValue.trim() || isError}
-              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 !h-12 px-6 shrink-0"
-            >
-              <Send className="size-4" />
-              Send
-            </Button>
-          </div>
+        <div className="px-4 pb-4 pt-2 bg-white rounded-ss-2xl rounded-se-2xl z-10">
+          <ChatInput
+            ref={chatInputRef}
+            inputValue={inputValue}
+            onInputChange={(e) => setInputValue(e.target.value)}
+            onSendMessage={handleSendMessage}
+            disabled={!inputValue.trim() || isError}
+          />
         </div>
         {/* Practice */}
         <div className="px-4 bg-[#FFF9F9]">

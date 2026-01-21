@@ -263,6 +263,9 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
   const microRingClass =
     'before:content-[""] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-20 before:h-20 before:rounded-full before:border-2 before:border-white/60 before:pointer-events-none before:z-0 after:content-[""] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-20 after:h-20 after:rounded-full after:border-2 after:border-white/60 after:pointer-events-none after:z-0';
 
+  const partnerRingClass =
+    'before:content-[""] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-64 before:h-64 before:rounded-full before:border-2 before:border-white/60 before:pointer-events-none before:z-0 after:content-[""] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-64 after:h-64 after:rounded-full after:border-2 after:border-white/60 after:pointer-events-none after:z-0';
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
@@ -314,7 +317,12 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
             onMouseLeave={() => setIsAvatarHovered(false)}
           >
             {/* Circular frame with gradient border */}
-            <div className="relative w-64 h-64 rounded-full p-1 bg-linear-to-br from-[#C9A882] via-[#B8956F] to-[#8B6F47]">
+            <div
+              className={cn(
+                'partner-ring-wrapper relative w-64 h-64 rounded-full p-1 bg-[#503e39]',
+                isPlaying && partnerRingClass,
+              )}
+            >
               <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center">
                 {partnerAvatarUrl ? (
                   <img
