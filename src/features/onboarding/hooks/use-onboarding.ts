@@ -28,7 +28,7 @@ export const useOnboarding = () => {
       });
     },
     onMutate: () => {
-      toast.loading("Processing your profile...");
+      toast.loading("Revealing your portrait in a relationship");
     },
     onSuccess: async (response) => {
       toast.dismiss();

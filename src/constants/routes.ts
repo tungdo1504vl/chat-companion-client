@@ -22,6 +22,7 @@ export const PUBLIC_ROUTES = {
   LOGIN: '/login',
   SIGNUP: '/signup',
   FORGOT_PASSWORD: '/forgot-password',
+  HOME: "/"
 } as const;
 
 // Protected Routes (require authentication)

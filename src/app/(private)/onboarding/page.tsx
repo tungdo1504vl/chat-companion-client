@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { OnboardingForm, AstrologyChartScreen } from "@/features/onboarding/components";
+import { AstrologyChartScreen } from "@/features/onboarding/components";
 import { useOnboarding } from "@/features/onboarding/hooks/use-onboarding";
 import { TOnboardingFormData } from "@/features/onboarding/types";
 import { TCommonPayload } from "@/services";
@@ -67,35 +67,49 @@ export default function OnboardingPage() {
   };
 
   // Show astrology chart screen if onboarding is complete
-  if (showChartScreen) {
-    return (
-      <>
-        <Link href="/assistant" prefetch className="hidden" aria-hidden="true" />
-        <motion.div
-          initial="initial"
-          animate="animate"
-          variants={pageVariants}
-          transition={pageTransition}
-        >
-          <AstrologyChartScreen onNext={handleNext} />
-        </motion.div>
-      </>
+  // if (showChartScreen) {
+  //   return (
+  //     <>
+  //       <Link href="/assistant" prefetch className="hidden" aria-hidden="true" />
+  //       <motion.div
+  //         initial="initial"
+  //         animate="animate"
+  //         variants={pageVariants}
+  //         transition={pageTransition}
+  //       >
+  //         <AstrologyChartScreen onNext={handleNext} />
+  //       </motion.div>
+  //     </>
 
-    );
-  }
+  //   );
+  // }
+
+  // return (
+  //   <motion.div
+  //     initial="initial"
+  //     animate="animate"
+  //     variants={pageVariants}
+  //     transition={pageTransition}
+  //     className="flex flex-col h-full bg-[#FFF9F5] dark:bg-[#1F1A1A]"
+  //   >
+  //     <OnboardingForm
+  //       onSubmit={handleSubmit}
+  //       isLoading={mutateOnboarding.isPending}
+  //     />
+  //   </motion.div>
+  // );
 
   return (
-    <motion.div
-      initial="initial"
-      animate="animate"
-      variants={pageVariants}
-      transition={pageTransition}
-      className="flex flex-col h-full bg-[#FFF9F5] dark:bg-[#1F1A1A]"
-    >
-      <OnboardingForm
-        onSubmit={handleSubmit}
-        isLoading={mutateOnboarding.isPending}
-      />
-    </motion.div>
-  );
+    <>
+      <Link href="/assistant" prefetch className="hidden" aria-hidden="true" />
+      <motion.div
+        initial="initial"
+        animate="animate"
+        variants={pageVariants}
+        transition={pageTransition}
+      >
+        <AstrologyChartScreen onNext={handleNext} />
+      </motion.div>
+    </>
+  )
 }

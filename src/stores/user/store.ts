@@ -16,14 +16,14 @@ export const mockProfileAnalysisData: UserProfileAnalysisResponse = {
   profile: {
     user_id: "mock-user-123",
     basic_info: {
-      name: "Alex Johnson",
+      name: "Huy",
       avatar_url:
         "https://lh3.googleusercontent.com/aida-public/AB6AXuDdMVFtQ4CHYzz3feuBSCm1lt3CXPX73Mq-A-RiOlHt_HfRq3G6qtuMIMQ4mkABYWvYLWQrYAXHrgOXmbFIHTC5pk3nMux-bMkrJcCsoVBPA9Ki1ptCvrjlsrKuADoVNrgvhxgmHaPzKECTFIZCDe1kzh4zUzy8G6yG3nZuRycDqq9lP1amCBP9UOdfNLK03hXDE8n74qEcHSFTnfJz6a3viH4KjwTlSTM4S6-aDIvlX7eh1eBBRwKuLWuX0EdI4VR0MmXjXqXrufMD",
       gender: "example_Gender",
       dob: "1995-08-15",
       time_of_birth: "14:30:00",
-      country_of_birth: "United States",
-      city_of_birth: "New York",
+      country_of_birth: "Viet Nam",
+      city_of_birth: "",
     },
     personality: {
       love_languages: ["Words of Affirmation", "Quality Time"],
@@ -234,13 +234,32 @@ export const mockProfileAnalysisData: UserProfileAnalysisResponse = {
     },
   },
   insights: {
-    analysis_text: `With your Sun in Leo, you radiate a natural warmth and charisma that draws others toward you. You are expressive, generous, and thrive when you can share your creative spark with the world. Your confidence is magnetic, and you have a natural ability to inspire and lead others.
+    birth_chart_analysis_text: `With your Sun in Leo, you radiate a natural warmth and charisma that draws others toward you. You are expressive, generous, and thrive when you can share your creative spark with the world. Your confidence is magnetic, and you have a natural ability to inspire and lead others.
 
 In relationships, your Moon in Pisces brings a profound emotional depth. You value soulful connections and are highly empathetic to the feelings of others. Your intuitive nature allows you to understand your partner's needs even before they express them, creating a nurturing and supportive bond.
 
 Your Rising sign in Libra gives you an elegant and charming first impression. You have a natural sense of balance and harmony, and you're drawn to beauty in all its forms. People are immediately drawn to your diplomatic nature and your ability to see multiple perspectives in any situation.
 
 Together, these three placements create a personality that is both confident and compassionate, creative and intuitive, strong and gentle. You bring warmth and understanding to every relationship, making you a truly magnetic and beloved presence in the lives of those around you.`,
+    analysis_text: `When the relationship is stable
+• Loyal
+• Responsible
+• Shows care through actions more than words
+• Enjoys growing and improving together with their partner
+When problems begin to appear
+• Silence → reflection → self-adjustment
+• Rarely complains or blames
+• Waits for the partner to realize the issue on their own
+4. What Huy NEEDS in a relationship
+:white_check_mark: A partner who:
+• Respects personal space
+• Communicates emotions clearly (since he rarely expresses his own)
+• Is stable, but not boring
+• Values and appreciates his quiet patience
+:x: Avoid:
+• Excessive control
+• Testing him with silence
+• Making him constantly guess emotions or intentions`,
   },
   warnings: [],
   created_at: new Date().toISOString(),

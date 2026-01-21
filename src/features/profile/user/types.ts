@@ -131,6 +131,7 @@ export interface TNatalChart {
 
 export interface TInsights {
   analysis_text: string;
+  birth_chart_analysis_text: string;
 }
 
 /**

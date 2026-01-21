@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from "react";
 import {
   Settings,
   Heart,
@@ -8,6 +9,16 @@ import {
   Infinity,
   Gift,
   ChevronRight,
+  Users,
+  MessageSquare,
+  TrendingUp,
+  Handshake,
+  Shield,
+  ThumbsUp,
+  XCircle,
+  AlertCircle,
+  UserCheck,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/libs/tailwind/utils";
 import Image from "next/image";
@@ -24,73 +35,276 @@ interface FeatureCard {
   icon: React.ComponentType<{ className?: string }>;
   iconBgColor: string;
   status: "upcoming" | "new";
+  category: "romantic" | "work" | "personal";
 }
 
 // Gradient options for "New" cards - cycle through these
 const newCardGradients = ["gradient-orange-pink", "gradient-pink-purple"];
 
 const features: FeatureCard[] = [
+  // Romantic category
   {
-    id: "2",
+    id: "romantic-1",
     title: "Strategy for a Successful Crush",
     description:
       "For that painful one-sided love, we'll help you find a way forward.",
     icon: Heart,
     iconBgColor: "bg-pink-500",
     status: "new",
+    category: "romantic",
   },
   {
-    id: "5",
+    id: "romantic-2",
     title: "Making Up After a Fight",
     description:
       "How to wisely reconcile and restore your relationship after an awkward and difficult fight.",
     icon: Clock,
     iconBgColor: "bg-pink-500",
     status: "new",
+    category: "romantic",
   },
   {
-    id: "1",
+    id: "romantic-3",
     title: "Analyze Current Relationship Situation",
     description:
       "Get an objective perspective on your complex relationship and understand your partner's poi...",
     icon: Settings,
     iconBgColor: "bg-purple-500",
     status: "upcoming",
+    category: "romantic",
   },
   {
-    id: "3",
+    id: "romantic-4",
     title: "Texting & 'Talking Stage' Clinic",
     description:
       "Left on read? Message unseen? Get advice and analysis on confusing texting conversations d...",
     icon: MessageCircle,
     iconBgColor: "bg-teal-500",
     status: "upcoming",
+    category: "romantic",
   },
   {
-    id: "4",
+    id: "romantic-5",
     title: "Advice for a Happy Relationship",
     description:
       "Get realistic advice for a happier and healthier relationship.",
     icon: Heart,
     iconBgColor: "bg-purple-500",
     status: "upcoming",
+    category: "romantic",
   },
   {
-    id: "6",
+    id: "romantic-6",
     title: "Overcoming a Relationship Rut",
     description: "Learn how to wisely overcome a rut with a long-term partner.",
     icon: Infinity,
     iconBgColor: "bg-purple-500",
     status: "upcoming",
+    category: "romantic",
   },
   {
-    id: "7",
+    id: "romantic-7",
     title: "Anniversary/Event Planning",
     description:
       "Plan a romantic anniversary that will touch your partner's heart on a special day.",
     icon: Gift,
     iconBgColor: "bg-purple-500",
     status: "upcoming",
+    category: "romantic",
+  },
+  // Work category - Highlight Use Cases (status: "new")
+  {
+    id: "work-1",
+    title: "Difficult Work Conversation",
+    description:
+      "Say what needs to be said—clearly, calmly, and without damaging the relationship.",
+    icon: AlertCircle,
+    iconBgColor: "bg-blue-500",
+    status: "new",
+    category: "work",
+  },
+  {
+    id: "work-2",
+    title: "Talk to a Colleague",
+    description:
+      "Handle everyday work conversations without awkwardness or overthinking.",
+    icon: Users,
+    iconBgColor: "bg-blue-500",
+    status: "new",
+    category: "work",
+  },
+  {
+    id: "work-3",
+    title: "Give Feedback at Work",
+    description:
+      "Share honest feedback in a way that feels respectful and constructive.",
+    icon: MessageSquare,
+    iconBgColor: "bg-blue-500",
+    status: "new",
+    category: "work",
+  },
+  // Work category - Normal Use Cases (status: "upcoming")
+  {
+    id: "work-4",
+    title: "Push Back a Request",
+    description:
+      "Politely decline or renegotiate a request without guilt or tension.",
+    icon: XCircle,
+    iconBgColor: "bg-blue-500",
+    status: "upcoming",
+    category: "work",
+  },
+  {
+    id: "work-5",
+    title: "Ask for Help or Support",
+    description:
+      "Reach out without sounding weak or unprepared.",
+    icon: Handshake,
+    iconBgColor: "bg-blue-500",
+    status: "upcoming",
+    category: "work",
+  },
+  {
+    id: "work-6",
+    title: "Repair a Work Relationship",
+    description:
+      "Clear the air after misunderstandings or conflict.",
+    icon: UserCheck,
+    iconBgColor: "bg-blue-500",
+    status: "upcoming",
+    category: "work",
+  },
+  {
+    id: "work-7",
+    title: "Follow Up After a Meeting",
+    description:
+      "Send the right message to move things forward.",
+    icon: MessageCircle,
+    iconBgColor: "bg-blue-500",
+    status: "upcoming",
+    category: "work",
+  },
+  {
+    id: "work-8",
+    title: "Express Appreciation at Work",
+    description:
+      "Say thank you in a genuine, professional way.",
+    icon: ThumbsUp,
+    iconBgColor: "bg-blue-500",
+    status: "upcoming",
+    category: "work",
+  },
+  {
+    id: "work-9",
+    title: "Set Boundaries at Work",
+    description:
+      "Protect your time and energy without burning bridges.",
+    icon: Shield,
+    iconBgColor: "bg-blue-500",
+    status: "upcoming",
+    category: "work",
+  },
+  // Personal category - Highlight Use Cases (status: "new")
+  {
+    id: "personal-1",
+    title: "Win a Crush / Confession",
+    description:
+      "Express your feelings honestly—without rushing or putting pressure on them.",
+    icon: Sparkles,
+    iconBgColor: "bg-pink-500",
+    status: "new",
+    category: "personal",
+  },
+  {
+    id: "personal-2",
+    title: "Repair a Relationship",
+    description:
+      "Rebuild connection after a fight, silence, or emotional distance.",
+    icon: Heart,
+    iconBgColor: "bg-pink-500",
+    status: "new",
+    category: "personal",
+  },
+  {
+    id: "personal-3",
+    title: "Difficult Personal Conversation",
+    description:
+      "Talk about sensitive topics with care, clarity, and emotional safety.",
+    icon: AlertCircle,
+    iconBgColor: "bg-pink-500",
+    status: "new",
+    category: "personal",
+  },
+  // Personal category - Normal Use Cases (status: "upcoming")
+  {
+    id: "personal-4",
+    title: "Show Care & Appreciation",
+    description:
+      "Let them feel seen through small but meaningful words or actions.",
+    icon: Gift,
+    iconBgColor: "bg-pink-500",
+    status: "upcoming",
+    category: "personal",
+  },
+  {
+    id: "personal-5",
+    title: "Reconnect After Distance",
+    description:
+      "Reach out after time apart without making it awkward.",
+    icon: MessageCircle,
+    iconBgColor: "bg-pink-500",
+    status: "upcoming",
+    category: "personal",
+  },
+  {
+    id: "personal-6",
+    title: "Clear a Misunderstanding",
+    description:
+      "Explain your side without escalating emotions.",
+    icon: MessageSquare,
+    iconBgColor: "bg-pink-500",
+    status: "upcoming",
+    category: "personal",
+  },
+  {
+    id: "personal-7",
+    title: "Support Someone Emotionally",
+    description:
+      "Be there for them—even when you don't know what to say.",
+    icon: Heart,
+    iconBgColor: "bg-pink-500",
+    status: "upcoming",
+    category: "personal",
+  },
+  {
+    id: "personal-8",
+    title: "Say No Without Guilt",
+    description:
+      "Protect your boundaries while staying kind.",
+    icon: Shield,
+    iconBgColor: "bg-pink-500",
+    status: "upcoming",
+    category: "personal",
+  },
+  {
+    id: "personal-9",
+    title: "Navigate Early Dating Stage",
+    description:
+      "Understand signals, pacing, and what to say next.",
+    icon: TrendingUp,
+    iconBgColor: "bg-pink-500",
+    status: "upcoming",
+    category: "personal",
+  },
+  {
+    id: "personal-10",
+    title: "Maintain a Healthy Relationship",
+    description:
+      "Keep communication open and balanced over time.",
+    icon: Infinity,
+    iconBgColor: "bg-pink-500",
+    status: "upcoming",
+    category: "personal",
   },
 ];
 
@@ -102,6 +316,11 @@ const chipOptions = [
 
 export default function AssistantPage() {
   const { preloadRoute } = useRoutePreloader();
+  const [selectedCategory, setSelectedCategory] = useState<string>("romantic");
+
+  const filteredFeatures = features.filter(
+    (feature) => feature.category === selectedCategory
+  );
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -125,19 +344,20 @@ export default function AssistantPage() {
       <div className="px-4">
         <ChipGroup
           options={chipOptions}
-          defaultValue="romantic"
+          value={selectedCategory}
+          onValueChange={setSelectedCategory}
         />
       </div>
 
       {/* Feature Cards List */}
       <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-3">
-        {features.map((feature, index) => {
+        {filteredFeatures.map((feature, index) => {
           const Icon = feature.icon;
           const isNew = feature.status === "new";
 
           // Get gradient for "New" cards (cycle through gradients)
           // Always ensure gradient exists for new cards
-          const newCardGradientIndex = features
+          const newCardGradientIndex = filteredFeatures
             .slice(0, index)
             .filter((f) => f.status === "new").length;
 

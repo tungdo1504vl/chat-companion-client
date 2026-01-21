@@ -6,6 +6,8 @@ import {
   Sun,
   Moon,
   Sunrise,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { TNatalChart, TInsights } from "../types";
@@ -73,8 +75,103 @@ function getBigThreeIcon(planet: string): {
   }
 }
 
-// Helper function to parse and format insights text with primary color for astrological terms
-function formatInsightsText(text: string): React.ReactNode[] {
+// Types for structured insights
+interface InsightSection {
+  type: "heading" | "bullet" | "needs-header" | "needs-item" | "avoid-header" | "avoid-item" | "paragraph";
+  content: string;
+  icon?: "check" | "x";
+}
+
+// Helper function to parse structured insights text
+function parseInsightsText(text: string): InsightSection[] {
+  const lines = text.split("\n").filter((line) => line.trim().length > 0);
+  const sections: InsightSection[] = [];
+
+  let i = 0;
+  let currentContext: "needs" | "avoid" | null = null;
+
+  while (i < lines.length) {
+    const line = lines[i].trim();
+
+    // Check for headings
+    if (
+      line.startsWith("When the relationship is stable") ||
+      line.startsWith("When problems begin to appear") ||
+      line.match(/^\d+\.\s*What.*NEEDS/i)
+    ) {
+      // Clean up numbered prefix if present
+      const cleanContent = line.replace(/^\d+\.\s*/, "");
+      sections.push({ type: "heading", content: cleanContent });
+      currentContext = null; // Reset context after heading
+      i++;
+      continue;
+    }
+
+    // Check for needs header with checkmark (can be on same line or separate)
+    if (
+      line.includes(":white_check_mark:") ||
+      line.includes("✅") ||
+      (line.includes("A partner who:") && (i > 0 && lines[i - 1]?.includes("NEEDS")))
+    ) {
+      const cleanContent = line
+        .replace(/:white_check_mark:/g, "")
+        .replace(/✅/g, "")
+        .trim();
+      sections.push({ type: "needs-header", content: cleanContent, icon: "check" });
+      currentContext = "needs";
+      i++;
+      continue;
+    }
+
+    // Check for avoid header with X
+    if (
+      line.includes(":x:") ||
+      line.includes("❌") ||
+      line.startsWith("Avoid:")
+    ) {
+      const cleanContent = line
+        .replace(/:x:/g, "")
+        .replace(/❌/g, "")
+        .trim();
+      sections.push({ type: "avoid-header", content: cleanContent, icon: "x" });
+      currentContext = "avoid";
+      i++;
+      continue;
+    }
+
+    // Check for bullet points
+    if (line.startsWith("•") || line.startsWith("-") || line.match(/^\s*[•-]\s/)) {
+      // Remove bullet and clean up arrow emojis
+      const cleanContent = line
+        .replace(/^[•-]\s*/, "")
+        .replace(/→/g, "→")
+        .trim();
+
+      // Use context to determine type
+      if (currentContext === "needs") {
+        sections.push({ type: "needs-item", content: cleanContent });
+      } else if (currentContext === "avoid") {
+        sections.push({ type: "avoid-item", content: cleanContent });
+      } else {
+        sections.push({ type: "bullet", content: cleanContent });
+      }
+      i++;
+      continue;
+    }
+
+    // Regular paragraph - reset context if we hit non-bullet text
+    if (currentContext && !line.match(/^\s*[•-]/)) {
+      currentContext = null;
+    }
+    sections.push({ type: "paragraph", content: line });
+    i++;
+  }
+
+  return sections;
+}
+
+// Helper function to highlight astrological terms
+function highlightAstroTerms(text: string): React.ReactNode[] {
   const astroTerms = [
     "Sun in",
     "Moon in",
@@ -94,46 +191,187 @@ function formatInsightsText(text: string): React.ReactNode[] {
     "Aquarius",
   ];
 
-  const paragraphs = text.split("\n").filter((p) => p.trim().length > 0);
+  let formattedText: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let key = 0;
 
-  return paragraphs.map((paragraph, idx) => {
-    let formattedText: React.ReactNode[] = [];
-    let lastIndex = 0;
-    let key = 0;
-
-    astroTerms.forEach((term) => {
-      const regex = new RegExp(String.raw`\b${term}\b`, "gi");
-      let match;
-      while ((match = regex.exec(paragraph)) !== null) {
-        if (match.index > lastIndex) {
-          formattedText.push(paragraph.substring(lastIndex, match.index));
-        }
-        formattedText.push(
-          <span key={`${term}-${key++}`} className="text-[#F26B7A] font-medium">
-            {match[0]}
-          </span>
-        );
-        lastIndex = match.index + match[0].length;
+  astroTerms.forEach((term) => {
+    const regex = new RegExp(String.raw`\b${term}\b`, "gi");
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        formattedText.push(text.substring(lastIndex, match.index));
       }
-    });
-
-    if (lastIndex < paragraph.length) {
-      formattedText.push(paragraph.substring(lastIndex));
+      formattedText.push(
+        <span key={`${term}-${key++}`} className="text-[#F26B7A] font-medium">
+          {match[0]}
+        </span>
+      );
+      lastIndex = match.index + match[0].length;
     }
-
-    if (formattedText.length === 0) {
-      formattedText = [paragraph];
-    }
-
-    return (
-      <p
-        key={`paragraph-${paragraph.substring(0, 20)}-${idx}`}
-        className="text-sm text-[#555555] dark:text-[#A0A0A0] leading-relaxed mt-4 first:mt-0"
-      >
-        {formattedText}
-      </p>
-    );
   });
+
+  if (lastIndex < text.length) {
+    formattedText.push(text.substring(lastIndex));
+  }
+
+  return formattedText.length > 0 ? formattedText : [text];
+}
+
+// Helper function to format structured insights with improved UI
+function formatInsightsText(text: string): React.ReactNode {
+  const sections = parseInsightsText(text);
+
+  // If no structured content detected, fall back to simple paragraph formatting
+  if (sections.length === 0 || sections.every(s => s.type === "paragraph")) {
+    const paragraphs = text.split("\n").filter((p) => p.trim().length > 0);
+    return (
+      <div className="space-y-4">
+        {paragraphs.map((paragraph, idx) => (
+          <p
+            key={`paragraph-${idx}`}
+            className="text-sm text-[#555555] dark:text-[#A0A0A0] leading-relaxed"
+          >
+            {highlightAstroTerms(paragraph)}
+          </p>
+        ))}
+      </div>
+    );
+  }
+
+  // Group sections by logical blocks for better spacing
+  const groupedSections: Array<{ sections: InsightSection[]; type: "block" | "item" }> = [];
+  let currentBlock: InsightSection[] = [];
+
+  sections.forEach((section, idx) => {
+    if (section.type === "heading" || section.type === "needs-header" || section.type === "avoid-header") {
+      if (currentBlock.length > 0) {
+        groupedSections.push({ sections: [...currentBlock], type: "block" });
+      }
+      currentBlock = [section];
+    } else {
+      currentBlock.push(section);
+    }
+  });
+  if (currentBlock.length > 0) {
+    groupedSections.push({ sections: [...currentBlock], type: "block" });
+  }
+
+  return (
+    <div className="space-y-8">
+      {groupedSections.map((group, groupIdx) => (
+        <div
+          key={`group-${groupIdx}`}
+          className="space-y-3"
+          style={{
+            animation: `fadeIn 0.2s ease-out ${groupIdx * 0.05}s both`,
+          }}
+        >
+          {group.sections.map((section, idx) => {
+            const key = `section-${groupIdx}-${idx}-${section.type}`;
+
+            switch (section.type) {
+              case "heading":
+                return (
+                  <div key={key} className="mb-1">
+                    <h4 className="text-base font-semibold text-[#1A1A1A] dark:text-[#F0F0F0] leading-snug">
+                      {section.content}
+                    </h4>
+                  </div>
+                );
+
+              case "bullet":
+                return (
+                  <div key={key} className="flex items-start gap-3 pl-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#F26B7A]/40 dark:bg-[#F26B7A]/50 mt-2 shrink-0 transition-opacity duration-150" />
+                    <p className="text-sm text-[#555555] dark:text-[#A0A0A0] leading-relaxed flex-1">
+                      {highlightAstroTerms(section.content)}
+                    </p>
+                  </div>
+                );
+
+              case "needs-header":
+                return (
+                  <div key={key} className="mb-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 rounded-md bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center shrink-0 transition-transform duration-150 hover:scale-105">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-500" />
+                      </div>
+                      <h4 className="text-base font-semibold text-[#1A1A1A] dark:text-[#F0F0F0] leading-snug">
+                        {section.content}
+                      </h4>
+                    </div>
+                  </div>
+                );
+
+              case "needs-item":
+                return (
+                  <div key={key} className="flex items-start gap-3 pl-7">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/60 dark:bg-emerald-500/70 mt-2 shrink-0 transition-opacity duration-150" />
+                    <p className="text-sm text-[#555555] dark:text-[#A0A0A0] leading-relaxed flex-1">
+                      {highlightAstroTerms(section.content)}
+                    </p>
+                  </div>
+                );
+
+              case "avoid-header":
+                return (
+                  <div key={key} className="mb-2 mt-6">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 rounded-md bg-red-500/10 dark:bg-red-500/20 flex items-center justify-center shrink-0 transition-transform duration-150 hover:scale-105">
+                        <XCircle className="w-4 h-4 text-red-600 dark:text-red-500" />
+                      </div>
+                      <h4 className="text-base font-semibold text-[#1A1A1A] dark:text-[#F0F0F0] leading-snug">
+                        {section.content}
+                      </h4>
+                    </div>
+                  </div>
+                );
+
+              case "avoid-item":
+                return (
+                  <div key={key} className="flex items-start gap-3 pl-7">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-500/60 dark:bg-red-500/70 mt-2 shrink-0 transition-opacity duration-150" />
+                    <p className="text-sm text-[#555555] dark:text-[#A0A0A0] leading-relaxed flex-1">
+                      {highlightAstroTerms(section.content)}
+                    </p>
+                  </div>
+                );
+
+              default:
+                return (
+                  <p
+                    key={key}
+                    className="text-sm text-[#555555] dark:text-[#A0A0A0] leading-relaxed"
+                  >
+                    {highlightAstroTerms(section.content)}
+                  </p>
+                );
+            }
+          })}
+        </div>
+      ))}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
+      `}</style>
+    </div>
+  );
 }
 
 function BirthChart({ natalChart, insights }: BirthChartProps) {
@@ -165,22 +403,20 @@ function BirthChart({ natalChart, insights }: BirthChartProps) {
       {/* AI Chart Analysis Banner */}
 
       {/* Chart Insights Section */}
-      {formattedInsights.length > 0 && (
-        <Card className="bg-[#FFFFFF] dark:bg-[#2D2628] rounded-3xl p-6 shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] border border-gray-50 dark:border-gray-800 relative mb-8">
+      {insightsText && (
+        <Card className="bg-[#FFFFFF] dark:bg-[#2D2628] rounded-3xl p-6 shadow-[0_10px_40px_-10px_rgba(242,107,122,0.15)] border border-gray-50 dark:border-gray-800 relative mb-8 transition-all duration-200">
           <CardContent className="p-0">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-[#F26B7A] flex items-center justify-center text-white shadow-[0_0_20px_rgba(242,107,122,0.3)]">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 rounded-lg bg-[#F26B7A] flex items-center justify-center text-white shadow-[0_0_20px_rgba(242,107,122,0.3)] transition-transform duration-200 hover:scale-105">
                 <Sparkles size={16} className="text-sm" />
               </div>
               <h3 className="font-semibold text-lg text-[#1A1A1A] dark:text-[#F0F0F0]">
                 AI Personality Overview
               </h3>
             </div>
-            <div className="prose prose-sm dark:prose-invert max-w-none text-[#555555] dark:text-[#A0A0A0] leading-relaxed">
+            <div className="relative">
               {formattedInsights}
             </div>
-            {/* Gradient fade at bottom */}
-            <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-[#FFFFFF] dark:from-[#2D2628] to-transparent rounded-b-3xl pointer-events-none" />
           </CardContent>
         </Card>
       )}

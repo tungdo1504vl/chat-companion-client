@@ -111,6 +111,7 @@ export interface NatalChart {
  */
 export interface UserProfileInsights {
   analysis_text: string;
+  birth_chart_analysis_text: string;
 }
 
 /**
