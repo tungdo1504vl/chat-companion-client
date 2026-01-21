@@ -17,7 +17,7 @@ const ACTION_BUTTONS: ActionButton[] = [
     id: 'plan-date',
     label: 'Plan a date',
     icon: <Map />,
-    link: '/gift-suggest',
+    link: '/plan-a-day',
   },
   { id: 'find-places', label: 'Find date places', icon: <MapPin /> },
   {
