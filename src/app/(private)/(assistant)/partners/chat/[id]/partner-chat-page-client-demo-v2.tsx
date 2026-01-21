@@ -351,12 +351,12 @@ export default function PartnerChatPageClientDemoV2({
                                 </div>
                               )}
                               {messageType === 'audio' && messageDataBase64 && (
-                                <p className="w-1/2">
+                                <div className="w-1/2">
                                   <AudioPlayerUI
                                     hasBg={true}
                                     src={formatAudioBase64(messageDataBase64)}
                                   />
-                                </p>
+                                </div>
                               )}
                             </div>
                             {/* Show partner name label after user message if next message is from assistant or if this is the last message */}
@@ -408,12 +408,7 @@ export default function PartnerChatPageClientDemoV2({
           <Button
             className="bg-[#e05e68] h-14! w-full rounded-3xl"
             onClick={() => {
-              if (!existingVoice) {
-                toast.warning('Voice not found');
-                return;
-              }
               setOpenInteractiveModal(true);
-              setOpenPopover(false);
             }}
           >
             <MicIcon className="size-4 text-white" /> Practice with me

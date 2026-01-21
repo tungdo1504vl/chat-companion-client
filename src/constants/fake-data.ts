@@ -395,7 +395,7 @@ export const FAKE_INTERACTIVE_DATA = [
   },
   {
     id: 2,
-    data_base64: '/audio/audio-sample-1.wav',
+    data_base64: '/audio/audio-sample-2.mp3',
   },
   {
     id: 3,
@@ -403,7 +403,7 @@ export const FAKE_INTERACTIVE_DATA = [
   },
   {
     id: 4,
-    data_base64: '/audio/audio-sample-1.wav',
+    data_base64: '/audio/audio-sample-2.mp3',
   },
   {
     id: 5,

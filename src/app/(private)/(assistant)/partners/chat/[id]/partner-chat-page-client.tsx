@@ -481,12 +481,12 @@ export default function PartnerChatPageClient({
                                 </div>
                               )}
                               {messageType === 'audio' && messageDataBase64 && (
-                                <p className="w-1/2">
+                                <div className="w-1/2">
                                   <AudioPlayerUI
                                     hasBg={true}
                                     src={formatAudioBase64(messageDataBase64)}
                                   />
-                                </p>
+                                </div>
                               )}
                             </div>
                             {/* Show partner name label after user message if next message is from assistant or if this is the last message */}
