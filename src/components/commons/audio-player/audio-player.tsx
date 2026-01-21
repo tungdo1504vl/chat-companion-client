@@ -70,7 +70,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   return (
     <div
       className={cn(`relative flex items-center gap-3 px-3 py-2 ${className}`, {
-        'bg-[#fce7f3] rounded-lg': hasBg,
+        'bg-[#FFE5E9] rounded-lg': hasBg,
       })}
     >
       {/* Play/Pause Button */}
@@ -93,7 +93,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
           <div
             key={index}
             className={`flex-1 w-1 rounded-sm ${
-              bar.isCoral ? 'bg-[#ec4899]' : 'bg-[#f9a8d4]'
+              hasBg ? (bar.isCoral ? 'bg-[#ec4899]' : 'bg-[#f9a8d4]') : ''
             }`}
             style={{
               height: `${bar.height * 100}%`,

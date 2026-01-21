@@ -83,7 +83,7 @@ export default function PartnerChatPageClient({
   const mutateChat = useCommonCompute();
   const userId = session?.user.id;
   const enabled = Boolean(userId) && Boolean(partnerId);
-  const { data, isLoading } = useComputeGet(
+  const { data, isFetched, isLoading } = useComputeGet(
     createTaskParams(TASK_TYPE.RELATIONSHIP_CHAT_HISTORY, {
       user_id: userId || '',
       partner_id: partnerId || '',
@@ -395,7 +395,7 @@ export default function PartnerChatPageClient({
 
         {/* Chat Messages */}
         <div className="flex-1 min-h-0 overflow-hidden px-2">
-          {!isLoading && !hasMessages && !isLoadingPartnerData && (
+          {!isLoading && isFetched && !hasMessages && !isLoadingPartnerData && (
             <div className="py-3 text-black/40 text-center">
               Enter message to start ...
             </div>
