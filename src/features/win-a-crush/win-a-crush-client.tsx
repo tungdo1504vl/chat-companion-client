@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import type { PartnerProfile } from "@/features/profile/partner/types";
+import type { PartnerProfile } from '@/features/profile/partner/types';
 import {
   WinACrushHeader,
   PracticeCard,
   WhatMattersSection,
   AlternativeActionsSection,
-} from "./components";
-import { useRouter } from "next/navigation";
-import { PageHeader } from "@/components/commons/page-header";
+} from './components';
+import { useRouter } from 'next/navigation';
+import { PageHeader } from '@/components/commons/page-header';
 
 type WinACrushClientProps = Readonly<{
   partnerProfile: PartnerProfile;
@@ -27,7 +27,7 @@ export function WinACrushClient({ partnerProfile }: WinACrushClientProps) {
         <WinACrushHeader partnerProfile={partnerProfile} />
         <PracticeCard partnerId={partnerProfile.id} />
         <WhatMattersSection />
-        <AlternativeActionsSection />
+        <AlternativeActionsSection partnerId={partnerProfile.id} />
       </main>
     </>
   );

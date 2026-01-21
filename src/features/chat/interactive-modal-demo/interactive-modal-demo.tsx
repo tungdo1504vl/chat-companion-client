@@ -22,14 +22,9 @@ import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import SpeechRecognition, {
   useSpeechRecognition,
 } from 'react-speech-recognition';
-import { useCommonCompute } from '@/hooks/use-compute';
-import { TCommonPayload } from '@/types/common';
-import { TASK_TYPE } from '@/constants/task';
-import { useSession } from '@/libs/better-auth/client';
-import { useParams } from 'next/navigation';
-import Image from 'next/image';
-import { toast } from 'sonner';
 import { cn } from '@/libs/tailwind/utils';
+import { FAKE_INTERACTIVE_DATA } from '@/constants/fake-data';
+import { promiseHelper } from '@/utils/promise';
 
 const PARTNER_AVATAR_MEN = '/images/partner-men.png';
 const PARTNER_AVATAR_WOMEN = '/images/partner-women.jpeg';
@@ -42,7 +37,7 @@ interface InteractiveModalProps {
   partnerGender?: string;
 }
 
-const InteractiveModal: React.FC<InteractiveModalProps> = ({
+const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
   open,
   onClose,
   partnerName = 'Partner',
@@ -54,14 +49,10 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
+  const [interactionIndex, setInteractionIndex] = useState(0);
   const audioRef = React.useRef<HTMLAudioElement>(null);
   const audioRef2 = React.useRef<HTMLAudioElement>(null);
   const micBtnRef = React.useRef<HTMLButtonElement>(null);
-  const mutateInteractive = useCommonCompute();
-  const { data: session } = useSession();
-  const params = useParams<{ id: string }>();
-  const partnerId = params.id;
-  const userId = session?.user.id;
   const {
     transcript,
     listening,
@@ -69,46 +60,30 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
     browserSupportsSpeechRecognition,
   } = useSpeechRecognition();
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     micBtnRef.current?.click();
-  //   }, 2000);
-  //   setTimeout(() => {
-  //     audioRef2.current?.play();
-  //   }, 5000);
-  // }, []);
-
   const handleInteractive = useCallback(
     async (text: string) => {
-      if (!userId || !partnerId) return;
       setIsLoading(true);
       setAudioSrc(null);
       try {
-        const userText = text;
-        const payload: TCommonPayload = {
-          task_type: TASK_TYPE.PARTNER_VOICE_SYNTHESIZE,
-          input_args: {
-            user_id: userId,
-            partner_id: partnerId,
-            generate_from_chat: false,
-            user_message: userText,
-          },
-          priority: 'high',
-        };
-        const res = await mutateInteractive.mutateAsync(payload);
-        console.log('mutateInteractive res:', res);
-        if (res.result?.synthesis?.audio_base64) {
-          const audioBase64 = res.result?.synthesis?.audio_base64;
-          const audioFormat = res.result?.synthesis?.audio_format || 'wav';
-          // Convert base64 to data URL
-          const dataUrl = `data:audio/${audioFormat};base64,${audioBase64}`;
-          setAudioSrc(dataUrl);
+        // Simulate API delay
+        await promiseHelper.delay(1000);
+
+        // Get audio from FAKE_INTERACTIVE_DATA based on current index
+        const currentIndex = interactionIndex % FAKE_INTERACTIVE_DATA.length;
+        const fakeData = FAKE_INTERACTIVE_DATA[currentIndex];
+
+        if (fakeData?.data_base64) {
+          // Use the audio path from fake data
+          setAudioSrc(fakeData.data_base64);
         }
+
+        // Increment index for next interaction
+        setInteractionIndex((prev) => prev + 1);
       } finally {
         setIsLoading(false);
       }
     },
-    [mutateInteractive, userId, partnerId],
+    [interactionIndex],
   );
 
   useEffect(() => {
@@ -134,6 +109,8 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
       setAudioSrc(null);
       setIsPlaying(false);
       setIsLoading(false);
+      // Reset interaction index
+      setInteractionIndex(0);
     }
   }, [open, listening, resetTranscript]);
 
@@ -203,13 +180,8 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
     SpeechRecognition.stopListening();
     // Get current transcript and debounce log after 1 second
     const currentTranscript = transcript || finalTranscript;
-    if (currentTranscript) {
-      console.log('currentTranscript:', currentTranscript);
-      setFinalTranscript(currentTranscript);
-      handleInteractive(currentTranscript);
-    } else {
-      // toast.info('No audio detected. Please try speaking again.');
-    }
+    setFinalTranscript(currentTranscript);
+    handleInteractive(currentTranscript);
   };
 
   const handleMicClick = () => {
@@ -266,6 +238,8 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
   const partnerRingClass =
     'before:content-[""] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-64 before:h-64 before:rounded-full before:border-2 before:border-white/60 before:pointer-events-none before:z-0 after:content-[""] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-64 after:h-64 after:rounded-full after:border-2 after:border-white/60 after:pointer-events-none after:z-0';
 
+  const isPartnerPlaying = isPlaying;
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
@@ -286,7 +260,7 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
         {/* Audio */}
         <audio ref={audioRef2} src={'/full_demo.wav'} />
         {/* Top Section - Header with icon and prompt */}
-        <div className="relative pt-8 px-6 pb-4 z-10">
+        <div className="relative pt-8 px-6 z-10">
           {/* Speech bubble icon in top right */}
           <div className="absolute top-1 right-2 w-10 h-10 rounded-full bg-gray-200/30 flex items-center justify-center">
             <button
@@ -360,8 +334,8 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
             </div>
           </div>
         </div>
-
         {/* Bottom Section - Controls */}
+
         <div className="pb-9 px-6 z-10">
           {!browserSupportsSpeechRecognition ? (
             <div className="text-center">
@@ -372,7 +346,15 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
           ) : (
             <>
               {/* Microphone/Stop Button */}
-              <div className="flex flex-col items-center gap-3">
+              <div className="flex flex-col items-center gap-2">
+                {/* Status messages */}
+                <div className="text-center min-h-6">
+                  {isLoading && (
+                    <p className="text-md font-semibold text-white animate-pulse">
+                      Waiting for response...
+                    </p>
+                  )}
+                </div>
                 <div
                   className={cn(
                     'relative flex items-center justify-center w-32 h-32 microphone-ring-wrapper',
@@ -394,20 +376,26 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
                         ),
                       },
                     )}
-                    disabled={!browserSupportsSpeechRecognition || isLoading}
+                    disabled={
+                      !browserSupportsSpeechRecognition ||
+                      isLoading ||
+                      isPartnerPlaying
+                    }
                   >
                     <Mic className="size-8 text-[#5C4A3A]" />
                   </Button>
                 </div>
 
                 {/* Instruction text - hide when loading */}
-                {!isLoading && (
-                  <p className="text-xs uppercase text-white font-medium tracking-wider">
-                    {listening
-                      ? `RECORDING... CLICK TO STOP.`
-                      : `CLICK TO SPEAK. SHE'S LISTENING.`}
-                  </p>
-                )}
+                <div className="min-h-4">
+                  {!isLoading && (
+                    <p className="text-xs uppercase text-white font-medium tracking-wider">
+                      {listening
+                        ? `RECORDING... CLICK TO STOP.`
+                        : `CLICK TO SPEAK. SHE'S LISTENING.`}
+                    </p>
+                  )}
+                </div>
 
                 {/* Control icons */}
                 <div className="flex items-center gap-4 mt-2">
@@ -428,7 +416,7 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
                       onClick={handleStopRecording}
                       className="p-2 rounded-full hover:bg-white/20 transition-colors"
                       aria-label="Close"
-                      disabled={isLoading}
+                      disabled={isLoading || isPartnerPlaying}
                     >
                       <Square className="size-5 text-gray-300" />
                     </button>
@@ -453,8 +441,10 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
                       setIsPlaying(false);
                       // Reset loading state
                       setIsLoading(false);
+                      // Reset interaction index
+                      setInteractionIndex(0);
                     }}
-                    disabled={isLoading}
+                    disabled={isLoading || isPartnerPlaying}
                     className={`p-2 rounded-full transition-colors ${
                       isLoading
                         ? 'opacity-50 cursor-not-allowed'
@@ -477,15 +467,6 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
                 </div>
               </div>
 
-              {/* Status messages */}
-              {isLoading && (
-                <div className="text-center mt-4">
-                  <p className="text-xl font-semibold text-white animate-pulse">
-                    Waiting for response...
-                  </p>
-                </div>
-              )}
-
               {/* Hidden audio element */}
               {audioSrc && <audio ref={audioRef} src={audioSrc} />}
             </>
@@ -496,4 +477,4 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
   );
 };
 
-export default InteractiveModal;
+export default InteractiveModalDemo;

@@ -1,24 +1,43 @@
-"use client";
+'use client';
 
-import { Calendar, Gift, Map, MapPin } from "lucide-react";
+import { cn } from '@/libs/tailwind/utils';
+import { Calendar, Gift, Map, MapPin } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 type ActionButton = {
   id: string;
   label: string;
   icon: React.ReactNode;
+  link?: string;
 };
 
 const ACTION_BUTTONS: ActionButton[] = [
-  { id: "ask-out", label: "Ask her out", icon: <Calendar /> },
-  { id: "plan-date", label: "Plan a date", icon: <Map /> },
-  { id: "find-places", label: "Find date places", icon: <MapPin /> },
-  { id: "suggest-gift", label: "Suggest a small gift", icon: <Gift /> },
+  { id: 'ask-out', label: 'Ask her out', icon: <Calendar /> },
+  {
+    id: 'plan-date',
+    label: 'Plan a date',
+    icon: <Map />,
+    link: '/gift-suggest',
+  },
+  { id: 'find-places', label: 'Find date places', icon: <MapPin /> },
+  {
+    id: 'suggest-gift',
+    label: 'Suggest a small gift',
+    icon: <Gift />,
+    link: '/gift-suggest',
+  },
 ] as const;
 
-export function AlternativeActionsSection() {
-  const handleActionClick = (actionId: string) => {
-    // Placeholder for now
-    console.log(`Action clicked: ${actionId}`);
+export function AlternativeActionsSection({
+  partnerId,
+}: {
+  partnerId: string;
+}) {
+  const router = useRouter();
+  const handleActionClick = (link?: string) => {
+    if (link) {
+      router.push(`/partners/${partnerId}${link}`);
+    }
   };
 
   return (
@@ -30,8 +49,13 @@ export function AlternativeActionsSection() {
         {ACTION_BUTTONS.map((button) => (
           <button
             key={button.id}
-            onClick={() => handleActionClick(button.id)}
-            className="flex-shrink-0 flex items-center gap-2 bg-white/60 border border-romantic-100/50 px-5 py-3 rounded-2xl shadow-sm hover:bg-white transition-colors"
+            onClick={() => handleActionClick(button.link)}
+            className={cn(
+              'shrink-0 flex items-center gap-2 bg-white/60 border border-romantic-100/50 px-5 py-3 rounded-2xl shadow-sm hover:bg-white transition-colors',
+              {
+                'cursor-pointer': Boolean(button.link),
+              },
+            )}
           >
             <span className="material-symbols-outlined text-lg text-romantic-400">
               {button.icon}

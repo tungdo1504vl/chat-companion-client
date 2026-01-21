@@ -93,7 +93,7 @@ export default function PartnerChatPageClientDemo({
     {
       enabled,
       queryKeys: [partnerId],
-    }
+    },
   );
 
   const isLoadingPartnerData = false;
@@ -103,7 +103,7 @@ export default function PartnerChatPageClientDemo({
   function setNewMessageState(
     queryKey: string[],
     newMessage: Message,
-    options?: TSendMessageOptions
+    options?: TSendMessageOptions,
   ) {
     const { isResend = false } = options || {};
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -125,14 +125,14 @@ export default function PartnerChatPageClientDemo({
     };
     queryClient.setQueryData(
       ['compute', TASK_TYPE.RELATIONSHIP_CHAT_HISTORY, partnerId],
-      newQueryData
+      newQueryData,
     );
   }
 
   const handleSend = async (
     _userId: string,
     _partnerId: string,
-    options?: TSendMessageOptions
+    options?: TSendMessageOptions,
   ) => {
     // Disabled for demo - messages are hardcoded
     return;
@@ -416,8 +416,7 @@ export default function PartnerChatPageClientDemo({
           <div className="flex items-center gap-2">
             <ChatInput
               inputValue={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onInputChange={(e) => setInputValue(e.target.value)}
             />
             <Button
               onClick={() => {
