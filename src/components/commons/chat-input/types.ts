@@ -2,6 +2,7 @@ export interface ChatInputData {
   text: string;
   images: string[]; // Array of base64 strings
   audio: string | null; // Base64 string or null
+  audioString?: string | null;
 }
 
 export interface ChatInputProps {

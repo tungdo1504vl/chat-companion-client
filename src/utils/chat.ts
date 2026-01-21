@@ -50,12 +50,22 @@ export function formatImageBase64(base64: string): string {
   const prefix = 'data:image/png;base64,';
   if (!base64) return '';
 
+  // If it's a public URL (starts with /images/), return it directly
+  if (base64.startsWith('/images/')) {
+    return base64;
+  }
+
   return IMAGE_DATA_URI_REGEX.test(base64) ? base64 : prefix + base64.trim();
 }
 
 export function formatAudioBase64(base64: string): string {
   const prefix = 'data:audio/webm;base64,';
   if (!base64) return '';
+
+  // If it's a public URL (starts with /audio/), return it directly
+  if (base64.startsWith('/audio/')) {
+    return base64;
+  }
 
   return AUDIO_DATA_URI_REGEX.test(base64) ? base64 : prefix + base64.trim();
 }

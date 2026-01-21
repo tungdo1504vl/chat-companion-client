@@ -1,0 +1,497 @@
+'use client';
+
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import {
+  Mic,
+  Square,
+  Play,
+  Pause,
+  Volume2,
+  RotateCcw,
+  X,
+  MessageSquare,
+} from 'lucide-react';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from 'react-speech-recognition';
+import { useCommonCompute } from '@/hooks/use-compute';
+import { TCommonPayload } from '@/types/common';
+import { TASK_TYPE } from '@/constants/task';
+import { useSession } from '@/libs/better-auth/client';
+import { useParams } from 'next/navigation';
+import { cn } from '@/libs/tailwind/utils';
+
+const PARTNER_AVATAR_MEN = '/images/partner-men.png';
+const PARTNER_AVATAR_WOMEN = '/images/partner-women.jpeg';
+
+interface InteractiveModalProps {
+  open: boolean;
+  onClose?: () => void;
+  partnerName?: string;
+  partnerAvatar?: string;
+  partnerGender?: string;
+}
+
+const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
+  open,
+  onClose,
+  partnerName = 'Partner',
+  partnerAvatar,
+  partnerGender,
+}) => {
+  const [finalTranscript, setFinalTranscript] = useState('');
+  const [audioSrc, setAudioSrc] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAvatarHovered, setIsAvatarHovered] = useState(false);
+  const audioRef = React.useRef<HTMLAudioElement>(null);
+  const audioRef2 = React.useRef<HTMLAudioElement>(null);
+  const micBtnRef = React.useRef<HTMLButtonElement>(null);
+  const mutateInteractive = useCommonCompute();
+  const { data: session } = useSession();
+  const params = useParams<{ id: string }>();
+  const partnerId = params.id;
+  const userId = session?.user.id;
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     micBtnRef.current?.click();
+  //   }, 2000);
+  //   setTimeout(() => {
+  //     audioRef2.current?.play();
+  //   }, 5000);
+  // }, []);
+
+  const handleInteractive = useCallback(
+    async (text: string) => {
+      if (!userId || !partnerId) return;
+      setIsLoading(true);
+      setAudioSrc(null);
+      try {
+        const userText = text;
+        const payload: TCommonPayload = {
+          task_type: TASK_TYPE.PARTNER_VOICE_SYNTHESIZE,
+          input_args: {
+            user_id: userId,
+            partner_id: partnerId,
+            generate_from_chat: false,
+            user_message: userText,
+          },
+          priority: 'high',
+        };
+        const res = await mutateInteractive.mutateAsync(payload);
+        console.log('mutateInteractive res:', res);
+        if (res.result?.synthesis?.audio_base64) {
+          const audioBase64 = res.result?.synthesis?.audio_base64;
+          const audioFormat = res.result?.synthesis?.audio_format || 'wav';
+          // Convert base64 to data URL
+          const dataUrl = `data:audio/${audioFormat};base64,${audioBase64}`;
+          setAudioSrc(dataUrl);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [mutateInteractive, userId, partnerId],
+  );
+
+  useEffect(() => {
+    if (!listening && transcript) {
+      // When recording stops, save the final transcript
+      setFinalTranscript(transcript);
+    }
+  }, [listening, transcript]);
+
+  // Reset when modal closes
+  useEffect(() => {
+    if (!open) {
+      if (listening) {
+        SpeechRecognition.stopListening();
+      }
+      resetTranscript();
+      setFinalTranscript('');
+      // Stop audio and reset audio state
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      setAudioSrc(null);
+      setIsPlaying(false);
+      setIsLoading(false);
+    }
+  }, [open, listening, resetTranscript]);
+
+  // Handle audio events
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleEnded = () => {
+      setIsPlaying(false);
+      audio.currentTime = 0;
+    };
+
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, [audioSrc]);
+
+  // Auto play audio when audioSrc is set
+  useEffect(() => {
+    if (audioSrc && audioRef.current) {
+      audioRef.current.play().catch((error) => {
+        console.error('Error playing audio:', error);
+      });
+    }
+  }, [audioSrc]);
+
+  const handlePlayAudio = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+    }
+  };
+
+  const handleStartRecording = () => {
+    if (!browserSupportsSpeechRecognition) {
+      console.error('Browser does not support speech recognition');
+      return;
+    }
+    resetTranscript();
+    setFinalTranscript('');
+    // Reset audio when starting new recording
+    setAudioSrc(null);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    setIsPlaying(false);
+    SpeechRecognition.startListening({
+      continuous: true,
+      language: 'vi-VN',
+    });
+  };
+
+  const handleStopRecording = () => {
+    SpeechRecognition.stopListening();
+    // Get current transcript and debounce log after 1 second
+    const currentTranscript = transcript || finalTranscript;
+    if (currentTranscript) {
+      console.log('currentTranscript:', currentTranscript);
+      setFinalTranscript(currentTranscript);
+      handleInteractive(currentTranscript);
+    } else {
+      // toast.info('No audio detected. Please try speaking again.');
+    }
+  };
+
+  const handleMicClick = () => {
+    if (listening) {
+      handleStopRecording();
+    } else {
+      handleStartRecording();
+    }
+  };
+
+  const handleClose = () => {
+    // Stop recording immediately when modal closes
+    if (listening) {
+      SpeechRecognition.stopListening();
+    }
+    // Call the original onClose callback
+    onClose?.();
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    // Only stop recording if modal is being closed
+    if (!open) {
+      // Stop recording immediately when modal closes
+      if (listening) {
+        SpeechRecognition.stopListening();
+      }
+    }
+    // Call the original onClose callback
+    onClose?.();
+  };
+
+  const partnerAvatarUrl = useMemo(() => {
+    if (!partnerAvatar) {
+      return partnerGender === 'Male'
+        ? PARTNER_AVATAR_WOMEN
+        : PARTNER_AVATAR_MEN;
+    }
+    return partnerAvatar;
+  }, [partnerAvatar, partnerGender]);
+
+  const subjectName = useMemo(() => {
+    if (partnerGender === 'Male') return 'HE';
+    return 'SHE';
+  }, [partnerGender]);
+
+  const objectName = useMemo(() => {
+    if (partnerGender === 'Male') return 'her';
+    return 'him';
+  }, [partnerGender]);
+
+  const microRingClass =
+    'before:content-[""] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-20 before:h-20 before:rounded-full before:border-2 before:border-white/60 before:pointer-events-none before:z-0 after:content-[""] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-20 after:h-20 after:rounded-full after:border-2 after:border-white/60 after:pointer-events-none after:z-0';
+
+  const partnerRingClass =
+    'before:content-[""] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-64 before:h-64 before:rounded-full before:border-2 before:border-white/60 before:pointer-events-none before:z-0 after:content-[""] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-64 after:h-64 after:rounded-full after:border-2 after:border-white/60 after:pointer-events-none after:z-0';
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className="max-w-[100vw] border-none max-h-screen w-full h-full m-0 rounded-none p-6 flex flex-col"
+        showCloseButton={false}
+      >
+        <VisuallyHidden>
+          <DialogTitle>Title</DialogTitle>
+        </VisuallyHidden>
+        {/* Background Gradient - Always brown */}
+        <div
+          className="absolute inset-0 z-0 transition-all duration-500"
+          style={{
+            background:
+              'radial-gradient(circle at 50% 30%, #5E3B32 0%, #261613 90%)',
+          }}
+        />
+        {/* Audio */}
+        <audio ref={audioRef2} src={'/full_demo.wav'} />
+        {/* Top Section - Header with icon and prompt */}
+        <div className="relative pt-8 px-6 pb-4 z-10">
+          {/* Speech bubble icon in top right */}
+          <div className="absolute top-1 right-2 w-10 h-10 rounded-full bg-gray-200/30 flex items-center justify-center">
+            <button
+              onClick={handleClose}
+              className="p-2 rounded-full hover:bg-white/20 transition-colors"
+              aria-label="Close"
+            >
+              <MessageSquare className="size-5 text-gray-100" />
+            </button>
+          </div>
+
+          {/* Main prompt */}
+          <div className="text-center mt-4">
+            <h1 className="text-2xl font-serif font-bold text-white mb-3">
+              Simulating {partnerName || 'Sarah'}'s reactions
+            </h1>
+            <p className="text-base font-serif italic text-white/90">
+              Based on her personality profile
+            </p>
+          </div>
+        </div>
+
+        {/* Middle Section - Partner Avatar */}
+        <div className="flex-1 flex items-center justify-center px-6 pb-4 z-10">
+          <div
+            className="relative"
+            onMouseEnter={() => setIsAvatarHovered(true)}
+            onMouseLeave={() => setIsAvatarHovered(false)}
+          >
+            {/* Circular frame with gradient border */}
+            <div
+              className={cn(
+                'partner-ring-wrapper relative w-64 h-64 rounded-full p-1 bg-[#503e39]',
+                isPlaying && partnerRingClass,
+              )}
+            >
+              <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center">
+                {partnerAvatarUrl ? (
+                  <img
+                    src={partnerAvatarUrl}
+                    alt={partnerName}
+                    className="object-cover rounded-full w-full"
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full bg-linear-to-br from-pink-200 to-pink-300 flex items-center justify-center text-6xl font-semibold text-pink-700">
+                    {partnerName.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+
+              {/* Play/Pause overlay - only show when audioSrc exists and hovered */}
+              {audioSrc && (
+                <div
+                  className={`absolute inset-0 rounded-full bg-black/40 flex items-center justify-center transition-opacity duration-200 ${
+                    isAvatarHovered ? 'opacity-100' : 'opacity-0'
+                  }`}
+                >
+                  <button
+                    onClick={handlePlayAudio}
+                    className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center hover:bg-white transition-colors shadow-lg"
+                    aria-label={isPlaying ? 'Pause' : 'Play'}
+                  >
+                    {isPlaying ? (
+                      <Pause className="size-8 text-[#5C4A3A]" fill="#5C4A3A" />
+                    ) : (
+                      <Play className="size-8 text-[#5C4A3A]" fill="#5C4A3A" />
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Section - Controls */}
+        <div className="pb-9 px-6 z-10">
+          {!browserSupportsSpeechRecognition ? (
+            <div className="text-center">
+              <p className="text-lg text-white font-semibold">
+                Your browser does not support recording feature
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Microphone/Stop Button */}
+              <div className="flex flex-col items-center gap-3">
+                <div
+                  className={cn(
+                    'relative flex items-center justify-center w-32 h-32 microphone-ring-wrapper',
+                    listening && microRingClass,
+                  )}
+                >
+                  <Button
+                    ref={micBtnRef}
+                    onClick={handleMicClick}
+                    className={cn(
+                      'relative h-20 min-h-20! w-20 rounded-full shadow-lg transition-all active:scale-95 overflow-hidden z-10',
+                      {
+                        'bg-[#C9A882] hover:bg-[#B8956F]': listening,
+                        'bg-[#D4B8A0] hover:bg-[#C9A882]': !listening,
+                        'opacity-50 cursor-not-allowed':
+                          !browserSupportsSpeechRecognition || isLoading,
+                        'cursor-pointer': !(
+                          !browserSupportsSpeechRecognition || isLoading
+                        ),
+                      },
+                    )}
+                    disabled={!browserSupportsSpeechRecognition || isLoading}
+                  >
+                    <Mic className="size-8 text-[#5C4A3A]" />
+                  </Button>
+                </div>
+
+                {/* Instruction text - hide when loading */}
+                {!isLoading && (
+                  <p className="text-xs uppercase text-white font-medium tracking-wider">
+                    {listening
+                      ? `RECORDING... CLICK TO STOP.`
+                      : `CLICK TO SPEAK. SHE'S LISTENING.`}
+                  </p>
+                )}
+
+                {/* Control icons */}
+                <div className="flex items-center gap-4 mt-2">
+                  {/* Speaker/Volume icon */}
+                  {audioSrc && (
+                    <button
+                      onClick={handlePlayAudio}
+                      className="p-2 rounded-full hover:bg-white/20 transition-colors"
+                      aria-label="Play audio"
+                    >
+                      <Volume2 className="size-5 text-gray-300" />
+                    </button>
+                  )}
+
+                  {/* Stop icon */}
+                  {listening && (
+                    <button
+                      onClick={handleStopRecording}
+                      className="p-2 rounded-full hover:bg-white/20 transition-colors"
+                      aria-label="Close"
+                      disabled={isLoading}
+                    >
+                      <Square className="size-5 text-gray-300" />
+                    </button>
+                  )}
+
+                  {/* Refresh/Redo icon - disabled when loading */}
+                  <button
+                    onClick={() => {
+                      // Stop recording if currently recording
+                      if (listening) {
+                        SpeechRecognition.stopListening();
+                      }
+                      // Reset all transcript states
+                      resetTranscript();
+                      setFinalTranscript('');
+                      // Reset audio states
+                      setAudioSrc(null);
+                      if (audioRef.current) {
+                        audioRef.current.pause();
+                        audioRef.current.currentTime = 0;
+                      }
+                      setIsPlaying(false);
+                      // Reset loading state
+                      setIsLoading(false);
+                    }}
+                    disabled={isLoading}
+                    className={`p-2 rounded-full transition-colors ${
+                      isLoading
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'hover:bg-white/20 cursor-pointer'
+                    }`}
+                    aria-label="Reset"
+                  >
+                    <RotateCcw className="size-5 text-gray-300" />
+                  </button>
+
+                  {/* Close icon */}
+                  <button
+                    onClick={handleClose}
+                    className="p-2 rounded-full hover:bg-white/20 transition-colors"
+                    aria-label="Close"
+                    disabled={isLoading}
+                  >
+                    <X className="size-5 text-gray-300" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Status messages */}
+              {isLoading && (
+                <div className="text-center mt-4">
+                  <p className="text-xl font-semibold text-white animate-pulse">
+                    Waiting for response...
+                  </p>
+                </div>
+              )}
+
+              {/* Hidden audio element */}
+              {audioSrc && <audio ref={audioRef} src={audioSrc} />}
+            </>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default InteractiveModalDemo;

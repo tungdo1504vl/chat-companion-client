@@ -273,15 +273,10 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
         setIsRecording(false);
         isRecordingRef.current = false;
 
-        // Save transcript
+        // Save transcript to audioString instead of input
         setRecordedTranscript(finalText);
 
-        // Set the transcript to the input
-        const syntheticEvent = {
-          target: { value: finalText },
-        } as React.ChangeEvent<HTMLInputElement>;
-        onInputChange(syntheticEvent);
-
+        // Don't set transcript to input - it will be passed via audioString in ChatInputData
         finalTranscriptRef.current = '';
         setTranscript('');
       } catch (error) {
@@ -380,7 +375,7 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
       });
     };
 
-    // Get current data (text, images base64, audio base64)
+    // Get current data (text, images base64, audio base64, audioString)
     const getCurrentData = async (): Promise<ChatInputData> => {
       const imageBase64s = await Promise.all(
         imageFiles.map((imageFile) => fileToBase64(imageFile.file)),
@@ -390,6 +385,7 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
         text: inputValue,
         images: imageBase64s,
         audio: audioBase64,
+        audioString: recordedTranscript || null,
       };
     };
 
@@ -409,7 +405,7 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
       }
     };
 
-    // Call onDataChange when text, images, or audio changes
+    // Call onDataChange when text, images, audio, or audioString changes
     useEffect(() => {
       if (!onDataChange) return;
 
@@ -423,6 +419,7 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
           text: inputValue,
           images: imageBase64s,
           audio: audioBase64,
+          audioString: recordedTranscript || null,
         };
         console.log('data:', data);
 
@@ -430,7 +427,7 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
       };
 
       updateData();
-    }, [inputValue, imageFiles, audioBase64, onDataChange]);
+    }, [inputValue, imageFiles, audioBase64, recordedTranscript, onDataChange]);
 
     // Cleanup ObjectURLs on unmount
     useEffect(() => {
