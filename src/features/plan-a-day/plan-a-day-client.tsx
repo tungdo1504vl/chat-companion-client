@@ -127,7 +127,6 @@ export function PlanADayClient({ partnerProfile }: PlanADayClientProps) {
       <PageHeader
         title="DATING ASSISTANT"
         onBackClick={() => router.back()}
-        onMenuClick={() => {}}
         className="px-6 pt-4"
       />
 

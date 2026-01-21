@@ -59,7 +59,7 @@ export default function PartnersPage() {
 
   return (
     <>
-      <PageHeader title="relationships" onBackClick={handleBack} />
+      <PageHeader title="Relationships" onBackClick={handleBack} />
       <main className="flex-1 px-6 pb-24 overflow-y-auto overflow-x-hidden bg-(--color-background-light) dark:bg-(--color-background-dark)">
         {/* Title Section */}
         <div className="text-center mb-10 pt-6">
@@ -75,7 +75,10 @@ export default function PartnersPage() {
         <div className="flex justify-center mb-8 relative">
           <div className="absolute inset-0 bg-primary opacity-10 blur-3xl rounded-full transform scale-150"></div>
           <div className="relative w-24 h-24 rounded-full bg-white dark:bg-(--color-card-dark) p-1 shadow-sm flex items-center justify-center border border-border saturate-[0.85] contrast-[1.1]">
-            <Heart className="text-5xl text-primary/80 fill-primary/20" size={48} />
+            <Heart
+              className="text-5xl text-primary/80 fill-primary/20"
+              size={48}
+            />
           </div>
         </div>
 
@@ -102,8 +105,12 @@ export default function PartnersPage() {
                   onClick={() => {
                     router.push(buildWinACrushRoute(partner.partner_id));
                   }}
-                  onMouseEnter={() => preloadRoute(buildWinACrushRoute(partner.partner_id))}
-                  onTouchStart={() => preloadRoute(buildWinACrushRoute(partner.partner_id))}
+                  onMouseEnter={() =>
+                    preloadRoute(buildWinACrushRoute(partner.partner_id))
+                  }
+                  onTouchStart={() =>
+                    preloadRoute(buildWinACrushRoute(partner.partner_id))
+                  }
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
@@ -122,7 +129,9 @@ export default function PartnersPage() {
                           />
                         ) : null}
                         <AvatarFallback className="bg-muted text-foreground">
-                          {getInitials(partner.partner_profile?.basic_info?.name)}
+                          {getInitials(
+                            partner.partner_profile?.basic_info?.name,
+                          )}
                         </AvatarFallback>
                       </Avatar>
                       <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-400 border-2 border-white dark:border-(--color-card-dark) rounded-full"></div>
@@ -135,11 +144,16 @@ export default function PartnersPage() {
                       <p className="text-sm text-(--color-text-sub-light) dark:text-(--color-text-sub-dark)">
                         {partner.partner_profile?.basic_info?.age}
                         {(() => {
-                          const city = partner.partner_profile?.basic_info?.city_of_birth;
-                          const countryCode = partner.partner_profile?.basic_info?.country_of_birth;
+                          const city =
+                            partner.partner_profile?.basic_info?.city_of_birth;
+                          const countryCode =
+                            partner.partner_profile?.basic_info
+                              ?.country_of_birth;
                           const country = getCountryName(countryCode);
                           const locationParts = [city, country].filter(Boolean);
-                          return locationParts.length > 0 ? ` | ${locationParts.join(', ')}` : '';
+                          return locationParts.length > 0
+                            ? ` | ${locationParts.join(', ')}`
+                            : '';
                         })()}
                       </p>
                     </div>
@@ -157,7 +171,11 @@ export default function PartnersPage() {
                           <ChevronRight className="size-5 shrink-0" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent align='start' className="max-w-40 p-2" onClick={(e) => e.stopPropagation()}>
+                      <PopoverContent
+                        align="start"
+                        className="max-w-40 p-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <div className="flex flex-col gap-1.5">
                           <button
                             type="button"
@@ -165,11 +183,19 @@ export default function PartnersPage() {
                             onClick={(e) => {
                               e.stopPropagation();
                               router.push(
-                                buildPartnerDetailRoute(partner.partner_id)
+                                buildPartnerDetailRoute(partner.partner_id),
                               );
                             }}
-                            onMouseEnter={() => preloadRoute(buildPartnerDetailRoute(partner.partner_id))}
-                            onTouchStart={() => preloadRoute(buildPartnerDetailRoute(partner.partner_id))}
+                            onMouseEnter={() =>
+                              preloadRoute(
+                                buildPartnerDetailRoute(partner.partner_id),
+                              )
+                            }
+                            onTouchStart={() =>
+                              preloadRoute(
+                                buildPartnerDetailRoute(partner.partner_id),
+                              )
+                            }
                           >
                             <InfoIcon className="size-5 text-muted-foreground shrink-0" />
                             <span>View Detail</span>
@@ -209,7 +235,9 @@ export default function PartnersPage() {
             </div>
           ) : (
             <div className="text-center py-12 text-(--color-text-sub-light) dark:text-(--color-text-sub-dark)">
-              <p className="text-sm">No partners yet. Create your first partner profile!</p>
+              <p className="text-sm">
+                No partners yet. Create your first partner profile!
+              </p>
             </div>
           )}
         </div>
@@ -224,8 +252,10 @@ export default function PartnersPage() {
             onMouseEnter={() => preloadRoute(ASSISTANT_ROUTES.PARTNER_CREATE)}
             onTouchStart={() => preloadRoute(ASSISTANT_ROUTES.PARTNER_CREATE)}
           >
-            <Heart className="text-3xl group-hover:animate-pulse motion-reduce:animate-none"
-              size={24} />
+            <Heart
+              className="text-3xl group-hover:animate-pulse motion-reduce:animate-none"
+              size={24}
+            />
             <span className="font-bold text-lg tracking-wide">
               Create a partner profile
             </span>
@@ -236,6 +266,5 @@ export default function PartnersPage() {
         </div>
       </main>
     </>
-
   );
 }

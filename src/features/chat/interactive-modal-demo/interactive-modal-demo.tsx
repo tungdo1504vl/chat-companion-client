@@ -27,7 +27,9 @@ import { FAKE_INTERACTIVE_DATA } from '@/constants/fake-data';
 import { promiseHelper } from '@/utils/promise';
 
 const PARTNER_AVATAR_MEN = '/images/partner-men.png';
-const PARTNER_AVATAR_WOMEN = '/images/partner-women.jpeg';
+// const PARTNER_AVATAR_WOMEN = '/images/partner-women.jpeg';
+const PARTNER_AVATAR_WOMEN =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuDFBu7ihKfRsIjq6dEDQDkTqn4LzycaeVwJi-A8kD9EBRvazPeVl5o7enP19JsooIn6KBCFf-gl-JkhWnsJIfsQ1vb7ie0Jz2NOWaM_jCk9v15OTwILMkpv1yMyGNWoQ2mJIxRKZ9pzLAB32lk_5W15IJubeE7TcRxF2w1OrZLPJejDL_6KU3b_74wVpY8yoj2ejsuWIsNNDEYCwSF27MqvL_RjMapch817j9wSP9qmTFL5Sog3s2uXlxVubLske_JWd_TbNqcD8w';
 
 interface InteractiveModalProps {
   open: boolean;

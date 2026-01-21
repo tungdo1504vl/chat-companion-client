@@ -112,7 +112,6 @@ export function GiftSuggestClient({ partnerProfile }: GiftSuggestClientProps) {
       <PageHeader
         title=""
         onBackClick={() => router.back()}
-        onMenuClick={() => {}}
         className="px-6 pt-4"
       />
       {/* Body */}
