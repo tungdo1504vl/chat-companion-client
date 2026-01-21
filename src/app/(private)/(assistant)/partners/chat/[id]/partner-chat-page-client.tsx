@@ -35,7 +35,7 @@ import {
   formatImageBase64,
   formatUserInput,
 } from '@/utils/chat';
-import { AudioPlayer } from '@/components/commons/audio-player';
+import { AudioPlayerUI } from '@/components/commons/audio-player-ui';
 import { cn } from '@/libs/tailwind/utils';
 
 const ScrollToBottom = dynamic(() => import('react-scroll-to-bottom'), {
@@ -481,7 +481,7 @@ export default function PartnerChatPageClient({
                               )}
                               {messageType === 'audio' && messageDataBase64 && (
                                 <p className="w-1/2">
-                                  <AudioPlayer
+                                  <AudioPlayerUI
                                     hasBg={true}
                                     src={formatAudioBase64(messageDataBase64)}
                                   />
