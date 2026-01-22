@@ -428,9 +428,34 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
           type: 'text',
         },
         {
-          id: `evaluation-positive-${timestamp}`,
+          id: `evaluation-positive-1-${timestamp}`,
+          content: 'Bạn làm tốt hai điều rất quan trọng với Quyên.',
+          role: 'assistant',
+          isEvaluateMsg: true,
+          timestamp,
+          type: 'text',
+        },
+        {
+          id: `evaluation-positive-2-${timestamp}`,
+          content: 'Bạn chọn không gian đúng.',
+          role: 'assistant',
+          isEvaluateMsg: true,
+          timestamp,
+          type: 'text',
+        },
+        {
+          id: `evaluation-positive-3-${timestamp}`,
           content:
-            'Bạn làm tốt ba điều rất quan trọng với Quyên: Bạn chọn không gian đúng Bạn nói rõ cảm xúc của bạn, cho thấy bạn thích Quyên ở điểm nào và cam kết mối quan hệ nghiêm túc Sau khi có sự xác nhận, hãy tiếp tục nói chuyện về các topics cả 2 cùng quan tâm và hãy kể với mình nghe những gì đã xảy ra sau buổi tỏ tình này. Rồi chúng ta cùng lên plan tiếp theo nhé!',
+            'Bạn nói rõ cảm xúc của bạn, cho thấy bạn thích Quyên ở điểm nào và cam kết mối quan hệ nghiêm túc',
+          role: 'assistant',
+          isEvaluateMsg: true,
+          timestamp,
+          type: 'text',
+        },
+        {
+          id: `evaluation-positive-4-${timestamp}`,
+          content:
+            'Sau khi có sự xác nhận, hãy tiếp tục nói chuyện về các topics cả 2 cùng quan tâm và hãy kể với mình nghe những gì đã xảy ra sau buổi tỏ tình này. Rồi chúng ta cùng lên plan tiếp theo nhé!',
           role: 'assistant',
           isEvaluateMsg: true,
           timestamp,

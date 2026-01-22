@@ -371,12 +371,6 @@ export default function PartnerChatPageClientDemoV2({
                                 </div>
                               )}
                             </div>
-                            {/* Show partner name label after user message if next message is from assistant or if this is the last message */}
-                            {(!nextMessage || nextIsAssistant) && (
-                              <span className="text-xs text-[#FFB6C1] mt-1.5 ml-1 uppercase font-medium">
-                                YOU (TYPED)
-                              </span>
-                            )}
                             {/* Encouraging text after user message */}
                             {isLastMessage && (
                               <p className="text-xs text-gray-700  mt-3 text-center w-full">
