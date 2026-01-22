@@ -33,7 +33,7 @@ export const SPLASH_SCREEN_STEP_1_CONFIG: SplashScreenStepConfig = {
     main: "From Anxious to",
     highlight: "Secure",
   },
-  description: "Shift from anxious attachment to a secure, loving bond.",
+  description: "Shift from anxious attachment to a secure, loving bond",
   button: {
     text: "Continue",
   },
@@ -41,7 +41,7 @@ export const SPLASH_SCREEN_STEP_1_CONFIG: SplashScreenStepConfig = {
 
 export const SPLASH_SCREEN_STEP_2_CONFIG: SplashScreenStepConfig = {
   badge: {
-    text: "YOUR JOURNEY",
+    text: "",
     className: "text-primary font-bold tracking-[0.2em] text-xs uppercase",
   },
   avatar: {
@@ -50,10 +50,10 @@ export const SPLASH_SCREEN_STEP_2_CONFIG: SplashScreenStepConfig = {
     size: 128,
   },
   heading: {
-    main: "From Anxious to",
-    highlight: "Secure",
+    main: "Your Heart's",
+    highlight: "Radiant",
   },
-  description: "Help you build solid plan in every stage of your relationship",
+  description: "Unlock the secrets to deep, meaningful connections in every part of your life",
   button: {
     text: "Continue",
   },

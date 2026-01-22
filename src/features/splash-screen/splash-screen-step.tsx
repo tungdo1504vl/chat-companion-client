@@ -35,12 +35,24 @@ export default function SplashScreenStep({
             </div>
           </div>
           <h1 className="font-display text-4xl md:text-5xl text-center font-bold mb-6 leading-tight text-gray-900 dark:text-gray-100">
-            {config.heading.main} <br />{" "}
-            <span className="text-primary ">
-              {config.heading.highlight}
-            </span>
+            {config.heading.main === "Your Heart's" ? (
+              <>
+                Your Heart's <br /> Best{" "}
+                <span className="text-primary italic">
+                  {config.heading.highlight}
+                </span>{" "}
+                Companion
+              </>
+            ) : (
+              <>
+                {config.heading.main} <br />{" "}
+                <span className="text-primary ">
+                  {config.heading.highlight}
+                </span>
+              </>
+            )}
           </h1>
-          <p className="text-center text-text-sub-light dark:text-text-sub-dark font-display mb-4 text-base md:text-lg opacity-90 leading-relaxed max-w-[280px]">
+          <p className="text-center text-text-sub-light dark:text-text-sub-dark font-display mb-4 text-lg md:text-xl opacity-90 leading-relaxed max-w-[340px]">
             {config.description}
           </p>
         </div>
