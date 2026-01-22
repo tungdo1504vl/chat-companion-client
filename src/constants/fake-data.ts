@@ -366,7 +366,7 @@ export const FAKE_MESSAGE_LIST = [
 export const FAKE_MESSAGE_RESPONSE = [
   {
     content:
-      "It sounds like you might be testing out the audio feature or trying to share a recording, which I appreciate. However, to help you with your crush plan, I still need the exact message you're thinking of sending to your partner or crush. Please type out the words you want to send so I can provide the best, most personalized guidance.",
+      'Theo mình thấy khả năng cao Quyên cũng thích bạn, hai bạn thường xuyên trò chuyện muộn với nhau, chia sẻ cuộc sống với nhau và năng lượng của cả 2 cũng rất hợp. Bạn có muốn thử bày tỏ trước để xem nên nói gì không.',
     type: 'text',
     timestamp: '2026-01-21T02:30:53.210465+00:00',
     role: 'assistant',
@@ -374,7 +374,7 @@ export const FAKE_MESSAGE_RESPONSE = [
   },
   {
     content:
-      "Thank you for sharing another image. It seems this screenshot, like the previous ones, is still showing a general chat interface, specifically a 'Hello' and 'Hey, what's up?' exchange. While I understand you're trying to show me something, I'm unable to see the specific personal message you're considering sending. To give you the best, personalized advice for your unique situation, I really need you to type out the exact words of the message you have in mind.",
+      'Theo mình thấy khả năng cao Quyên cũng thích bạn, hai bạn thường xuyên trò chuyện muộn với nhau, chia sẻ cuộc sống với nhau và năng lượng của cả 2 cũng rất hợp. Bạn có muốn thử bày tỏ trước để xem nên nói gì không.',
     type: 'text',
     timestamp: '2026-01-21T02:28:56.245323+00:00',
     role: 'assistant',
@@ -382,7 +382,7 @@ export const FAKE_MESSAGE_RESPONSE = [
   },
   {
     content:
-      "It's good to hear from you! Your partner's concerns about moving from friendship to romance are very real, and it sounds like they're genuinely scared of losing the special bond you already have if things don't work out. This is a crucial moment, and approaching it with understanding and reassurance can make a big difference in how you both navigate these feelings.",
+      'Theo mình thấy khả năng cao Quyên cũng thích bạn, hai bạn thường xuyên trò chuyện muộn với nhau, chia sẻ cuộc sống với nhau và năng lượng của cả 2 cũng rất hợp. Bạn có muốn thử bày tỏ trước để xem nên nói gì không.',
     type: 'text',
     timestamp: '2026-01-20T10:36:03.286153+00:00',
     role: 'assistant',
