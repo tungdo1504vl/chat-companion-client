@@ -427,10 +427,6 @@ export default function PartnerChatPageClientDemoV2({
           <Button
             className="bg-[#e05e68] h-14! w-full rounded-3xl"
             onClick={() => {
-              if (!existingVoice) {
-                toast.warning('Voice not found');
-                return;
-              }
               setOpenInteractiveModal(true);
               setOpenPopover(false);
             }}
