@@ -196,7 +196,7 @@ export default function PartnerChatPageClientDemoV2({
   // Extract partner info
   const partnerProfile =
     partnerData?.result?.partner_profile || partnerData?.result;
-  const partnerName = partnerProfile?.basic_info?.name || 'Partner';
+  const partnerName = MOCK_PARTNER_PROFILE.name;
   const partnerAvatar = partnerProfile?.basic_info?.avatar_url;
   const partnerGender = partnerProfile?.basic_info?.gender;
 
@@ -243,33 +243,29 @@ export default function PartnerChatPageClientDemoV2({
 
         {/* Partner Info Section */}
         <div className="flex flex-col items-center pt-2 pb-2 px-4 z-10">
-          {!isLoadingPartnerData && (
-            <>
-              {/* Partner Avatar */}
-              <Link
-                href={`/partners/${MOCK_PARTNER_PROFILE.id}`}
-                className="relative w-12 h-12 mb-3"
-              >
-                <Image
-                  src={MOCK_PARTNER_PROFILE.avatarUrl || ''}
-                  alt={partnerName}
-                  fill
-                  className="object-cover rounded-full"
-                />
-              </Link>
+          {/* Partner Avatar */}
+          <Link
+            href={`/partners/${MOCK_PARTNER_PROFILE.id}`}
+            className="relative w-12 h-12 mb-3"
+          >
+            <Image
+              src={MOCK_PARTNER_PROFILE.avatarUrl || ''}
+              alt={partnerName}
+              fill
+              className="object-cover rounded-full"
+            />
+          </Link>
 
-              {/* Partner Name */}
-              <h2 className="text-2xl font-semibold text-black mb-1">
-                {partnerName}
-              </h2>
+          {/* Partner Name */}
+          <h2 className="text-2xl font-semibold text-black mb-1">
+            {partnerName}
+          </h2>
 
-              {/* Subtitle */}
-              <p className="text-sm text-gray-400 font-normal mb-4 text-center px-4">
-                Practice what you want to say to crush. I'm here to help you
-                find the way to crush's heart
-              </p>
-            </>
-          )}
+          {/* Subtitle */}
+          <p className="text-sm text-gray-400 font-normal mb-4 text-center px-4">
+            Practice what you want to say to crush. I'm here to help you find
+            the way to crush's heart
+          </p>
         </div>
 
         {/* Chat Messages */}

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Heart, HeartIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { buildPartnerChatRoute } from "@/constants/routes";
+import { Heart, HeartIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { buildPartnerChatRoute } from '@/constants/routes';
 
 type PracticeCardProps = {
   partnerId: string;
@@ -13,7 +13,7 @@ export function PracticeCard({ partnerId }: PracticeCardProps) {
 
   const handlePracticeClick = () => {
     // Navigate to chat screen with query param to open modal
-    router.push(`${buildPartnerChatRoute(partnerId)}?openModal=true`);
+    router.push(`${buildPartnerChatRoute(partnerId)}`);
   };
 
   return (
