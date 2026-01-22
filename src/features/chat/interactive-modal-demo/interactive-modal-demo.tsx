@@ -528,7 +528,7 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
           {/* Main prompt */}
           <div className="text-center mt-4">
             <h1 className="text-2xl font-sans font-bold text-white mb-3">
-              Simulating Bao Quyens reactions
+              Simulating Bao Quyen's reactions
             </h1>
             <p className="text-base font-sans  text-white/90">
               Based on her personality profile
