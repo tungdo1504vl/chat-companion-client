@@ -6,7 +6,7 @@ export const FAKE_MESSAGE_LIST = [
     role: 'user',
   },
   {
-    content: ' Mình thích một người trong công ty, tên Quyên.',
+    content: 'Mình thích một người trong công ty, tên Quyên.',
     type: 'text',
     timestamp: '2026-01-20T10:07:48.821329+00:00',
     role: 'user',
@@ -59,7 +59,7 @@ export const FAKE_MESSAGE_LIST = [
     role: 'user',
   },
   {
-    data_base64: '/images/chat/chat-screenshot-1.png',
+    data_base64: '/images/chat/chat-screenshot-3.png',
     content: 'image attachment: image/png',
     mime_type: 'image/png',
     type: 'image',
@@ -248,7 +248,7 @@ export const FAKE_MESSAGE_LIST = [
     role: 'user',
   },
   {
-    data_base64: '/images/chat/chat-screenshot-1.png',
+    data_base64: '/images/chat/chat-screenshot-4.jpeg',
     content: 'image attachment: image/png',
     mime_type: 'image/png',
     type: 'image',
@@ -256,7 +256,7 @@ export const FAKE_MESSAGE_LIST = [
     role: 'user',
   },
   {
-    data_base64: '/images/chat/chat-screenshot-2.jpg',
+    data_base64: '/images/chat/chat-screenshot-5.webp',
     content: 'image attachment: image/png',
     mime_type: 'image/png',
     type: 'image',
@@ -326,7 +326,7 @@ export const FAKE_MESSAGE_LIST = [
     role: 'user',
   },
   {
-    data_base64: '/images/chat/chat-screenshot-2.jpg',
+    data_base64: '/images/chat/chat-screenshot-5.webp',
     content: 'image attachment: image/png',
     mime_type: 'image/png',
     type: 'image',
@@ -334,7 +334,7 @@ export const FAKE_MESSAGE_LIST = [
     role: 'user',
   },
   {
-    data_base64: '/images/chat/chat-screenshot-1.png',
+    data_base64: '/images/chat/chat-screenshot-6.png',
     content: 'image attachment: image/png',
     mime_type: 'image/png',
     type: 'image',

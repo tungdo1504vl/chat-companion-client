@@ -27,6 +27,8 @@ import { cn } from '@/libs/tailwind/utils';
 import {
   FAKE_INTERACTIVE_DATA_ROUND_ONE,
   FAKE_INTERACTIVE_DATA_ROUND_TWO,
+  FAKE_MESSAGE_LIST,
+  FAKE_MESSAGE_RESPONSE,
 } from '@/constants/fake-data';
 import { promiseHelper } from '@/utils/promise';
 import {
@@ -80,6 +82,10 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isAvatarHovered, setIsAvatarHovered] = useState(false);
   const [interactionIndex, setInteractionIndex] = useState(0);
+  const [messageDataList, setMessageDataList] = useState<Message[]>(
+    FAKE_MESSAGE_LIST as Message[],
+  );
+  const [isLoadingResponse, setIsLoadingResponse] = useState(false);
   const audioRef = React.useRef<HTMLAudioElement>(null);
   const audioRef2 = React.useRef<HTMLAudioElement>(null);
   const micBtnRef = React.useRef<HTMLButtonElement>(null);
@@ -94,11 +100,44 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
     async (text: string) => {
       setIsLoading(true);
       setAudioSrc(null);
+      
+      // Add user message to chat
+      const userMessage: Message = {
+        id: `user-${Date.now()}`,
+        content: text,
+        role: 'user',
+        timestamp: new Date().toISOString(),
+        type: 'text',
+      };
+      setMessageDataList((prev) => [...prev, userMessage]);
+
       try {
         // Simulate API delay
         await promiseHelper.delay(1000);
 
-        // Use appropriate data based on round
+        // Determine questionType (for chat response)
+        // Since this is voice interaction, we'll use 'audio' as questionType
+        const questionType = 'audio';
+
+        // Find response from FAKE_MESSAGE_RESPONSE
+        const response = FAKE_MESSAGE_RESPONSE.find(
+          (msg) => msg.questionType === questionType,
+        );
+
+        // Add assistant response to chat if found
+        if (response) {
+          const assistantMessage: Message = {
+            id: `assistant-${Date.now()}`,
+            content: response.content,
+            role: 'assistant',
+            timestamp: new Date().toISOString(),
+            type: response.type || 'text',
+            questionType: response.questionType,
+          };
+          setMessageDataList((prev) => [...prev, assistantMessage]);
+        }
+
+        // Use appropriate data based on round for audio
         const fakeDataArray =
           round === 1
             ? FAKE_INTERACTIVE_DATA_ROUND_ONE
