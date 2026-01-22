@@ -38,6 +38,8 @@ import {
 } from '@/constants/fake-data';
 import { InteractivePlayer } from '@/components/commons/interactive-player';
 import { promiseHelper } from '@/utils/promise';
+import { MOCK_PARTNER_PROFILE } from '@/stores/partner';
+import Link from 'next/link';
 
 const ScrollToBottom = dynamic(() => import('react-scroll-to-bottom'), {
   ssr: false,
@@ -96,8 +98,6 @@ export default function PartnerChatPageClientDemoV2({
       queryKeys: [partnerId],
     },
   );
-
-  const existingVoice = partnerData?.result?.partner_voice;
 
   const handleSendMessage = async (data: ChatInputData) => {
     if (!userId || !partnerId) return;
@@ -246,20 +246,17 @@ export default function PartnerChatPageClientDemoV2({
           {!isLoadingPartnerData && (
             <>
               {/* Partner Avatar */}
-              <div className="relative w-12 h-12 mb-3">
-                {partnerAvatar ? (
-                  <Image
-                    src={partnerAvatar}
-                    alt={partnerName}
-                    fill
-                    className="object-cover rounded-full"
-                  />
-                ) : (
-                  <div className="w-full h-full rounded-full bg-gradient-to-br from-pink-200 to-pink-300 flex items-center justify-center text-2xl font-semibold text-pink-700">
-                    {partnerName.charAt(0).toUpperCase()}
-                  </div>
-                )}
-              </div>
+              <Link
+                href={`/partners/${MOCK_PARTNER_PROFILE.id}`}
+                className="relative w-12 h-12 mb-3"
+              >
+                <Image
+                  src={MOCK_PARTNER_PROFILE.avatarUrl || ''}
+                  alt={partnerName}
+                  fill
+                  className="object-cover rounded-full"
+                />
+              </Link>
 
               {/* Partner Name */}
               <h2 className="text-2xl font-semibold text-black mb-1">
@@ -423,7 +420,7 @@ export default function PartnerChatPageClientDemoV2({
           />
         </div>
         {/* Practice */}
-        <div className="px-4 bg-[#FFF9F9]">
+        <div className="px-4 bg-white">
           <Button
             className="bg-[#e05e68] h-14! w-full rounded-3xl"
             onClick={() => {

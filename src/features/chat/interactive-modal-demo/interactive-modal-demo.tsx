@@ -37,7 +37,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-const PARTNER_AVATAR_MEN = '/images/partner-men.png';
+// const PARTNER_AVATAR_MEN = '/images/partner-men.png';
 // const PARTNER_AVATAR_WOMEN = '/images/partner-women.jpeg';
 const PARTNER_AVATAR_WOMEN =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuDFBu7ihKfRsIjq6dEDQDkTqn4LzycaeVwJi-A8kD9EBRvazPeVl5o7enP19JsooIn6KBCFf-gl-JkhWnsJIfsQ1vb7ie0Jz2NOWaM_jCk9v15OTwILMkpv1yMyGNWoQ2mJIxRKZ9pzLAB32lk_5W15IJubeE7TcRxF2w1OrZLPJejDL_6KU3b_74wVpY8yoj2ejsuWIsNNDEYCwSF27MqvL_RjMapch817j9wSP9qmTFL5Sog3s2uXlxVubLske_JWd_TbNqcD8w';
@@ -69,7 +69,7 @@ interface InteractiveModalProps {
 const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
   open,
   onClose,
-  partnerName = 'Partner',
+  partnerName = 'Bao Quyen',
   partnerAvatar,
   partnerGender,
   round = 1,
@@ -452,18 +452,8 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
   }
 
   const partnerAvatarUrl = useMemo(() => {
-    if (!partnerAvatar) {
-      return partnerGender === 'Male'
-        ? PARTNER_AVATAR_WOMEN
-        : PARTNER_AVATAR_MEN;
-    }
-    return partnerAvatar;
+    return PARTNER_AVATAR_WOMEN;
   }, [partnerAvatar, partnerGender]);
-
-  const subjectName = useMemo(() => {
-    if (partnerGender === 'Male') return 'HE';
-    return 'SHE';
-  }, [partnerGender]);
 
   const objectName = useMemo(() => {
     if (partnerGender === 'Male') return 'her';
@@ -513,7 +503,7 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
           {/* Main prompt */}
           <div className="text-center mt-4">
             <h1 className="text-2xl font-sans font-bold text-white mb-3">
-              Simulating {partnerName || 'Bao Quyen'}'s reactions
+              Simulating Bao Quyens reactions
             </h1>
             <p className="text-base font-sans  text-white/90">
               Based on her personality profile
@@ -552,8 +542,9 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
               {/* Play/Pause overlay - only show when audioSrc exists and hovered */}
               {audioSrc && (
                 <div
-                  className={`absolute inset-0 rounded-full bg-black/40 flex items-center justify-center transition-opacity duration-200 ${isAvatarHovered ? 'opacity-100' : 'opacity-0'
-                    }`}
+                  className={`absolute inset-0 rounded-full bg-black/40 flex items-center justify-center transition-opacity duration-200 ${
+                    isAvatarHovered ? 'opacity-100' : 'opacity-0'
+                  }`}
                 >
                   <button
                     onClick={handlePlayAudio}
@@ -682,10 +673,11 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
                       setInteractionIndex(0);
                     }}
                     disabled={isLoading || isPartnerPlaying}
-                    className={`p-2 rounded-full transition-colors ${isLoading
-                      ? 'opacity-50 cursor-not-allowed'
-                      : 'hover:bg-white/20 cursor-pointer'
-                      }`}
+                    className={`p-2 rounded-full transition-colors ${
+                      isLoading
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'hover:bg-white/20 cursor-pointer'
+                    }`}
                     aria-label="Reset"
                   >
                     <RotateCcw className="size-5 text-gray-300" />
