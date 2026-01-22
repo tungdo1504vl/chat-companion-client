@@ -149,7 +149,7 @@ export function GiftSuggestClient({ partnerProfile }: GiftSuggestClientProps) {
           <RadioGroup
             value={occasion}
             onValueChange={(value) => setOccasion(value as Occasion)}
-            className="flex gap-2 flex-wrap"
+            className="flex gap-1 flex-wrap"
           >
             {occasionOptions.map((option) => (
               <RadioGroupItem
