@@ -120,7 +120,7 @@ export function LifestyleSnapshotSection({
         </div>
 
         {/* Date Budget Tendency */}
-        <div>
+        {/* <div>
           <div className="flex justify-between items-center mb-4">
             <p className="text-xs font-bold text-slate-400 uppercase">Date Budget Tendency</p>
             <span className="text-[11px] font-bold text-primary">
@@ -142,7 +142,7 @@ export function LifestyleSnapshotSection({
               />
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );
