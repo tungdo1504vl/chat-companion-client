@@ -17,19 +17,41 @@ import {
   RotateCcw,
   X,
   MessageSquare,
+  StarIcon,
 } from 'lucide-react';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import SpeechRecognition, {
   useSpeechRecognition,
 } from 'react-speech-recognition';
 import { cn } from '@/libs/tailwind/utils';
-import { FAKE_INTERACTIVE_DATA } from '@/constants/fake-data';
+import {
+  FAKE_INTERACTIVE_DATA_ROUND_ONE,
+  FAKE_INTERACTIVE_DATA_ROUND_TWO,
+} from '@/constants/fake-data';
 import { promiseHelper } from '@/utils/promise';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const PARTNER_AVATAR_MEN = '/images/partner-men.png';
 // const PARTNER_AVATAR_WOMEN = '/images/partner-women.jpeg';
 const PARTNER_AVATAR_WOMEN =
   'https://lh3.googleusercontent.com/aida-public/AB6AXuDFBu7ihKfRsIjq6dEDQDkTqn4LzycaeVwJi-A8kD9EBRvazPeVl5o7enP19JsooIn6KBCFf-gl-JkhWnsJIfsQ1vb7ie0Jz2NOWaM_jCk9v15OTwILMkpv1yMyGNWoQ2mJIxRKZ9pzLAB32lk_5W15IJubeE7TcRxF2w1OrZLPJejDL_6KU3b_74wVpY8yoj2ejsuWIsNNDEYCwSF27MqvL_RjMapch817j9wSP9qmTFL5Sog3s2uXlxVubLske_JWd_TbNqcD8w';
+
+interface Message {
+  id?: string;
+  content: string;
+  role: 'assistant' | 'user';
+  timestamp: string;
+  data_base64?: string;
+  mime_type?: string;
+  questionType?: string;
+  type?: string;
+  isEvaluateMsg?: boolean;
+  isInteractiveMsg?: boolean;
+}
 
 interface InteractiveModalProps {
   open: boolean;
@@ -37,6 +59,9 @@ interface InteractiveModalProps {
   partnerName?: string;
   partnerAvatar?: string;
   partnerGender?: string;
+  round?: number;
+  onRoundChange?: (round: number) => void;
+  onAppendMessage?: (messages: Message[]) => void;
 }
 
 const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
@@ -45,6 +70,9 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
   partnerName = 'Partner',
   partnerAvatar,
   partnerGender,
+  round = 1,
+  onRoundChange,
+  onAppendMessage,
 }) => {
   const [finalTranscript, setFinalTranscript] = useState('');
   const [audioSrc, setAudioSrc] = useState<string | null>(null);
@@ -70,9 +98,15 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
         // Simulate API delay
         await promiseHelper.delay(1000);
 
-        // Get audio from FAKE_INTERACTIVE_DATA based on current index
-        const currentIndex = interactionIndex % FAKE_INTERACTIVE_DATA.length;
-        const fakeData = FAKE_INTERACTIVE_DATA[currentIndex];
+        // Use appropriate data based on round
+        const fakeDataArray =
+          round === 1
+            ? FAKE_INTERACTIVE_DATA_ROUND_ONE
+            : FAKE_INTERACTIVE_DATA_ROUND_TWO;
+
+        // Get audio from fake data based on current index
+        const currentIndex = interactionIndex % fakeDataArray.length;
+        const fakeData = fakeDataArray[currentIndex];
 
         if (fakeData?.data_base64) {
           // Use the audio path from fake data
@@ -85,7 +119,7 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
         setIsLoading(false);
       }
     },
-    [interactionIndex],
+    [interactionIndex, round],
   );
 
   useEffect(() => {
@@ -111,10 +145,89 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
       setAudioSrc(null);
       setIsPlaying(false);
       setIsLoading(false);
+
+      // If round 1 ended (interactionIndex >= 5), append negative evaluation and move to round 2
+      if (interactionIndex >= 5 && round === 1 && onAppendMessage) {
+        const timestamp = new Date().toISOString();
+        const negativeEvaluation: Message[] = [
+          {
+            id: `interactive-message-1-${timestamp}`,
+            content: 'interactive',
+            role: 'assistant',
+            isInteractiveMsg: true,
+            timestamp,
+            type: 'text',
+          },
+          {
+            id: `evaluation-negative-1-${timestamp}`,
+            content:
+              'Mình cùng nhìn lại nhé. Cuộc nói chuyện này fail ở khoảnh khắc bạn switch từ cảm xúc sang công việc.',
+            role: 'assistant',
+            isEvaluateMsg: true,
+            timestamp,
+            type: 'text',
+          },
+          {
+            id: `evaluation-negative-2-${timestamp}`,
+            content: 'Với Quyên:',
+            role: 'assistant',
+            isEvaluateMsg: true,
+            timestamp,
+            type: 'text',
+          },
+          {
+            id: `evaluation-negative-3-${timestamp}`,
+            content:
+              'khi cô ấy vừa mở không gian để hiểu "bạn đang hỏi điều gì"• mà câu hỏi đó lại bị rút về mức an toàn → cô ấy sẽ cảm thấy bối rối và hơi hụt, Câu "bạn thấy mình thế nào?" mở ra một ngữ cảnh cảm xúc, nhưng việc chuyển sang "làm việc chung thấy sao?" khiến cô ấy không biết mình đang được hỏi với tư cách gì',
+            role: 'assistant',
+            isEvaluateMsg: true,
+            timestamp,
+            type: 'text',
+          },
+        ];
+        console.log('negativeEvaluation:', negativeEvaluation);
+        onAppendMessage(negativeEvaluation);
+        // Move to round 2
+        onRoundChange?.(2);
+      }
+
+      // If round 2 ended (interactionIndex >= 5), append positive evaluation
+      if (interactionIndex >= 5 && round === 2 && onAppendMessage) {
+        const timestamp = new Date().toISOString();
+        const positiveEvaluation: Message[] = [
+          {
+            id: `interactive-message-1-${timestamp}`,
+            content: 'interactive',
+            role: 'assistant',
+            isInteractiveMsg: true,
+            timestamp,
+            type: 'text',
+          },
+          {
+            id: `evaluation-positive-${timestamp}`,
+            content:
+              'Bạn làm tốt ba điều rất quan trọng với Quyên: Bạn chọn không gian đúng Bạn nói rõ cảm xúc của bạn, cho thấy bạn thích Quyên ở điểm nào và cam kết mối quan hệ nghiêm túc Sau khi có sự xác nhận, hãy tiếp tục nói chuyện về các topics cả 2 cùng quan tâm và hãy kể với mình nghe những gì đã xảy ra sau buổi tỏ tình này. Rồi chúng ta cùng lên plan tiếp theo nhé!',
+            role: 'assistant',
+            isEvaluateMsg: true,
+            timestamp,
+            type: 'text',
+          },
+        ];
+        onAppendMessage(positiveEvaluation);
+      }
+
       // Reset interaction index
       setInteractionIndex(0);
     }
-  }, [open, listening, resetTranscript]);
+  }, [
+    open,
+    listening,
+    resetTranscript,
+    interactionIndex,
+    round,
+    onAppendMessage,
+    onRoundChange,
+  ]);
 
   // Handle audio events
   useEffect(() => {
@@ -214,6 +327,90 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
     // Call the original onClose callback
     onClose?.();
   };
+
+  const handleEvaluate = () => {
+    // Stop recording if currently recording
+    if (listening) {
+      SpeechRecognition.stopListening();
+    }
+
+    // Create timestamp once to use for both id and timestamp
+    const timestamp = new Date().toISOString();
+
+    // Determine evaluation message based on round
+    let evaluationMessages: Message[];
+    if (round === 1) {
+      evaluationMessages = [
+        {
+          id: `interactive-message-1-${timestamp}`,
+          content: 'interactive',
+          role: 'assistant',
+          isInteractiveMsg: true,
+          timestamp,
+          type: 'text',
+        },
+        {
+          id: `evaluation-negative-1-${timestamp}`,
+          content:
+            'Mình cùng nhìn lại nhé. Cuộc nói chuyện này fail ở khoảnh khắc bạn switch từ cảm xúc sang công việc.',
+          role: 'assistant',
+          isEvaluateMsg: true,
+          timestamp,
+          type: 'text',
+        },
+        {
+          id: `evaluation-negative-2-${timestamp}`,
+          content: 'Với Quyên:',
+          role: 'assistant',
+          isEvaluateMsg: true,
+          timestamp,
+          type: 'text',
+        },
+        {
+          id: `evaluation-negative-3-${timestamp}`,
+          content:
+            'khi cô ấy vừa mở không gian để hiểu "bạn đang hỏi điều gì"• mà câu hỏi đó lại bị rút về mức an toàn → cô ấy sẽ cảm thấy bối rối và hơi hụt, Câu "bạn thấy mình thế nào?" mở ra một ngữ cảnh cảm xúc, nhưng việc chuyển sang "làm việc chung thấy sao?" khiến cô ấy không biết mình đang được hỏi với tư cách gì',
+          role: 'assistant',
+          isEvaluateMsg: true,
+          timestamp,
+          type: 'text',
+        },
+      ];
+      // Move to round 2
+      onRoundChange?.(2);
+    } else {
+      evaluationMessages = [
+        {
+          id: `interactive-message-1-${timestamp}`,
+          content: 'interactive',
+          role: 'assistant',
+          isInteractiveMsg: true,
+          timestamp,
+          type: 'text',
+        },
+        {
+          id: `evaluation-positive-${timestamp}`,
+          content:
+            'Bạn làm tốt ba điều rất quan trọng với Quyên: Bạn chọn không gian đúng Bạn nói rõ cảm xúc của bạn, cho thấy bạn thích Quyên ở điểm nào và cam kết mối quan hệ nghiêm túc Sau khi có sự xác nhận, hãy tiếp tục nói chuyện về các topics cả 2 cùng quan tâm và hãy kể với mình nghe những gì đã xảy ra sau buổi tỏ tình này. Rồi chúng ta cùng lên plan tiếp theo nhé!',
+          role: 'assistant',
+          isEvaluateMsg: true,
+          timestamp,
+          type: 'text',
+        },
+      ];
+    }
+
+    // Append evaluation message after a short delay to ensure modal is closed
+    setTimeout(() => {
+      onAppendMessage?.(evaluationMessages);
+      onClose?.();
+    }, 100);
+  };
+
+  function getMinInteractiveCount(_round: number) {
+    if (_round === 1) return 1;
+    return 2;
+  }
 
   const partnerAvatarUrl = useMemo(() => {
     if (!partnerAvatar) {
@@ -462,10 +659,35 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
                     onClick={handleClose}
                     className="p-2 rounded-full hover:bg-white/20 transition-colors"
                     aria-label="Close"
-                    disabled={isLoading}
+                    disabled={isLoading || isPartnerPlaying}
                   >
                     <X className="size-5 text-gray-300" />
                   </button>
+
+                  {/* Evaluate conversation - only show when interactionIndex > 1 */}
+                  {interactionIndex > getMinInteractiveCount(round) && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span
+                          className={cn(
+                            'inline-flex items-center justify-center text-primary cursor-help',
+                          )}
+                        >
+                          <button
+                            onClick={handleEvaluate}
+                            className="p-2 rounded-full hover:bg-white/20 transition-colors"
+                            aria-label="Evaluate conversation"
+                            disabled={isLoading || isPartnerPlaying}
+                          >
+                            <StarIcon className="size-5 text-gray-300" />
+                          </button>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="max-w-xs">Evaluate conversation</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
               </div>
 

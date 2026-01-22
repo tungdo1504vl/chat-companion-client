@@ -453,7 +453,6 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
       };
     }, []);
 
-    console.log('imageFiles:', imageFiles);
     return (
       <div className="flex-1 flex flex-col items-center">
         {(imageFiles.length > 0 || audioBase64) && (
