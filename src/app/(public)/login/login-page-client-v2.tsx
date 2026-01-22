@@ -26,7 +26,7 @@ export default function LoginPageClientV2() {
           <div className="relative z-10 flex flex-col gap-6">
             {/* Header */}
             <div className="flex flex-col gap-3 text-center">
-              <h1 className="font-serif text-3xl sm:text-4xl font-semibold text-slate-900 leading-tight">
+              <h1 className="font-sans text-3xl sm:text-4xl font-semibold text-slate-900 leading-tight">
                 Welcome back
               </h1>
               <p className="text-sm sm:text-base text-slate-600 font-medium">

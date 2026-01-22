@@ -67,7 +67,7 @@ export function FormField({
       {helperText && !hasError && (
         <p
           className={cn(
-            "text-[11px] text-text-placeholder mt-2 ml-1 italic",
+            "text-[11px] text-text-placeholder mt-2 ml-1 ",
             helperTextClassName
           )}
         >

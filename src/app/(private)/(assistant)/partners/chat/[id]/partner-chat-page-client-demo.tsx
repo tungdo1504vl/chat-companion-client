@@ -378,7 +378,7 @@ export default function PartnerChatPageClientDemo({
                             )}
                             {/* Encouraging text after user message */}
                             {isLastMessage && (
-                              <p className="text-xs text-gray-700 italic mt-3 text-center w-full">
+                              <p className="text-xs text-gray-700  mt-3 text-center w-full">
                                 You don't have to say it perfectly.
                               </p>
                             )}
@@ -390,7 +390,7 @@ export default function PartnerChatPageClientDemo({
 
                 {/* Show encouraging text when no messages yet */}
                 {!hasMessages && !isLoadingPartnerData && (
-                  <p className="text-xs text-gray-700 italic text-center mt-4">
+                  <p className="text-xs text-gray-700  text-center mt-4">
                     You don't have to say it perfectly.
                   </p>
                 )}

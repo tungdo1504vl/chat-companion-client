@@ -136,7 +136,7 @@ export function GiftSuggestClient({ partnerProfile }: GiftSuggestClientProps) {
 
         {/* Title and Subtitle */}
         <div className="space-y-2 mb-6">
-          <h1 className="text-3xl font-serif font-bold text-foreground">
+          <h1 className="text-3xl font-sans font-bold text-foreground">
             Birthday Gift for Her
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -240,7 +240,7 @@ export function GiftSuggestClient({ partnerProfile }: GiftSuggestClientProps) {
               </div>
 
               {/* Quote */}
-              <p className="text-sm italic text-muted-foreground mb-4 border-[#f5cbe3] border-l-2 pl-2">
+              <p className="text-sm  text-muted-foreground mb-4 border-[#f5cbe3] border-l-2 pl-2">
                 {'"'}
                 {gift.quote}
                 {'"'}

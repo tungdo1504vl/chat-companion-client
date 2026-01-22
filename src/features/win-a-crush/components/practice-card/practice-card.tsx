@@ -23,8 +23,8 @@ export function PracticeCard({ partnerId }: PracticeCardProps) {
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-romantic-50 rounded-full blur-2xl"></div>
 
         <div className="relative z-10 space-y-2 mb-8">
-          <h2 className="text-2xl font-serif text-slate-900">Hear her voice</h2>
-          <h2 className="text-2xl font-serif text-slate-900">
+          <h2 className="text-2xl font-sans text-slate-900">Hear her voice</h2>
+          <h2 className="text-2xl font-sans text-slate-900">
             Feel her reaction
           </h2>
           <p className="text-sm text-slate-500 font-medium">

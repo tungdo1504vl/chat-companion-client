@@ -125,7 +125,7 @@ export function ChemistryInsightSection({
             />
           </div>
           {profile.chemistryScoreDescription && (
-            <p className="text-[11px] text-slate-400 mt-2 italic">
+            <p className="text-[11px] text-slate-400 mt-2 ">
               {profile.chemistryScoreDescription}
             </p>
           )}
@@ -138,7 +138,7 @@ export function ChemistryInsightSection({
           <p className="text-[10px] uppercase font-extrabold text-primary mb-2 tracking-widest">
             What Works Well
           </p>
-          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed italic">
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed ">
             {profile.whatWorksWell}
           </p>
         </div>

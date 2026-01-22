@@ -300,10 +300,10 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
 
           {/* Main prompt */}
           <div className="text-center mt-4">
-            <h1 className="text-2xl font-serif font-bold text-white mb-3">
+            <h1 className="text-2xl font-sans font-bold text-white mb-3">
               Simulating {partnerName || 'Sarah'}'s reactions
             </h1>
-            <p className="text-base font-serif italic text-white/90">
+            <p className="text-base font-sans  text-white/90">
               Based on her personality profile
             </p>
           </div>
@@ -340,9 +340,8 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
               {/* Play/Pause overlay - only show when audioSrc exists and hovered */}
               {audioSrc && (
                 <div
-                  className={`absolute inset-0 rounded-full bg-black/40 flex items-center justify-center transition-opacity duration-200 ${
-                    isAvatarHovered ? 'opacity-100' : 'opacity-0'
-                  }`}
+                  className={`absolute inset-0 rounded-full bg-black/40 flex items-center justify-center transition-opacity duration-200 ${isAvatarHovered ? 'opacity-100' : 'opacity-0'
+                    }`}
                 >
                   <button
                     onClick={handlePlayAudio}
@@ -455,11 +454,10 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
                       setIsLoading(false);
                     }}
                     disabled={isLoading}
-                    className={`p-2 rounded-full transition-colors ${
-                      isLoading
+                    className={`p-2 rounded-full transition-colors ${isLoading
                         ? 'opacity-50 cursor-not-allowed'
                         : 'hover:bg-white/20 cursor-pointer'
-                    }`}
+                      }`}
                     aria-label="Reset"
                   >
                     <RotateCcw className="size-5 text-gray-300" />

@@ -18,7 +18,7 @@ This project is built with the following technologies:
 
 ### Styling
 - **[Tailwind CSS v4](https://tailwindcss.com/)** - Utility-first CSS framework
-- **[Geist Font](https://vercel.com/font)** - Optimized font family
+- **[Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans)** - Primary font family
 
 ### UI Components
 - **[Radix UI](https://www.radix-ui.com/)** - Unstyled, accessible component primitives

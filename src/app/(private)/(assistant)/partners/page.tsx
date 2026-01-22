@@ -59,14 +59,14 @@ export default function PartnersPage() {
 
   return (
     <>
-      <PageHeader title="Relationships" onBackClick={handleBack} />
+      <PageHeader title="" onBackClick={handleBack} />
       <main className="flex-1 px-6 pb-24 overflow-y-auto overflow-x-hidden bg-(--color-background-light) dark:bg-(--color-background-dark)">
         {/* Title Section */}
         <div className="text-center mb-10 pt-6">
-          <h1 className="font-serif text-4xl text-(--color-text-main-light) dark:text-(--color-text-main-dark) mb-3 leading-tight">
+          <h1 className="font-sans text-4xl text-(--color-text-main-light) dark:text-(--color-text-main-dark) mb-3 leading-tight">
             Strategy to win a crush
           </h1>
-          <p className="text-(--color-text-sub-light) dark:text-(--color-text-sub-dark) font-serif italic text-lg">
+          <p className="text-(--color-text-sub-light) dark:text-(--color-text-sub-dark) font-sans text-lg">
             Choose who you're thinking about
           </p>
         </div>

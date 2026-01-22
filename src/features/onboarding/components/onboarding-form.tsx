@@ -63,7 +63,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                     label="Name"
                     htmlFor={field.name}
                     error={field.state.meta.isTouched && field.state.meta.errors ? field.state.meta.errors : undefined}
-                    labelClassName="text-sm font-semibold font-serif text-[#2D2424] dark:text-[#F9FAFB] tracking-wide"
+                    labelClassName="text-sm font-semibold font-sans text-[#2D2424] dark:text-[#F9FAFB] tracking-wide"
                   >
                     <FormInput
                       id={field.name}
@@ -84,7 +84,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                     label="Gender"
                     htmlFor="gender"
                     error={field.state.meta.isTouched && field.state.meta.errors ? field.state.meta.errors : undefined}
-                    labelClassName="text-sm font-semibold font-serif text-[#2D2424] dark:text-[#F9FAFB] tracking-wide"
+                    labelClassName="text-sm font-semibold font-sans text-[#2D2424] dark:text-[#F9FAFB] tracking-wide"
                   >
                     <FormSelect
                       field={field}
@@ -103,7 +103,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                     label="Date of Birth"
                     htmlFor="dob"
                     error={field.state.meta.isTouched && field.state.meta.errors ? field.state.meta.errors : undefined}
-                    labelClassName="text-sm font-semibold font-serif text-[#2D2424] dark:text-[#F9FAFB] tracking-wide"
+                    labelClassName="text-sm font-semibold font-sans text-[#2D2424] dark:text-[#F9FAFB] tracking-wide"
                   >
                     <FormInput
                       id={field.name}
@@ -123,7 +123,7 @@ export default function OnboardingForm(props: Readonly<TOnboardingFormProps>) {
                     label="Country"
                     htmlFor="country"
                     error={field.state.meta.isTouched && field.state.meta.errors.length > 0 ? field.state.meta.errors : undefined}
-                    labelClassName="text-sm font-semibold font-serif text-[#2D2424] dark:text-[#F9FAFB] tracking-wide"
+                    labelClassName="text-sm font-semibold font-sans text-[#2D2424] dark:text-[#F9FAFB] tracking-wide"
                   >
                     <FormSelect
                       field={field}

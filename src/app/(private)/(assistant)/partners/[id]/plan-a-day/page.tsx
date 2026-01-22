@@ -1,5 +1,4 @@
 import { Suspense } from 'react';
-import { WinACrushWrapper } from '../win-a-crush-wrapper';
 import { WinACrushSkeleton } from '@/features/win-a-crush';
 import { PlanADayClient } from '@/features/plan-a-day';
 import { MOCK_PARTNER_PROFILE } from '@/features/profile/partner/const';

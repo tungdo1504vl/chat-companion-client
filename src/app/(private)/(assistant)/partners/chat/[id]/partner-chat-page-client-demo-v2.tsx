@@ -410,7 +410,7 @@ export default function PartnerChatPageClientDemoV2({
                           <div className="flex flex-col items-start">
                             <div className="relative max-w-[85%] rounded-ss-xs rounded-se-2xl rounded-es-2xl rounded-ee-2xl px-4 py-3 bg-white text-foreground ">
                               {messageType === 'text' &&
-                              message.isInteractiveMsg ? (
+                                message.isInteractiveMsg ? (
                                 <InteractivePlayer />
                               ) : (
                                 <p className="text-sm leading-relaxed text-black">
@@ -477,7 +477,7 @@ export default function PartnerChatPageClientDemoV2({
                             )}
                             {/* Encouraging text after user message */}
                             {isLastMessage && (
-                              <p className="text-xs text-gray-700 italic mt-3 text-center w-full">
+                              <p className="text-xs text-gray-700  mt-3 text-center w-full">
                                 You don't have to say it perfectly.
                               </p>
                             )}
@@ -489,7 +489,7 @@ export default function PartnerChatPageClientDemoV2({
 
                 {/* Show encouraging text when no messages yet */}
                 {!hasMessages && !isLoading && (
-                  <p className="text-xs text-gray-700 italic text-center mt-4">
+                  <p className="text-xs text-gray-700  text-center mt-4">
                     You don't have to say it perfectly.
                   </p>
                 )}

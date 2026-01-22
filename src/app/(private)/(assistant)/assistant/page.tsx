@@ -323,11 +323,11 @@ export default function AssistantPage() {
   );
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full bg-background overflow-x-hidden">
       {/* Header */}
       <div className="px-4 pt-6 pb-6">
         <div className="flex items-center justify-between">
-          <TypographyH1 className="text-5xl font-serif font-bold text-foreground">
+          <TypographyH1 className="text-5xl font-sans font-bold text-foreground">
             Your relationship friend
           </TypographyH1>
           <Image
@@ -387,7 +387,7 @@ export default function AssistantPage() {
                   {/* Content */}
                   <div className="size-ful flex flex-col gap-2">
                     <div className="flex justify-start w-full">
-                      <h2 className="font-serif text-2xl font-bold leading-tight pr-12">
+                      <h2 className="font-sans text-2xl font-bold leading-tight pr-12">
                         {feature.title}
                       </h2>
                       {/* Badge */}
@@ -414,7 +414,7 @@ export default function AssistantPage() {
                     <div className="w-10 h-10 rounded-full bg-stone-50/80 shadow-md flex items-center justify-center text-stone-700 shrink-0 mr-3">
                       <Icon className="text-lg" />
                     </div>
-                    <h3 className="font-serif text-lg font-bold text-gray-800 leading-snug pr-6">
+                    <h3 className="font-sans text-lg font-bold text-gray-800 leading-snug pr-6">
                       {feature.title}
                     </h3>
                     <span className="size-fit text-nowrap rounded-2xl  bg-amber-200 px-2 py-1 text-gray-500 text-xs  font-bold uppercase tracking-wider">

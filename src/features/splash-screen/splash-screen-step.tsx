@@ -36,7 +36,7 @@ export default function SplashScreenStep({
           </div>
           <h1 className="font-display text-4xl md:text-5xl text-center font-bold mb-6 leading-tight text-gray-900 dark:text-gray-100">
             {config.heading.main} <br />{" "}
-            <span className="text-primary italic">
+            <span className="text-primary ">
               {config.heading.highlight}
             </span>
           </h1>

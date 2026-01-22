@@ -44,6 +44,9 @@ const relationshipStatusOptions = [
     label: 'Just getting to know each other',
   },
   { value: 'friends' as const, label: 'Friends' },
+  {
+    value: "dating" as const, label: 'Dating'
+  }
 ];
 
 const vibeOptions = [
@@ -401,8 +404,7 @@ export function PlanADayClient({ partnerProfile }: PlanADayClientProps) {
   return (
     <div className="min-h-screen bg-romantic-50 pb-24">
       <PageHeader
-        title="DATING ASSISTANT"
-        smallTitle={true}
+        title=""
         onBackClick={() => router.back()}
         className="px-6 pt-4"
       />
@@ -410,7 +412,7 @@ export function PlanADayClient({ partnerProfile }: PlanADayClientProps) {
       <main className="px-6 pt-6 pb-[140px] space-y-8">
         {/* Header Section */}
         <div className="space-y-2">
-          <h1 className="text-3xl font-serif font-bold text-foreground">
+          <h1 className="text-3xl font-sans font-bold text-foreground">
             Plan a Date with Her
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -470,7 +472,7 @@ export function PlanADayClient({ partnerProfile }: PlanADayClientProps) {
                       field.handleChange(value as RelationshipStatus);
                       field.handleBlur();
                     }}
-                    className="flex gap-2 flex-wrap"
+                    className="flex gap-2 overflow-x-auto hide-scrollbar"
                   >
                     {relationshipStatusOptions.map((option) => (
                       <RadioGroupItem key={option.value} value={option.value}>
@@ -501,7 +503,7 @@ export function PlanADayClient({ partnerProfile }: PlanADayClientProps) {
                       field.handleBlur();
                       updateBudget(form.state.values.timing, value as Vibe);
                     }}
-                    className="flex gap-2 flex-wrap"
+                    className="flex gap-2 overflow-x-auto hide-scrollbar"
                   >
                     {vibeOptions.map((option) => (
                       <RadioGroupItem key={option.value} value={option.value}>
@@ -595,7 +597,7 @@ export function PlanADayClient({ partnerProfile }: PlanADayClientProps) {
         {/* Suggested Plans Section */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-serif font-bold text-foreground">
+            <h2 className="text-2xl font-sans font-bold text-foreground">
               Suggested Plans
             </h2>
             <span className="text-xs text-[#F05D6D]">Swipe for more</span>
@@ -658,7 +660,7 @@ export function PlanADayClient({ partnerProfile }: PlanADayClientProps) {
 
         {/* How it flows Section */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-serif font-bold text-foreground">
+          <h2 className="text-2xl font-sans font-bold text-foreground">
             How it flows
           </h2>
 

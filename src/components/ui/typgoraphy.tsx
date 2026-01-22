@@ -90,7 +90,7 @@ const TypographyBlockquote = React.forwardRef<
   return (
     <blockquote
       ref={ref}
-      className={cn("mt-6 border-l-2 pl-6 italic", className)}
+      className={cn("mt-6 border-l-2 pl-6 ", className)}
       {...props}
     />
   );
@@ -203,7 +203,7 @@ const TypographyInlineCode = React.forwardRef<
     <code
       ref={ref}
       className={cn(
-        "relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold",
+        "relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-sans text-sm font-semibold",
         className
       )}
       {...props}

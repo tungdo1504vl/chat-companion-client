@@ -34,11 +34,11 @@ export function WinACrushHeader({ partnerProfile }: WinACrushHeaderProps) {
           </AvatarFallback>
         </Avatar>
       </div>
-      <h1 className="font-serif text-xl text-slate-900 leading-tight">
+      <h1 className="font-sans text-xl text-slate-900 leading-tight">
         {/* There's something you've been wanting to say to {partnerProfile.name}… */}
         Bao Quyen means the world to you, it's time to let her know
       </h1>
-      <p className="text-romantic-400/90 text-xs mt-1 italic font-medium">
+      <p className="text-romantic-400/90 text-xs mt-1  font-medium">
         Experience a real conversation with her
       </p>
     </header>

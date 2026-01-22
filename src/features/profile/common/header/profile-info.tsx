@@ -73,7 +73,7 @@ export function ProfileInfo({
             <h2 className="font-display text-3xl font-bold tracking-tight">
               {name}
               {/* {nickname && (
-                <span className="text-slate-400 font-normal text-xl italic">
+                <span className="text-slate-400 font-normal text-xl ">
                   {" "}"{nickname}"
                 </span>
               )} */}
