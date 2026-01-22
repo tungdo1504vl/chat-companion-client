@@ -28,7 +28,7 @@ const transitionConfig = {
 };
 
 export default function SplashScreenContainer() {
-  const [currentStep, setCurrentStep] = useState<SplashScreenStep>(1);
+  const [currentStep, setCurrentStep] = useState<SplashScreenStep>(2);
   const [isNavigating, setIsNavigating] = useState(false);
   const router = useRouter();
 
