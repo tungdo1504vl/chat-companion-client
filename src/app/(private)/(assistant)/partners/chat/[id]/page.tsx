@@ -17,7 +17,7 @@ export default async function PartnerChatPage({
   const partnerId = MOCK_PARTNER_PROFILE.id;
 
   return (
-    <Suspense fallback={<PartnerChatPageSkeleton />}>
+    <Suspense fallback={null}>
       <PartnerChatPageClientDemoV2 partnerId={partnerId} />
     </Suspense>
   );
