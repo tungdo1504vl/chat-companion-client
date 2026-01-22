@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from '@tanstack/react-form';
 import type { PartnerProfile } from '@/features/profile/partner/types';
 import { useRouter } from 'next/navigation';
@@ -10,16 +10,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/commons/radio-group';
 import { Select } from '@/components/commons/select';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
-import {
-  Sparkles,
-  MapPin,
-  Lock,
-  Coffee,
-  Bell,
-  IceCream,
-  Check,
-  DollarSign,
-} from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
+import { Sparkles, MapPin, Lock, Check, DollarSign } from 'lucide-react';
 import { cn } from '@/libs/tailwind/utils';
 
 type PlanADayClientProps = Readonly<{
@@ -43,7 +35,7 @@ const defaultValues: PlanADayFormValues = {
   relationshipStatus: 'just-getting-to-know',
   vibe: 'relaxed',
   timing: 'evening',
-  budget: [1250],
+  budget: [100], // evening + relaxed = 100
 };
 
 const relationshipStatusOptions = [
@@ -75,42 +67,326 @@ const locationOptions = [
 ];
 
 const PlanTagBgColor = ['#fef6eb', '#f4f5fa'];
-const PlanTagTextColor = ['#d95924i', '#7592e7'];
+const PlanTagTextColor = ['#d95924', '#7592e7'];
 
-const suggestedPlans = [
+const suggestedPlansA = [
   {
     id: '1',
-    title: 'Evening Café + Quiet Walk',
+    title: 'Slow Morning Coffee & Bookstore',
     tag: 'WARM & SINCERE',
     isBestMatch: true,
-    features: ['Matches her gentle personality', 'Low pressure, easy talking'],
+    features: [
+      'Low-pressure, easy to talk',
+      'Quiet space helps first conversations feel safe',
+    ],
+    dateFlow: [
+      {
+        step: 'MEET',
+        title: 'Cozy local café (coffee / tea)',
+      },
+      {
+        step: 'ACTIVITY',
+        title: 'Browse a small bookstore together',
+      },
+      {
+        step: 'END',
+        title: 'Sit & chat about favorite books or hobbies',
+      },
+    ],
   },
   {
     id: '2',
-    title: 'Art & Dessert',
-    tag: 'THOUGHTFUL',
+    title: 'Breakfast & Park Stroll',
+    tag: 'SIMPLE & CALM',
     isBestMatch: false,
-    features: ['Creative and sweet', 'Great conversation starter'],
+    features: [
+      'Natural pace, no awkward structure',
+      'Walking side by side reduces pressure',
+    ],
+    dateFlow: [
+      {
+        step: 'MEET',
+        title: 'Casual breakfast spot',
+      },
+      {
+        step: 'ACTIVITY',
+        title: 'Short walk in a nearby park',
+      },
+      {
+        step: 'END',
+        title: 'Sit on a bench, people-watch & talk',
+      },
+    ],
+  },
+  {
+    id: '3',
+    title: 'Morning Pastry & Quiet Talk',
+    tag: 'LIGHT & SWEET',
+    isBestMatch: false,
+    features: [
+      'Short and sweet for early-stage dating',
+      'Easy to end on a good note',
+    ],
+    dateFlow: [
+      {
+        step: 'MEET',
+        title: 'Bakery café',
+      },
+      {
+        step: 'ACTIVITY',
+        title: 'Share pastries, light conversation',
+      },
+      {
+        step: 'END',
+        title: 'Walk her back or say goodbye naturally',
+      },
+    ],
   },
 ];
 
-const dateFlow = [
-  { step: 'MEET', title: 'Relaxed Café', icon: Coffee },
-  { step: 'ACTIVITY', title: 'Short Walk in Park', icon: Bell },
-  { step: 'END', title: 'Quiet Dessert', icon: IceCream },
+const suggestedPlansB = [
+  {
+    id: '1',
+    title: 'Fine Dining & City Lights',
+    tag: 'ELEGANT',
+    isBestMatch: true,
+    features: [
+      'Romantic without being overwhelming',
+      'Creates a “chosen” feeling, not casual',
+    ],
+    dateFlow: [
+      { step: 'MEET', title: 'Upscale restaurant' },
+      { step: 'ACTIVITY', title: 'Slow dinner with wine' },
+      {
+        step: 'END',
+        title: 'Short walk with city night view',
+      },
+    ],
+  },
+  {
+    id: '2',
+    title: 'Art Gallery & Intimate Dinner',
+    tag: 'THOUGHTFUL & DEEP',
+    isBestMatch: false,
+    features: [
+      'Art sparks natural conversation',
+      'Shows emotional effort, not just money',
+    ],
+    dateFlow: [
+      { step: 'MEET', title: 'Private gallery / exhibition' },
+      { step: 'ACTIVITY', title: 'Share thoughts & impressions' },
+      {
+        step: 'END',
+        title: 'Quiet fine-dining restaurant',
+      },
+    ],
+  },
+  {
+    id: '3',
+    title: 'Rooftop Lounge & Soft Music',
+    tag: 'SOFT ROMANCE',
+    isBestMatch: false,
+    features: [
+      'Romantic atmosphere without heavy talk',
+      'Music helps fill silences naturally',
+    ],
+    dateFlow: [
+      { step: 'MEET', title: 'Rooftop bar' },
+      { step: 'ACTIVITY', title: 'Drinks & soft live music' },
+      {
+        step: 'END',
+        title: 'Slow conversation under city lights',
+      },
+    ],
+  },
+];
+
+const suggestedPlansC = [
+  {
+    id: '1',
+    title: 'Casual Dinner & Night Walk',
+    tag: 'EASY & NATURAL',
+    isBestMatch: true,
+    features: [
+      'Comfortable, not intimidating',
+      'Encourages honest conversation',
+    ],
+    dateFlow: [
+      {
+        step: 'MEET',
+        title: 'Casual restaurant',
+      },
+      {
+        step: 'ACTIVITY',
+        title: 'Night walk nearby',
+      },
+      {
+        step: 'END',
+        title: 'Dessert stall or takeaway drink',
+      },
+    ],
+  },
+  {
+    id: '2',
+    title: 'Board Game Café',
+    tag: 'FUN & CONNECTING',
+    isBestMatch: false,
+    features: ['Games reduce awkwardness', 'Learn about each other naturally'],
+    dateFlow: [
+      {
+        step: 'MEET',
+        title: 'Board game café',
+      },
+      {
+        step: 'ACTIVITY',
+        title: 'Play light games (no competition)',
+      },
+      {
+        step: 'END',
+        title: 'Talk about favorite moments',
+      },
+    ],
+  },
+  {
+    id: '3',
+    title: 'Dessert & Late Coffee',
+    tag: 'SWEET & LOW PRESSURE',
+    isBestMatch: false,
+    features: ['Short, gentle evening date', 'Easy exit if energy runs low'],
+    dateFlow: [
+      {
+        step: 'MEET',
+        title: 'Dessert café',
+      },
+      {
+        step: 'ACTIVITY',
+        title: 'Share sweets & chat',
+      },
+      {
+        step: 'END',
+        title: 'Walk her to her ride / goodbye hug',
+      },
+    ],
+  },
 ];
 
 function formatBudget(value: number): string {
   return `$${value.toLocaleString()}`;
 }
 
+type PlanItem = {
+  id: string;
+  title: string;
+  tag: string;
+  isBestMatch: boolean;
+  features: string[];
+  dateFlow: Array<{
+    step: string;
+    title: string;
+  }>;
+};
+
+type SuggestedPlan = PlanItem[];
+
 export function PlanADayClient({ partnerProfile }: PlanADayClientProps) {
   const router = useRouter();
-  const [budgetValue, setBudgetValue] = useState([1250]);
+  const [budgetValue, setBudgetValue] = useState([100]); // evening + relaxed = 100
+  const [isLoadingPlans, setIsLoadingPlans] = useState(false);
+  const [isInitialMount, setIsInitialMount] = useState(true);
 
   const form = useForm({
     defaultValues,
   });
+
+  // Function to get budget based on timing and vibe
+  const getBudgetByTimingAndVibe = (timing: Timing, vibe: Vibe): number => {
+    if (timing === 'morning' && vibe === 'relaxed') {
+      return 50;
+    }
+    if (timing === 'evening' && vibe === 'romantic') {
+      return 1000;
+    }
+    if (timing === 'evening' && vibe === 'relaxed') {
+      return 100;
+    }
+    // Default fallback
+    return 1250;
+  };
+
+  // Function to update budget based on timing and vibe
+  const updateBudget = (timing?: Timing, vibe?: Vibe) => {
+    const currentTiming = timing ?? form.state.values.timing;
+    const currentVibe = vibe ?? form.state.values.vibe;
+    if (currentTiming && currentVibe) {
+      const newBudget = [getBudgetByTimingAndVibe(currentTiming, currentVibe)];
+      setBudgetValue(newBudget);
+      form.setFieldValue('budget', newBudget);
+    }
+  };
+
+  // Function to get plans based on timing and vibe
+  const getPlansByTimingAndVibe = (
+    timing: Timing,
+    vibe: Vibe,
+  ): SuggestedPlan => {
+    if (timing === 'morning' && vibe === 'relaxed') {
+      return suggestedPlansA;
+    }
+    if (timing === 'evening' && vibe === 'romantic') {
+      return suggestedPlansB;
+    }
+    if (timing === 'evening' && vibe === 'relaxed') {
+      return suggestedPlansC;
+    }
+    // Default fallback
+    return suggestedPlansC;
+  };
+
+  // Initialize current plans based on default values
+  const initialPlans = getPlansByTimingAndVibe(defaultValues.timing, defaultValues.vibe);
+  const [currentPlans, setCurrentPlans] = useState<SuggestedPlan>(initialPlans);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>(
+    initialPlans[0]?.id ?? '1',
+  );
+
+  // Get selected plan and its dateFlow
+  const selectedPlan = currentPlans.find((plan) => plan.id === selectedPlanId) ?? currentPlans[0];
+  const currentDateFlow = selectedPlan?.dateFlow ?? [];
+
+  // Effect to update plans when timing or vibe changes
+  useEffect(() => {
+    const timing = form.state.values.timing;
+    const vibe = form.state.values.vibe;
+
+    // Skip loading on initial mount
+    if (isInitialMount) {
+      setIsInitialMount(false);
+      // Set selected plan to first plan on initial mount
+      const initialPlans = getPlansByTimingAndVibe(timing, vibe);
+      if (initialPlans.length > 0) {
+        setSelectedPlanId(initialPlans[0].id);
+      }
+      return;
+    }
+
+    // Only trigger loading if both timing and vibe are set
+    if (timing && vibe) {
+      setIsLoadingPlans(true);
+
+      // Fake loading delay
+      const timer = setTimeout(() => {
+        const newPlans = getPlansByTimingAndVibe(timing, vibe);
+        setCurrentPlans(newPlans);
+        // Reset to first plan when plans change
+        if (newPlans.length > 0) {
+          setSelectedPlanId(newPlans[0].id);
+        }
+        setIsLoadingPlans(false);
+      }, 800); // 800ms fake loading
+
+      return () => clearTimeout(timer);
+    }
+  }, [form.state.values.timing, form.state.values.vibe, isInitialMount]);
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -126,6 +402,7 @@ export function PlanADayClient({ partnerProfile }: PlanADayClientProps) {
     <div className="min-h-screen bg-romantic-50 pb-24">
       <PageHeader
         title="DATING ASSISTANT"
+        smallTitle={true}
         onBackClick={() => router.back()}
         className="px-6 pt-4"
       />
@@ -222,6 +499,7 @@ export function PlanADayClient({ partnerProfile }: PlanADayClientProps) {
                     onValueChange={(value) => {
                       field.handleChange(value as Vibe);
                       field.handleBlur();
+                      updateBudget(form.state.values.timing, value as Vibe);
                     }}
                     className="flex gap-2 flex-wrap"
                   >
@@ -252,6 +530,7 @@ export function PlanADayClient({ partnerProfile }: PlanADayClientProps) {
                     onValueChange={(value) => {
                       field.handleChange(value as Timing);
                       field.handleBlur();
+                      updateBudget(value as Timing, form.state.values.vibe);
                     }}
                     className="flex gap-2 flex-wrap"
                   >
@@ -322,47 +601,59 @@ export function PlanADayClient({ partnerProfile }: PlanADayClientProps) {
             <span className="text-xs text-[#F05D6D]">Swipe for more</span>
           </div>
 
-          <div className="flex gap-4 overflow-x-auto pb-2 hide-scrollbar -mx-6 px-6">
-            {suggestedPlans.map((plan, idx) => (
-              <div
-                key={plan.id}
-                className="min-w-[320px] shrink-0 bg-white rounded-2xl p-5 shadow-xs relative"
-              >
-                {plan.isBestMatch && (
-                  <div className="absolute top-0 right-0 bg-[#F05D6D] text-white text-xs font-medium px-4 py-1.5 rounded-se-xl rounded-es-xl rounded-ss-xs rounded-ee-xs">
-                    Best Match
+          {isLoadingPlans ? (
+            <div className="flex items-center justify-center py-12">
+              <Spinner className="size-8 text-romantic-400" />
+            </div>
+          ) : (
+            <div className="flex gap-4 overflow-x-auto pb-2 hide-scrollbar -mx-6 px-6">
+              {currentPlans.map((plan, idx) => (
+                <div
+                  key={plan.id}
+                  onClick={() => setSelectedPlanId(plan.id)}
+                  className={cn(
+                    'min-w-[320px] shrink-0 bg-white rounded-2xl p-5 shadow-xs relative cursor-pointer transition-all',
+                    selectedPlanId === plan.id
+                      ? 'border-2 border-primary'
+                      : 'border-2 border-transparent',
+                  )}
+                >
+                  {plan.isBestMatch && (
+                    <div className="absolute top-0 right-0 bg-[#F05D6D] text-white text-xs font-medium px-4 py-1.5 rounded-se-xl rounded-es-xl rounded-ss-xs rounded-ee-xs">
+                      Best Match
+                    </div>
+                  )}
+                  <div className="absolute top-12 right-3">
+                    <DollarSign className="size-4 text-muted-foreground/30" />
                   </div>
-                )}
-                <div className="absolute top-12 right-3">
-                  <DollarSign className="size-4 text-muted-foreground/30" />
+                  <div className="mt-2 mb-3">
+                    <h3 className="text-lg font-bold text-foreground mb-2">
+                      {plan.title}
+                    </h3>
+                    <span
+                      className="inline-block text-xs font-semibold px-2 py-1 rounded-full"
+                      style={{
+                        background: PlanTagBgColor[idx % 2],
+                        color: PlanTagTextColor[idx % 2],
+                      }}
+                    >
+                      {plan.tag}
+                    </span>
+                  </div>
+                  <ul className="space-y-2">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <Check className="size-4 text-romantic-400 mt-0.5 shrink-0" />
+                        <span className="text-sm text-muted-foreground">
+                          {feature}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <div className="mt-2 mb-3">
-                  <h3 className="text-lg font-bold text-foreground mb-2">
-                    {plan.title}
-                  </h3>
-                  <span
-                    className="inline-block text-xs font-semibold px-2 py-1 rounded-full"
-                    style={{
-                      background: PlanTagBgColor[idx % 2],
-                      color: PlanTagTextColor[idx % 2],
-                    }}
-                  >
-                    {plan.tag}
-                  </span>
-                </div>
-                <ul className="space-y-2">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <Check className="size-4 text-romantic-400 mt-0.5 shrink-0" />
-                      <span className="text-sm text-muted-foreground">
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* How it flows Section */}
@@ -371,44 +662,47 @@ export function PlanADayClient({ partnerProfile }: PlanADayClientProps) {
             How it flows
           </h2>
 
-          <div className="space-y-6">
-            {dateFlow.map((item, index) => {
-              const Icon = item.icon;
-              const isFirst = index === 0;
-              return (
-                <div key={item.step} className="flex items-start gap-4">
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={cn(
-                        'size-6 rounded-full flex items-center justify-center',
-                        isFirst
-                          ? 'bg-romantic-400'
-                          : 'border-2 border-muted-foreground/30',
-                      )}
-                    >
-                      {isFirst && (
-                        <div className="size-2 rounded-full bg-white" />
+          {isLoadingPlans ? (
+            <div className="flex items-center justify-center py-12">
+              <Spinner className="size-8 text-romantic-400" />
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {currentDateFlow.map((item, index) => {
+                const stepNumber = index + 1;
+                const isFirst = index === 0;
+                return (
+                  <div key={`${item.step}-${index}`} className="flex items-start gap-4">
+                    <div className="flex flex-col items-center">
+                      <div
+                        className={cn(
+                          'size-8 rounded-full flex items-center justify-center font-semibold text-sm',
+                          isFirst
+                            ? 'bg-romantic-400 text-white'
+                            : 'bg-romantic-100 text-romantic-600 border-2 border-romantic-200',
+                        )}
+                      >
+                        {stepNumber}
+                      </div>
+                      {index < currentDateFlow.length - 1 && (
+                        <div className="w-0.5 h-12 bg-muted-foreground/20 mt-2" />
                       )}
                     </div>
-                    {index < dateFlow.length - 1 && (
-                      <div className="w-0.5 h-12 bg-muted-foreground/20 mt-2" />
-                    )}
-                  </div>
-                  <div className="flex-1 flex items-center justify-between pt-1">
-                    <div>
-                      <div className="text-xs font-medium text-muted-foreground mb-1">
-                        {item.step}:
-                      </div>
-                      <div className="text-base font-medium text-foreground">
-                        {item.title}
+                    <div className="flex-1 bg-white rounded-lg px-2 py-3">
+                      <div>
+                        <div className="text-xs text-primary font-medium mb-1">
+                          {item.step}:
+                        </div>
+                        <div className="text-base font-medium text-foreground">
+                          {item.title}
+                        </div>
                       </div>
                     </div>
-                    <Icon className="size-5 text-romantic-200" />
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </main>
 

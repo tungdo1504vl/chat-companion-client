@@ -86,9 +86,7 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({
     const handleEnded = () => {
       setIsPlaying(false);
       // Dispatch stop event when audio ends
-      window.dispatchEvent(
-        new CustomEvent(AUDIO_STOP_EVENT),
-      );
+      window.dispatchEvent(new CustomEvent(AUDIO_STOP_EVENT));
     };
 
     audio.addEventListener('loadedmetadata', updateDuration);
@@ -108,9 +106,7 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({
       audio.pause();
       setIsPlaying(false);
       // Dispatch stop event
-      window.dispatchEvent(
-        new CustomEvent(AUDIO_STOP_EVENT),
-      );
+      window.dispatchEvent(new CustomEvent(AUDIO_STOP_EVENT));
     } else {
       // Dispatch play event to stop all other instances
       window.dispatchEvent(
@@ -121,13 +117,6 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({
       audio.play();
       setIsPlaying(true);
     }
-  };
-
-  const formatTime = (seconds: number): string => {
-    if (isNaN(seconds)) return '0:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -165,11 +154,6 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({
           />
         ))}
       </div>
-
-      {/* Time Display */}
-      <span className="flex-shrink-0 text-sm font-medium text-[#ec4899] min-w-[2.5rem] text-right">
-        {formatTime(duration)}
-      </span>
 
       {/* Hidden Audio Element */}
       <audio ref={audioRef} src={src} preload="metadata" />
