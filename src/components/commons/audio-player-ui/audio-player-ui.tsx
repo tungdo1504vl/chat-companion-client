@@ -119,6 +119,13 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({
     }
   };
 
+  const formatTime = (seconds: number): string => {
+    if (isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div
       className={cn(`relative flex items-center gap-3 px-3 py-2 ${className}`, {
@@ -154,6 +161,11 @@ const AudioPlayerUI: React.FC<AudioPlayerUIProps> = ({
           />
         ))}
       </div>
+
+      {/* Time Display */}
+      <span className="flex-shrink-0 text-sm font-medium text-[#ec4899] min-w-[2.5rem] text-right">
+        {formatTime(duration)}
+      </span>
 
       {/* Hidden Audio Element */}
       <audio ref={audioRef} src={src} preload="metadata" />

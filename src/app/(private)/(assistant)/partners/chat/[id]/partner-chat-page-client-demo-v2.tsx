@@ -1,21 +1,17 @@
 'use client';
 
 import { TASK_TYPE } from '@/constants/task';
-import { useCommonCompute } from '@/hooks/use-compute';
 import { useComputeGet } from '@/hooks/use-compute-get';
 import { useSession } from '@/libs/better-auth/client';
 import { createTaskParams } from '@/utils/helpers';
-import { useState, useEffect, useRef } from 'react';
-import { Home, LoaderCircle, MicIcon, StarsIcon } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Home, MicIcon, StarsIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/commons/page-header';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ASSISTANT_ROUTES } from '@/constants/routes';
-import { TCommonPayload } from '@/types/common';
 import { LoadingSkeleton } from '@/components/commons/loading-skeleton';
-import { useQueryClient } from '@/libs/react-query';
-import { MUTATE_STATUS } from '@/constants/constants';
 import dynamic from 'next/dynamic';
 import { ChatInput } from '@/components/commons/chat-input';
 import {
@@ -30,15 +26,18 @@ import {
   ChatInputRef,
 } from '@/components/commons/chat-input/types';
 import {
-  buildInputItems,
   formatAudioBase64,
   formatImageBase64,
   formatUserInput,
 } from '@/utils/chat';
 import { AudioPlayerUI } from '@/components/commons/audio-player-ui';
 import { cn } from '@/libs/tailwind/utils';
-import { FAKE_MESSAGE_LIST } from '@/constants/fake-data';
+import {
+  FAKE_MESSAGE_LIST,
+  FAKE_MESSAGE_RESPONSE,
+} from '@/constants/fake-data';
 import { InteractivePlayer } from '@/components/commons/interactive-player';
+import { promiseHelper } from '@/utils/promise';
 
 const ScrollToBottom = dynamic(() => import('react-scroll-to-bottom'), {
   ssr: false,
@@ -77,31 +76,16 @@ export default function PartnerChatPageClientDemoV2({
   const { data: session } = useSession();
   const [openInteractiveModal, setOpenInteractiveModal] = useState(false);
   const [openPopover, setOpenPopover] = useState(false);
-  const [chatInputData, setChatInputData] = useState<ChatInputData>();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const [inputValue, setInputValue] = useState('');
-  const [isError, setIsError] = useState(false);
   const [messageDataList, setMessageDataList] =
     useState<Message[]>(FAKE_MESSAGE_LIST);
-  const [lastestMessage, setLastestMessage] = useState<Message>();
+  const [isLoadingResponse, setIsLoadingResponse] = useState(false);
   const [round, setRound] = useState<number>(1); // Track round number (1 or 2)
   const chatInputRef = useRef<ChatInputRef>(null);
 
-  const mutateChat = useCommonCompute();
   const userId = session?.user.id;
   const enabled = Boolean(userId) && Boolean(partnerId);
-  const { data, isFetched, isLoading } = useComputeGet(
-    createTaskParams(TASK_TYPE.RELATIONSHIP_CHAT_HISTORY, {
-      user_id: userId || '',
-      partner_id: partnerId || '',
-      include_archived: false,
-    }),
-    {
-      enabled,
-      queryKeys: [partnerId],
-    },
-  );
   const { data: partnerData, isLoading: isLoadingPartnerData } = useComputeGet(
     createTaskParams(TASK_TYPE.PARTNER_PROFILE_GET, {
       user_id: userId || '',
@@ -115,172 +99,99 @@ export default function PartnerChatPageClientDemoV2({
 
   const existingVoice = partnerData?.result?.partner_voice;
 
-  function setNewMessageState(
-    queryKey: string[],
-    messages: Message[],
-    options?: TSendMessageOptions & {
-      existingImage?: boolean;
-      existingAudio?: boolean;
-      images?: string[];
-      audio?: string | null;
-    },
-  ) {
-    const {
-      isResend = false,
-      existingImage,
-      existingAudio,
-      images,
-      audio,
-    } = options || {};
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [queryResult] = queryClient.getQueriesData<any>({
-      queryKey: queryKey,
-    });
-    const [, queryData] = queryResult;
-    const currentMessages = queryData?.result?.messages || [];
+  const handleSendMessage = async (data: ChatInputData) => {
+    if (!userId || !partnerId) return;
+    if (isLoadingResponse) return;
 
-    // Build message list based on existingImage and existingAudio
-    const messageList: Message[] = [];
+    const { images, audio, audioString } = data || {};
+    const existingImage = images && images.length > 0;
+    const existingAudio = Boolean(audio);
+    const userMessage = inputValue.trim() || audioString || '';
 
-    // Only add messages if not resend
-    if (!isResend) {
-      // Add text messages first
-      if (messages.length > 0) {
-        messageList.push(...messages);
-      }
+    if (!userMessage && !existingImage && !existingAudio) return;
 
-      // Add image messages if existingImage is true
-      if (existingImage && images && images.length > 0) {
-        images.forEach((image, index) => {
-          messageList.push({
-            id: `image-${Date.now()}-${index}`,
-            content: 'image attachment: image/png',
-            role: MESSAGE_ROLE.USER,
-            timestamp: new Date().toISOString(),
-            data_base64: `${image}`,
-            mime_type: 'image/png',
-            type: 'image',
-          });
-        });
-      }
+    // Build user messages
+    const newUserMessages: Message[] = [];
 
-      // Add audio message if existingAudio is true
-      if (existingAudio && audio) {
-        messageList.push({
-          id: `audio-${Date.now()}`,
-          content: 'audio attachment: audio/wav',
-          role: MESSAGE_ROLE.USER,
-          timestamp: new Date().toISOString(),
-          data_base64: audio,
-          mime_type: 'audio/wav',
-          type: 'audio',
-        });
-      }
+    // Add text message if exists
+    if (userMessage) {
+      newUserMessages.push({
+        id: `user-${Date.now()}`,
+        content: userMessage,
+        role: MESSAGE_ROLE.USER,
+        timestamp: new Date().toISOString(),
+        type: 'text',
+      });
     }
 
-    const newMessages = [...currentMessages, ...messageList];
-    const newQueryData = {
-      ...queryData,
-      result: {
-        ...queryData.result,
-        messages: newMessages,
-      },
-    };
-    queryClient.setQueryData(
-      ['compute', TASK_TYPE.RELATIONSHIP_CHAT_HISTORY, partnerId],
-      newQueryData,
-    );
-  }
+    // Add image messages if existingImage is true
+    if (existingImage && images && images.length > 0) {
+      images.forEach((image, index) => {
+        newUserMessages.push({
+          id: `image-${Date.now()}-${index}`,
+          content: 'image attachment: image/png',
+          role: MESSAGE_ROLE.USER,
+          timestamp: new Date().toISOString(),
+          data_base64: `${image}`,
+          mime_type: 'image/png',
+          type: 'image',
+        });
+      });
+    }
 
-  const handleSend = async (
-    _userId: string,
-    _partnerId: string,
-    data: ChatInputData,
-    options?: TSendMessageOptions,
-  ) => {
-    const { content: messageContent } = options || {};
-    const { images, audio } = data || {};
-    const existingImage = images.length > 0;
-    const existingAudio = Boolean(audio);
-    const queryKey = [
-      'compute',
-      TASK_TYPE.RELATIONSHIP_CHAT_HISTORY,
-      partnerId,
-    ];
-    const userMessage = inputValue.trim() || messageContent || '';
-    // TODO: format newMessage with images or audio if exits
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      content: userMessage,
-      role: MESSAGE_ROLE.USER,
-      timestamp: new Date().toISOString(),
-      type: 'text',
-    };
+    // Add audio message if existingAudio is true
+    if (existingAudio && audio) {
+      newUserMessages.push({
+        id: `audio-${Date.now()}`,
+        content: 'audio attachment: audio/wav',
+        role: MESSAGE_ROLE.USER,
+        timestamp: new Date().toISOString(),
+        data_base64: audio,
+        mime_type: 'audio/wav',
+        type: 'audio',
+      });
+    }
+
+    // Add user messages to the list
+    setMessageDataList((prev) => [...prev, ...newUserMessages]);
     setInputValue('');
     chatInputRef.current?.resetImage();
     chatInputRef.current?.resetAudio();
-    try {
-      if (userMessage) {
-        setLastestMessage(newMessage);
-        const chatInputData = buildInputItems(data);
-        const inputArgs = {
-          user_id: _userId,
-          partner_id: _partnerId,
-          usecase: 'crush_strategy',
-          user_message: userMessage,
-          input_items: chatInputData,
-        };
-        const payload: TCommonPayload = {
-          task_type: TASK_TYPE.RELATIONSHIP_CHAT,
-          input_args: inputArgs,
-          priority: 'high',
-        };
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setNewMessageState(queryKey, [newMessage], {
-          isResend: false,
-          existingImage,
-          existingAudio,
-          images,
-          audio,
-        });
-        const res = await mutateChat.mutateAsync(payload);
 
-        setIsError(false);
-        if (res.result) {
-          queryClient.invalidateQueries({
-            queryKey,
-          });
-        }
-      }
-    } catch (error) {
-      setIsError(true);
-      // handle error
-      setNewMessageState(queryKey, [newMessage], {
-        isResend: true,
-        existingImage,
-        existingAudio,
-        images,
-        audio,
-      });
+    // Determine questionType for response
+    let questionType = 'text';
+    if (existingImage) {
+      questionType = 'image';
+    } else if (existingAudio) {
+      questionType = 'audio';
+    }
+
+    // Find response from FAKE_MESSAGE_RESPONSE
+    const response = FAKE_MESSAGE_RESPONSE.find(
+      (msg) => msg.questionType === questionType,
+    );
+
+    if (response) {
+      setIsLoadingResponse(true);
+      // Fake delay
+      await promiseHelper.delay(1500);
+
+      // Add assistant response
+      const assistantMessage: Message = {
+        id: `assistant-${Date.now()}`,
+        content: response.content,
+        role: MESSAGE_ROLE.ASSISTANT,
+        timestamp: new Date().toISOString(),
+        type: response.type || 'text',
+        questionType: response.questionType,
+      };
+
+      setMessageDataList((prev) => [...prev, assistantMessage]);
+      setIsLoadingResponse(false);
     }
   };
 
-  const onResendMessage = () => {
-    if (!userId || !partnerId || !lastestMessage || !chatInputData) return;
-    handleSend(userId, partnerId, chatInputData);
-  };
-
-  const handleSendMessage = (data: ChatInputData) => {
-    setChatInputData(data);
-    const chatInputData = buildInputItems(data);
-    // return;
-    if (!userId || !partnerId) return;
-    if (isError) return;
-    handleSend(userId, partnerId, data);
-  };
-
-  const messageList = data?.result?.messages;
-  const hasMessages = messageList?.length > 0;
+  const hasMessages = messageDataList?.length > 0;
 
   // Extract partner info
   const partnerProfile =
@@ -366,12 +277,12 @@ export default function PartnerChatPageClientDemoV2({
 
         {/* Chat Messages */}
         <div className="flex-1 min-h-0 overflow-hidden px-2">
-          {!isLoading && isFetched && !hasMessages && !isLoadingPartnerData && (
+          {!hasMessages && !isLoadingPartnerData && (
             <div className="py-3 text-black/40 text-center">
               Enter message to start ...
             </div>
           )}
-          {isLoading ? (
+          {isLoadingPartnerData ? (
             <div className="h-full px-4 py-4">
               <LoadingSkeleton />
             </div>
@@ -386,19 +297,17 @@ export default function PartnerChatPageClientDemoV2({
               </p>
               <div className="flex flex-col gap-4">
                 {hasMessages &&
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  messageList.map((message: any, index: number) => {
+                  messageDataList.map((message: Message, index: number) => {
                     const isAssistant = message.role === 'assistant';
                     const messageContent = message.content;
                     const messageType = message.type;
                     const messageDataBase64 = message.data_base64;
-                    const isLastMessage = index === messageList.length - 1;
-                    const isUserTyping =
-                      isLastMessage && !isAssistant && inputValue.trim() === '';
+                    const isLastMessage = index === messageDataList.length - 1;
 
-                    const nextMessage = messageList[index + 1];
+                    const nextMessage = messageDataList[index + 1];
                     const nextIsAssistant = nextMessage?.role === 'assistant';
-                    const isMediaMessage = messageType === 'image' || 'audio';
+                    const isMediaMessage =
+                      messageType === 'image' || messageType === 'audio';
 
                     return (
                       <div
@@ -410,7 +319,7 @@ export default function PartnerChatPageClientDemoV2({
                           <div className="flex flex-col items-start">
                             <div className="relative max-w-[85%] rounded-ss-xs rounded-se-2xl rounded-es-2xl rounded-ee-2xl px-4 py-3 bg-white text-foreground ">
                               {messageType === 'text' &&
-                                message.isInteractiveMsg ? (
+                              message.isInteractiveMsg ? (
                                 <InteractivePlayer />
                               ) : (
                                 <p className="text-sm leading-relaxed text-black">
@@ -461,12 +370,12 @@ export default function PartnerChatPageClientDemoV2({
                                 </div>
                               )}
                               {messageType === 'audio' && messageDataBase64 && (
-                                <p className="w-1/2">
+                                <div className="w-1/2">
                                   <AudioPlayerUI
                                     hasBg={true}
                                     src={formatAudioBase64(messageDataBase64)}
                                   />
-                                </p>
+                                </div>
                               )}
                             </div>
                             {/* Show partner name label after user message if next message is from assistant or if this is the last message */}
@@ -488,31 +397,17 @@ export default function PartnerChatPageClientDemoV2({
                   })}
 
                 {/* Show encouraging text when no messages yet */}
-                {!hasMessages && !isLoading && (
+                {!hasMessages && (
                   <p className="text-xs text-gray-700  text-center mt-4">
                     You don't have to say it perfectly.
                   </p>
                 )}
               </div>
-              {mutateChat.status === MUTATE_STATUS.PENDING && (
+              {isLoadingResponse && (
                 <div className="flex flex-col h-16 items-center justify-center">
-                  <LoaderCircle className="h-6 w-6 animate-spin text-gray-500" />
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
                 </div>
               )}
-              {isError &&
-                mutateChat.status !== MUTATE_STATUS.PENDING &&
-                lastestMessage && (
-                  <div className="flex flex-col gap-2 border rounded-2xl p-3">
-                    <p className="text-red-400">Some thing when wrong!</p>
-                    <Button
-                      variant="outline"
-                      className="w-max"
-                      onClick={onResendMessage}
-                    >
-                      Try again
-                    </Button>
-                  </div>
-                )}
             </ScrollToBottom>
           )}
         </div>
@@ -524,7 +419,7 @@ export default function PartnerChatPageClientDemoV2({
             inputValue={inputValue}
             onInputChange={(e) => setInputValue(e.target.value)}
             onSendMessage={handleSendMessage}
-            disabled={!inputValue.trim() || isError}
+            disabled={!inputValue.trim() || isLoadingResponse}
           />
         </div>
         {/* Practice */}
@@ -556,16 +451,11 @@ export default function PartnerChatPageClientDemoV2({
           round={round}
           onRoundChange={setRound}
           onAppendMessage={(messages) => {
-            const queryKey = [
-              'compute',
-              TASK_TYPE.RELATIONSHIP_CHAT_HISTORY,
-              partnerId,
-            ];
-            setNewMessageState(queryKey, messages, {
-              isResend: false,
-              existingImage: false,
-              existingAudio: false,
-            });
+            setIsLoadingResponse(true);
+            setTimeout(() => {
+              setMessageDataList((prev) => [...prev, ...messages]);
+              setIsLoadingResponse(false);
+            }, 1000);
           }}
         />
       )}
