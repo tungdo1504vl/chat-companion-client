@@ -141,6 +141,7 @@ export default function ProfilePageClient() {
       <div className="flex-1 overflow-y-auto">
         {/* Header */}
         <PageHeader
+          smallTitle
           title="My Profile"
           onBackClick={() => router.push(ASSISTANT_ROUTES.ASSISTANT)}
           backHref={ASSISTANT_ROUTES.ASSISTANT}

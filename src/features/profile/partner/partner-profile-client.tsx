@@ -141,7 +141,7 @@ export function PartnerProfileClient({
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto">
         {/* Header */}
-        <PageHeader title="Partner Profile" onBackClick={() => router.back()} />
+        <PageHeader title="Partner Profile" smallTitle onBackClick={() => router.back()} />
         <main className="max-w-md mx-auto px-4 space-y-6">
           {/* Profile Info */}
           <ProfileInfo

@@ -301,7 +301,7 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
           {/* Main prompt */}
           <div className="text-center mt-4">
             <h1 className="text-2xl font-sans font-bold text-white mb-3">
-              Simulating {partnerName || 'Sarah'}'s reactions
+              Simulating {partnerName || 'Bao Quyen'}'s reactions
             </h1>
             <p className="text-base font-sans  text-white/90">
               Based on her personality profile
@@ -455,8 +455,8 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
                     }}
                     disabled={isLoading}
                     className={`p-2 rounded-full transition-colors ${isLoading
-                        ? 'opacity-50 cursor-not-allowed'
-                        : 'hover:bg-white/20 cursor-pointer'
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'hover:bg-white/20 cursor-pointer'
                       }`}
                     aria-label="Reset"
                   >

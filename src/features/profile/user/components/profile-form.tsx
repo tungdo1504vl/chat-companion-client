@@ -486,7 +486,7 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
             </form.Field>
 
             {/* Date Budget Tendency */}
-            <form.Field name="dateBudget">
+            {/* <form.Field name="dateBudget">
               {(field) => {
                 const currentDateBudgetPosition = convertDateBudgetToPosition(field.state.value);
                 const dateBudgetPosition = DATE_BUDGET_TO_VALUE[currentDateBudgetPosition] ?? 50;
@@ -537,7 +537,7 @@ export default function ProfileForm(props: Readonly<TProfileFormProps>) {
                   </div>
                 );
               }}
-            </form.Field>
+            </form.Field> */}
 
             {/* Social Energy Battery */}
             <form.Field name="socialEnergy">

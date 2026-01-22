@@ -78,7 +78,7 @@ export const MOCK_PARTNER_PROFILE: PartnerProfile = {
   chemistryScore: 92,
   chemistryScoreDescription: 'Based on conversation depth & date feedback.',
   whatWorksWell:
-    'Sarah responds positively to proactive planning. She values consistency in communication and appreciates when you reference small details from past conversations. Keep dates activity-based to match her "ambivert" energy.',
+    'Bao Quyen responds positively to proactive planning. She values consistency in communication and appreciates when you reference small details from past conversations. Keep dates activity-based to match her "ambivert" energy.',
   specialDays: [],
 
   giftIdeas: [

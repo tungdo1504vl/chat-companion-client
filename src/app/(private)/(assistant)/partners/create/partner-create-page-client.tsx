@@ -178,7 +178,7 @@ export default function PartnerCreatePageClient() {
                     type="text"
                     field={field}
                     disabled={isSubmitting}
-                    placeholder="Ex. Sarah"
+                    placeholder="Ex. Bao Quyen"
                   />
                 </FormField>
               )}

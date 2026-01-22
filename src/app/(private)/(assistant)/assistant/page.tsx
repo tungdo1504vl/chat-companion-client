@@ -207,9 +207,9 @@ const features: FeatureCard[] = [
   // Personal category - Highlight Use Cases (status: "new")
   {
     id: "personal-1",
-    title: "Win a Crush / Confession",
+    title: "Talk to Family with Care",
     description:
-      "Express your feelings honestly—without rushing or putting pressure on them.",
+      "Express your thoughts to family members without turning it into conflict.",
     icon: Sparkles,
     iconBgColor: "bg-pink-500",
     status: "new",
@@ -217,9 +217,9 @@ const features: FeatureCard[] = [
   },
   {
     id: "personal-2",
-    title: "Repair a Relationship",
+    title: "Difficult Personal Conversation",
     description:
-      "Rebuild connection after a fight, silence, or emotional distance.",
+      "Handle sensitive topics while protecting emotional safety for both sides.",
     icon: Heart,
     iconBgColor: "bg-pink-500",
     status: "new",
@@ -227,12 +227,12 @@ const features: FeatureCard[] = [
   },
   {
     id: "personal-3",
-    title: "Difficult Personal Conversation",
+    title: "Resolve a Misunderstanding",
     description:
       "Talk about sensitive topics with care, clarity, and emotional safety.",
     icon: AlertCircle,
     iconBgColor: "bg-pink-500",
-    status: "new",
+    status: "upcoming",
     category: "personal",
   },
   // Personal category - Normal Use Cases (status: "upcoming")
@@ -248,7 +248,7 @@ const features: FeatureCard[] = [
   },
   {
     id: "personal-5",
-    title: "Reconnect After Distance",
+    title: "Reconnect with a Friend",
     description:
       "Reach out after time apart without making it awkward.",
     icon: MessageCircle,
@@ -258,7 +258,7 @@ const features: FeatureCard[] = [
   },
   {
     id: "personal-6",
-    title: "Clear a Misunderstanding",
+    title: "Express Care & Appreciation",
     description:
       "Explain your side without escalating emotions.",
     icon: MessageSquare,
@@ -268,7 +268,7 @@ const features: FeatureCard[] = [
   },
   {
     id: "personal-7",
-    title: "Support Someone Emotionally",
+    title: "Set Boundaries Gently",
     description:
       "Be there for them—even when you don't know what to say.",
     icon: Heart,
@@ -278,30 +278,10 @@ const features: FeatureCard[] = [
   },
   {
     id: "personal-8",
-    title: "Say No Without Guilt",
+    title: "Prepare for an Emotional Talk",
     description:
       "Protect your boundaries while staying kind.",
     icon: Shield,
-    iconBgColor: "bg-pink-500",
-    status: "upcoming",
-    category: "personal",
-  },
-  {
-    id: "personal-9",
-    title: "Navigate Early Dating Stage",
-    description:
-      "Understand signals, pacing, and what to say next.",
-    icon: TrendingUp,
-    iconBgColor: "bg-pink-500",
-    status: "upcoming",
-    category: "personal",
-  },
-  {
-    id: "personal-10",
-    title: "Maintain a Healthy Relationship",
-    description:
-      "Keep communication open and balanced over time.",
-    icon: Infinity,
     iconBgColor: "bg-pink-500",
     status: "upcoming",
     category: "personal",

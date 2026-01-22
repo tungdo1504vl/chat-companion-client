@@ -33,6 +33,7 @@ export default function ProfileHeader({
     <>
       {/* Header */}
       <PageHeader
+        smallTitle
         title="My Profile"
         onBackClick={onBackClick}
         backHref={backHref}
