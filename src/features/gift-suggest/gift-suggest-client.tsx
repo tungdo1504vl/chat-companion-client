@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { PartnerProfile } from '@/features/profile/partner/types';
 import { useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/commons/page-header';
@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/commons/radio-group';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Heart,
   Sparkles,
@@ -43,59 +44,126 @@ const priceRangeOptions = [
   { value: 'flexible' as const, label: 'Flexible' },
 ];
 
-const giftIdeas = [
-  {
-    id: '1',
-    title: 'Minimal Jewelry (Necklace)',
-    icon: Gem,
-    badge: 'TOP MATCH',
-    badgeColor: 'text-romantic-400',
-    quote: 'Timeless silver piece that she can wear daily.',
-    details: {
-      match: { label: 'MATCH', value: 'High (98%)' },
-      impression: { label: 'IMPRESSION', value: 'Elegant' },
-      budget: { label: 'BUDGET', value: '$$ Moderate' },
-      risk: { label: 'RISK', value: '• Very Safe', isSafe: true },
+type GiftIdea = {
+  id: string;
+  title: string;
+  icon: typeof Gem;
+  badge: string;
+  badgeColor: string;
+  quote: string;
+  details: {
+    match?: { label: string; value: string };
+    impression: { label: string; value: string };
+    budget?: { label: string; value: string };
+    risk: { label: string; value: string; isSafe: boolean };
+  };
+  analysis?: {
+    title: string;
+    description: string;
+  };
+  showAnalysis: boolean;
+};
+
+// Fake data generator based on filters
+const getGiftIdeas = (
+  occasion: Occasion,
+  priceRange: PriceRange,
+): GiftIdea[] => {
+  // Simulate different gift ideas based on occasion and price range
+  const baseIdeas: GiftIdea[] = [
+    {
+      id: '1',
+      title: 'Minimal Jewelry (Necklace)',
+      icon: Gem,
+      badge: 'TOP MATCH',
+      badgeColor: 'text-romantic-400',
+      quote: 'Timeless silver piece that she can wear daily.',
+      details: {
+        match: { label: 'MATCH', value: 'High (98%)' },
+        impression: { label: 'IMPRESSION', value: 'Elegant' },
+        budget: { label: 'BUDGET', value: '$$ Moderate' },
+        risk: { label: 'RISK', value: '• Very Safe', isSafe: true },
+      },
+      analysis: {
+        title: 'Why it works',
+        description:
+          'It matches her minimalist aesthetic perfectly. A silver necklace is intimate enough for a birthday but not overwhelming.',
+      },
+      showAnalysis: true,
     },
-    analysis: {
-      title: 'Why it works',
-      description:
-        'It matches her minimalist aesthetic perfectly. A silver necklace is intimate enough for a birthday but not overwhelming.',
+    {
+      id: '2',
+      title: 'Letter + Flower Box',
+      icon: Flower2,
+      badge: 'ROMANTIC PICK',
+      badgeColor: 'text-romantic-400',
+      quote: 'A deeply personal gesture combined with simple beauty.',
+      details: {
+        impression: { label: 'IMPRESSION', value: 'Romantic' },
+        risk: { label: 'RISK', value: '• Slightly Bold', isSafe: false },
+      },
+      showAnalysis: false,
     },
-    showAnalysis: true,
-  },
-  {
-    id: '2',
-    title: 'Letter + Flower Box',
-    icon: Flower2,
-    badge: 'ROMANTIC PICK',
-    badgeColor: 'text-romantic-400',
-    quote: 'A deeply personal gesture combined with simple beauty.',
-    details: {
-      impression: { label: 'IMPRESSION', value: 'Romantic' },
-      risk: { label: 'RISK', value: '• Slightly Bold', isSafe: false },
+    {
+      id: '3',
+      title: 'Soft Scarf / Hair Accessory',
+      icon: Snowflake,
+      badge: 'PRACTICAL CHOICE',
+      badgeColor: 'text-muted-foreground',
+      quote: 'Cozy, practical, and fits her gentle style.',
+      details: {
+        impression: { label: 'IMPRESSION', value: 'Cozy' },
+        risk: { label: 'RISK', value: '• Very Safe', isSafe: true },
+      },
+      showAnalysis: false,
     },
-    showAnalysis: false,
-  },
-  {
-    id: '3',
-    title: 'Soft Scarf / Hair Accessory',
-    icon: Snowflake,
-    badge: 'PRACTICAL CHOICE',
-    badgeColor: 'text-muted-foreground',
-    quote: 'Cozy, practical, and fits her gentle style.',
-    details: {
-      impression: { label: 'IMPRESSION', value: 'Cozy' },
-      risk: { label: 'RISK', value: '• Very Safe', isSafe: true },
-    },
-    showAnalysis: false,
-  },
-];
+  ];
+
+  // Modify ideas based on occasion
+  if (occasion === 'valentines') {
+    baseIdeas[0].quote = 'Perfect for expressing your feelings on Valentine\'s Day.';
+    baseIdeas[1].badge = 'PERFECT FOR VALENTINE\'S';
+    baseIdeas[1].quote = 'A romantic gesture that speaks from the heart.';
+  } else if (occasion === 'just-because') {
+    baseIdeas[0].quote = 'A thoughtful surprise for no special reason.';
+    baseIdeas[1].badge = 'THOUGHTFUL GESTURE';
+    baseIdeas[1].quote = 'Show you care without needing a special occasion.';
+  }
+
+  // Modify based on price range
+  if (priceRange === '20-30') {
+    baseIdeas[0].details.budget = { label: 'BUDGET', value: '$ Low' };
+    baseIdeas[2].badge = 'BUDGET FRIENDLY';
+  } else if (priceRange === '50-100') {
+    baseIdeas[0].details.budget = { label: 'BUDGET', value: '$$$ Higher' };
+    baseIdeas[0].title = 'Premium Minimal Jewelry (Necklace)';
+  } else if (priceRange === 'flexible') {
+    baseIdeas[0].details.budget = { label: 'BUDGET', value: 'Flexible' };
+  }
+
+  return baseIdeas;
+};
+
+const getInsightText = (occasion: Occasion): string => {
+  switch (occasion) {
+    case 'valentines':
+      return 'She has a gentle, feminine style... Perfect for Valentine\'s Day, meaningful gifts that express your feelings suit her more than flashy surprises.';
+    case 'just-because':
+      return 'She has a gentle, feminine style... Simple, thoughtful gifts suit her perfectly for a "just because" moment.';
+    default:
+      return 'She has a gentle, feminine style... Simple, meaningful gifts suit her more than flashy surprises.';
+  }
+};
 
 export function GiftSuggestClient({ partnerProfile }: GiftSuggestClientProps) {
   const router = useRouter();
   const [occasion, setOccasion] = useState<Occasion>('birthday');
   const [priceRange, setPriceRange] = useState<PriceRange>('30-50');
+  const [giftIdeas, setGiftIdeas] = useState<GiftIdea[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [insightText, setInsightText] = useState<string>(
+    getInsightText('birthday'),
+  );
 
   const avatarUrl =
     partnerProfile?.avatarUrl || '/images/placeholder-avatar.png';
@@ -105,6 +173,27 @@ export function GiftSuggestClient({ partnerProfile }: GiftSuggestClientProps) {
     .map((n) => n[0])
     .join('')
     .toUpperCase();
+
+  // Simulate API call with delay
+  const fetchGiftIdeas = async (currentOccasion: Occasion, currentPriceRange: PriceRange) => {
+    setIsLoading(true);
+    
+    // Simulate network delay (1-2 seconds)
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    
+    const newIdeas = getGiftIdeas(currentOccasion, currentPriceRange);
+    const newInsight = getInsightText(currentOccasion);
+    
+    setGiftIdeas(newIdeas);
+    setInsightText(newInsight);
+    setIsLoading(false);
+  };
+
+  // Watch for filter changes and initial load
+  useEffect(() => {
+    fetchGiftIdeas(occasion, priceRange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [occasion, priceRange]);
 
   return (
     <div className="min-h-screen bg-stone-50 pb-32">
@@ -190,115 +279,141 @@ export function GiftSuggestClient({ partnerProfile }: GiftSuggestClientProps) {
             <Sparkles className="size-5 text-romantic-400" />
           </div>
 
-          <p className="text-sm text-foreground leading-relaxed">
-            She has a gentle, feminine style... Simple, meaningful gifts suit
-            her more than flashy surprises.
-          </p>
+          {isLoading ? (
+            <Skeleton className="h-16 flex-1" />
+          ) : (
+            <p className="text-sm text-foreground leading-relaxed">
+              {insightText}
+            </p>
+          )}
         </div>
       </div>
 
       {/* Gift Ideas */}
       <div className="px-6 space-y-4 mb-6">
-        {giftIdeas.map((gift, idx) => {
-          const Icon = gift.icon;
-          return (
-            <div key={gift.id} className="bg-white rounded-lg p-5 shadow-sm">
-              {/* Header */}
+        {isLoading ? (
+          // Loading skeleton
+          Array.from({ length: 3 }).map((_, idx) => (
+            <div key={idx} className="bg-white rounded-lg p-5 shadow-sm">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <h3 className="text-lg font-bold text-foreground">
-                      {gift.title}
-                    </h3>
-                    <div
-                      className="p-2 rounded-full"
-                      style={{
-                        backgroundColor: GIFT_ICON_BG[idx % 3] || '#f7f9fb',
-                      }}
-                    >
-                      <Icon
-                        className="size-4"
-                        style={{
-                          color: GIFT_ICON_COLOR[idx % 3] || '#8b98ae',
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      'text-xs font-medium border-0 px-0 py-0 h-auto',
-                      gift.badgeColor,
-                    )}
-                  >
-                    {gift.badge === 'TOP MATCH' && (
-                      <Heart className="size-3 mr-1 fill-current" />
-                    )}
-                    {gift.badge}
-                  </Badge>
+                  <Skeleton className="h-6 w-48 mb-2" />
+                  <Skeleton className="h-4 w-24" />
                 </div>
+                <Skeleton className="size-8 rounded-full" />
               </div>
-
-              {/* Quote */}
-              <p className="text-sm  text-muted-foreground mb-4 border-[#f5cbe3] border-l-2 pl-2">
-                {'"'}
-                {gift.quote}
-                {'"'}
-              </p>
-
-              {/* Details */}
+              <Skeleton className="h-12 w-full mb-4" />
               <div className="grid grid-cols-2 gap-4 mb-4">
-                {Object.entries(gift.details).map(([key, detail]) => (
-                  <div key={key} className="rounded-lg bg-gray-50 p-2">
-                    <div className="text-xs font-medium text-muted-foreground mb-1">
-                      {detail.label}
+                <Skeleton className="h-16 rounded-lg" />
+                <Skeleton className="h-16 rounded-lg" />
+                <Skeleton className="h-16 rounded-lg" />
+                <Skeleton className="h-16 rounded-lg" />
+              </div>
+              <Skeleton className="h-20 w-full rounded-lg" />
+            </div>
+          ))
+        ) : (
+          giftIdeas.map((gift, idx) => {
+            const Icon = gift.icon;
+            return (
+              <div key={gift.id} className="bg-white rounded-lg p-5 shadow-sm">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <h3 className="text-lg font-bold text-foreground">
+                        {gift.title}
+                      </h3>
+                      <div
+                        className="p-2 rounded-full"
+                        style={{
+                          backgroundColor: GIFT_ICON_BG[idx % 3] || '#f7f9fb',
+                        }}
+                      >
+                        <Icon
+                          className="size-4"
+                          style={{
+                            color: GIFT_ICON_COLOR[idx % 3] || '#8b98ae',
+                          }}
+                        />
+                      </div>
                     </div>
-                    <div
+                    <Badge
+                      variant="outline"
                       className={cn(
-                        'text-sm font-medium',
-                        detail.isSafe !== undefined
-                          ? detail.isSafe
-                            ? 'text-green-600'
-                            : 'text-orange-600'
-                          : 'text-foreground',
+                        'text-xs font-medium border-0 px-0 py-0 h-auto',
+                        gift.badgeColor,
                       )}
                     >
-                      {detail.value}
+                      {gift.badge === 'TOP MATCH' && (
+                        <Heart className="size-3 mr-1 fill-current" />
+                      )}
+                      {gift.badge}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Quote */}
+                <p className="text-sm  text-muted-foreground mb-4 border-[#f5cbe3] border-l-2 pl-2">
+                  {'"'}
+                  {gift.quote}
+                  {'"'}
+                </p>
+
+                {/* Details */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  {Object.entries(gift.details).map(([key, detail]) => (
+                    <div key={key} className="rounded-lg bg-gray-50 p-2">
+                      <div className="text-xs font-medium text-muted-foreground mb-1">
+                        {detail.label}
+                      </div>
+                      <div
+                        className={cn(
+                          'text-sm font-medium',
+                          'isSafe' in detail && detail.isSafe !== undefined
+                            ? detail.isSafe
+                              ? 'text-green-600'
+                              : 'text-orange-600'
+                            : 'text-foreground',
+                        )}
+                      >
+                        {detail.value}
+                      </div>
                     </div>
+                  ))}
+                </div>
+
+                {/* Analysis */}
+                {gift.showAnalysis && gift.analysis && (
+                  <div className="border border-gray-200 rounded-lg p-3 bg-gray-100 pt-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="size-4 text-romantic-400" />
+                      <span className="text-xs font-semibold text-foreground">
+                        ANALYSIS
+                      </span>
+                    </div>
+                    <div className="text-xs font-bold text-black mb-2">
+                      {gift.analysis.title}
+                    </div>
+                    <p className="text-sm text-foreground leading-relaxed">
+                      {gift.analysis.description}
+                    </p>
                   </div>
-                ))}
+                )}
+
+                {/* See Analysis Link */}
+                {!gift.showAnalysis && (
+                  <div className="flex justify-center">
+                    <button className="flex items-center gap-1 text-sm text-romantic-400 hover:underline">
+                      See Analysis
+                      <ChevronDown className="size-4" />
+                    </button>
+                  </div>
+                )}
               </div>
-
-              {/* Analysis */}
-              {gift.showAnalysis && gift.analysis && (
-                <div className="border border-gray-200 rounded-lg p-3 bg-gray-100 pt-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="size-4 text-romantic-400" />
-                    <span className="text-xs font-semibold text-foreground">
-                      ANALYSIS
-                    </span>
-                  </div>
-                  <div className="text-xs font-bold text-black mb-2">
-                    {gift.analysis.title}
-                  </div>
-                  <p className="text-sm text-foreground leading-relaxed">
-                    {gift.analysis.description}
-                  </p>
-                </div>
-              )}
-
-              {/* See Analysis Link */}
-              {!gift.showAnalysis && (
-                <div className="flex justify-center">
-                  <button className="flex items-center gap-1 text-sm text-romantic-400 hover:underline">
-                    See Analysis
-                    <ChevronDown className="size-4" />
-                  </button>
-                </div>
-              )}
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
       {/* Notification Box */}
       <div className="px-6 pb-[120px]">
