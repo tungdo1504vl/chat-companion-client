@@ -340,8 +340,9 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
               {/* Play/Pause overlay - only show when audioSrc exists and hovered */}
               {audioSrc && (
                 <div
-                  className={`absolute inset-0 rounded-full bg-black/40 flex items-center justify-center transition-opacity duration-200 ${isAvatarHovered ? 'opacity-100' : 'opacity-0'
-                    }`}
+                  className={`absolute inset-0 rounded-full bg-black/40 flex items-center justify-center transition-opacity duration-200 ${
+                    isAvatarHovered ? 'opacity-100' : 'opacity-0'
+                  }`}
                 >
                   <button
                     onClick={handlePlayAudio}
@@ -454,10 +455,11 @@ const InteractiveModal: React.FC<InteractiveModalProps> = ({
                       setIsLoading(false);
                     }}
                     disabled={isLoading}
-                    className={`p-2 rounded-full transition-colors ${isLoading
-                      ? 'opacity-50 cursor-not-allowed'
-                      : 'hover:bg-white/20 cursor-pointer'
-                      }`}
+                    className={`p-2 rounded-full transition-colors ${
+                      isLoading
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'hover:bg-white/20 cursor-pointer'
+                    }`}
                     aria-label="Reset"
                   >
                     <RotateCcw className="size-5 text-gray-300" />

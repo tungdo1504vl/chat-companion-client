@@ -86,7 +86,7 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      recognition.lang = 'vi-VN';
 
       recognition.onresult = (event: SpeechRecognitionEvent) => {
         let interimTranscript = '';
@@ -530,7 +530,7 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
                   isSupported ? 'pr-12' : ''
                 }`}
               >
-                <span className="text-sm pl-4 text-muted-foreground">
+                <span className="text-sm pl-4 text-muted-foreground max-h-10 overflow-y-auto">
                   {transcript || 'Recording...'}
                 </span>
               </div>
