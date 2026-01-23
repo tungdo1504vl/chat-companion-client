@@ -72,6 +72,9 @@ type PartnerChatPageClientProps = Readonly<{
   partnerId: string;
 }>;
 
+const PARTNER_AVATAR_WOMEN =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuDFBu7ihKfRsIjq6dEDQDkTqn4LzycaeVwJi-A8kD9EBRvazPeVl5o7enP19JsooIn6KBCFf-gl-JkhWnsJIfsQ1vb7ie0Jz2NOWaM_jCk9v15OTwILMkpv1yMyGNWoQ2mJIxRKZ9pzLAB32lk_5W15IJubeE7TcRxF2w1OrZLPJejDL_6KU3b_74wVpY8yoj2ejsuWIsNNDEYCwSF27MqvL_RjMapch817j9wSP9qmTFL5Sog3s2uXlxVubLske_JWd_TbNqcD8w';
+
 export default function PartnerChatPageClientDemoV2({
   partnerId,
 }: PartnerChatPageClientProps) {
@@ -88,16 +91,6 @@ export default function PartnerChatPageClientDemoV2({
 
   const userId = session?.user.id;
   const enabled = Boolean(userId) && Boolean(partnerId);
-  const { data: partnerData, isLoading: isLoadingPartnerData } = useComputeGet(
-    createTaskParams(TASK_TYPE.PARTNER_PROFILE_GET, {
-      user_id: userId || '',
-      partner_id: partnerId || '',
-    }),
-    {
-      enabled,
-      queryKeys: [partnerId],
-    },
-  );
 
   const handleSendMessage = async (data: ChatInputData) => {
     if (!userId || !partnerId) return;
@@ -193,12 +186,9 @@ export default function PartnerChatPageClientDemoV2({
 
   const hasMessages = messageDataList?.length > 0;
 
-  // Extract partner info
-  const partnerProfile =
-    partnerData?.result?.partner_profile || partnerData?.result;
   const partnerName = MOCK_PARTNER_PROFILE.name;
-  const partnerAvatar = partnerProfile?.basic_info?.avatar_url;
-  const partnerGender = partnerProfile?.basic_info?.gender;
+  const partnerAvatar = PARTNER_AVATAR_WOMEN;
+  const partnerGender = 'Female';
 
   return (
     <>
@@ -270,133 +260,128 @@ export default function PartnerChatPageClientDemoV2({
 
         {/* Chat Messages */}
         <div className="flex-1 min-h-0 overflow-hidden px-2">
-          {!hasMessages && !isLoadingPartnerData && (
+          {!hasMessages && (
             <div className="py-3 text-black/40 text-center">
               Enter message to start ...
             </div>
           )}
-          {isLoadingPartnerData ? (
-            <div className="h-full px-4 py-4">
-              <LoadingSkeleton />
-            </div>
-          ) : (
-            <ScrollToBottom
-              className="h-full"
-              scrollViewClassName="flex flex-col gap-4 px-1 py-4"
-              followButtonClassName="scroll-to-bottom-button"
-            >
-              <p className="text-xs text-center font-semibold text-[#FFB6C1] uppercase tracking-wide">
-                Your secret space
-              </p>
-              <div className="flex flex-col gap-4">
-                {hasMessages &&
-                  messageDataList.map((message: Message, index: number) => {
-                    const isAssistant = message.role === 'assistant';
-                    const messageContent = message.content;
-                    const messageType = message.type;
-                    const messageDataBase64 = message.data_base64;
-                    const isLastMessage = index === messageDataList.length - 1;
+          <ScrollToBottom
+            className="h-full"
+            scrollViewClassName="flex flex-col gap-4 px-1 py-4"
+            followButtonClassName="scroll-to-bottom-button"
+            initialScrollBehavior="auto"
+          >
+            <p className="text-xs text-center font-semibold text-[#FFB6C1] uppercase tracking-wide">
+              Your secret space
+            </p>
+            <div className="flex flex-col gap-4">
+              {hasMessages &&
+                messageDataList.map((message: Message, index: number) => {
+                  const isAssistant = message.role === 'assistant';
+                  const messageContent = message.content;
+                  const messageType = message.type;
+                  const messageDataBase64 = message.data_base64;
+                  const isLastMessage = index === messageDataList.length - 1;
 
-                    const nextMessage = messageDataList[index + 1];
-                    const nextIsAssistant = nextMessage?.role === 'assistant';
-                    const isMediaMessage =
-                      messageType === 'image' || messageType === 'audio';
+                  const nextMessage = messageDataList[index + 1];
+                  const nextIsAssistant = nextMessage?.role === 'assistant';
+                  const isMediaMessage =
+                    messageType === 'image' || messageType === 'audio';
 
-                    return (
-                      <div
-                        key={`${message.id || message.timestamp}${index}`}
-                        className="flex flex-col"
-                      >
-                        {/* Assistant Message */}
-                        {isAssistant && (
-                          <div className="flex flex-col items-start">
-                            <div className="relative max-w-[85%] rounded-ss-xs rounded-se-2xl rounded-es-2xl rounded-ee-2xl px-4 py-3 bg-white text-foreground ">
-                              {messageType === 'text' &&
-                              message.isInteractiveMsg ? (
-                                <InteractivePlayer />
-                              ) : (
-                                <p className="text-sm leading-relaxed text-black">
-                                  {messageContent}
-                                </p>
-                              )}
-                              {message.isEvaluateMsg && (
-                                <span className="size-6 p-1 bg-yellow-400 rounded-full flex justify-center items center absolute left-0 -top-2">
-                                  <StarsIcon className="size-4 text-white" />
-                                </span>
-                              )}
-                            </div>
-                            {/* Show "YOU (TYPED)" label after assistant message if next message is from user or if this is the last message */}
-                            {(!nextMessage || !nextIsAssistant) && (
-                              <span className="text-xs text-[#FFB6C1] mt-1.5 ml-1 uppercase font-medium">
-                                {'ASSISTANT'}
+                  return (
+                    <div
+                      key={`${message.id || message.timestamp}${index}`}
+                      className="flex flex-col"
+                    >
+                      {/* Assistant Message */}
+                      {isAssistant && (
+                        <div className="flex flex-col items-start">
+                          <div className="relative max-w-[85%] rounded-ss-xs rounded-se-2xl rounded-es-2xl rounded-ee-2xl px-4 py-3 bg-white text-foreground ">
+                            {messageType === 'text' &&
+                            message.isInteractiveMsg ? (
+                              <InteractivePlayer />
+                            ) : (
+                              <p className="text-sm leading-relaxed text-black">
+                                {messageContent}
+                              </p>
+                            )}
+                            {message.isEvaluateMsg && (
+                              <span className="size-6 p-1 bg-yellow-400 rounded-full flex justify-center items center absolute left-0 -top-2">
+                                <StarsIcon className="size-4 text-white" />
                               </span>
                             )}
                           </div>
-                        )}
+                          {/* Show "YOU (TYPED)" label after assistant message if next message is from user or if this is the last message */}
+                          {(!nextMessage || !nextIsAssistant) && (
+                            <span className="text-xs text-[#FFB6C1] mt-1.5 ml-1 uppercase font-medium">
+                              {'ASSISTANT'}
+                            </span>
+                          )}
+                        </div>
+                      )}
 
-                        {/* User Message */}
-                        {!isAssistant && (
-                          <div className="flex flex-col items-end">
-                            <div
-                              className={cn(
-                                'max-w-[85%] rounded-ss-2xl rounded-se-xs px-4 py-3 shadow-sm bg-[#FFE5E9] text-foreground',
-                                {
-                                  'rounded-ss-lg rounded-es-lg rounded-ee-lg p-1!':
-                                    isMediaMessage,
-                                  'rounded-ss-2xl rounded-es-2xl rounded-ee-2xl':
-                                    !isMediaMessage,
-                                },
-                              )}
-                            >
-                              {messageType === 'text' && (
-                                <p className="text-sm leading-relaxed text-black px-2 py-2">
-                                  {formatUserInput(messageContent)}
-                                </p>
-                              )}
-                              {messageType === 'image' && messageDataBase64 && (
-                                <div className="w-32 rounded-md overflow-hidden">
-                                  <img
-                                    alt="chat image"
-                                    className="object-cover"
-                                    src={formatImageBase64(messageDataBase64)}
-                                  />
-                                </div>
-                              )}
-                              {messageType === 'audio' && messageDataBase64 && (
-                                <div className="w-1/2">
-                                  <AudioPlayerUI
-                                    hasBg={true}
-                                    src={formatAudioBase64(messageDataBase64)}
-                                  />
-                                </div>
-                              )}
-                            </div>
-                            {/* Encouraging text after user message */}
-                            {isLastMessage && (
-                              <p className="text-xs text-gray-700  mt-3 text-center w-full">
-                                You don't have to say it perfectly.
+                      {/* User Message */}
+                      {!isAssistant && (
+                        <div className="flex flex-col items-end">
+                          <div
+                            className={cn(
+                              'max-w-[85%] rounded-ss-2xl rounded-se-xs px-4 py-3 shadow-sm bg-[#FFE5E9] text-foreground',
+                              {
+                                'rounded-ss-lg rounded-es-lg rounded-ee-lg p-1!':
+                                  isMediaMessage,
+                                'rounded-ss-2xl rounded-es-2xl rounded-ee-2xl':
+                                  !isMediaMessage,
+                              },
+                            )}
+                          >
+                            {messageType === 'text' && (
+                              <p className="text-sm leading-relaxed text-black px-2 py-2">
+                                {formatUserInput(messageContent)}
                               </p>
                             )}
+                            {messageType === 'image' && messageDataBase64 && (
+                              <div className="w-32 rounded-md overflow-hidden">
+                                <img
+                                  alt="chat image"
+                                  className="object-cover"
+                                  src={formatImageBase64(messageDataBase64)}
+                                />
+                              </div>
+                            )}
+                            {messageType === 'audio' && messageDataBase64 && (
+                              <div className="w-1/2">
+                                <AudioPlayerUI
+                                  hasBg={true}
+                                  src={formatAudioBase64(messageDataBase64)}
+                                />
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                          {/* Encouraging text after user message */}
+                          {isLastMessage && (
+                            <p className="text-xs text-gray-700  mt-3 text-center w-full">
+                              You don't have to say it perfectly.
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
 
-                {/* Show encouraging text when no messages yet */}
-                {!hasMessages && (
-                  <p className="text-xs text-gray-700  text-center mt-4">
-                    You don't have to say it perfectly.
-                  </p>
-                )}
-              </div>
-              {isLoadingResponse && (
-                <div className="flex flex-col h-16 items-center justify-center">
-                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
-                </div>
+              {/* Show encouraging text when no messages yet */}
+              {!hasMessages && (
+                <p className="text-xs text-gray-700  text-center mt-4">
+                  You don't have to say it perfectly.
+                </p>
               )}
-            </ScrollToBottom>
-          )}
+            </div>
+            {isLoadingResponse && (
+              <div className="flex flex-col h-16 items-center justify-center">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+              </div>
+            )}
+          </ScrollToBottom>
         </div>
 
         {/* Input Bar */}

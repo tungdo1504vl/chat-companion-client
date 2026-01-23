@@ -12,12 +12,11 @@ type PartnerChatPageProps = Readonly<{
 export default async function PartnerChatPage({
   params,
 }: PartnerChatPageProps) {
-  const partnerParams = await params;
   // Hardcode partner id for demo
   const partnerId = MOCK_PARTNER_PROFILE.id;
 
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<PartnerChatPageSkeleton />}>
       <PartnerChatPageClientDemoV2 partnerId={partnerId} />
     </Suspense>
   );

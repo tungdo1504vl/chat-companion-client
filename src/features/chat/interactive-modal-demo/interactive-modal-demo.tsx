@@ -184,76 +184,6 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
       setAudioSrc(null);
       setIsPlaying(false);
       setIsLoading(false);
-
-      // If round 1 ended (interactionIndex >= 5), append negative evaluation and move to round 2
-      if (interactionIndex >= 5 && round === 1 && onAppendMessage) {
-        const timestamp = new Date().toISOString();
-        const negativeEvaluation: Message[] = [
-          {
-            id: `interactive-message-1-${timestamp}`,
-            content: 'interactive',
-            role: 'assistant',
-            isInteractiveMsg: true,
-            timestamp,
-            type: 'text',
-          },
-          {
-            id: `evaluation-negative-1-${timestamp}`,
-            content:
-              'Mình cùng nhìn lại nhé. Cuộc nói chuyện này fail ở khoảnh khắc bạn switch từ cảm xúc sang công việc.',
-            role: 'assistant',
-            isEvaluateMsg: true,
-            timestamp,
-            type: 'text',
-          },
-          {
-            id: `evaluation-negative-2-${timestamp}`,
-            content: 'Với Quyên:',
-            role: 'assistant',
-            isEvaluateMsg: true,
-            timestamp,
-            type: 'text',
-          },
-          {
-            id: `evaluation-negative-3-${timestamp}`,
-            content:
-              'khi cô ấy vừa mở không gian để hiểu "bạn đang hỏi điều gì"• mà câu hỏi đó lại bị rút về mức an toàn → cô ấy sẽ cảm thấy bối rối và hơi hụt, Câu "bạn thấy mình thế nào?" mở ra một ngữ cảnh cảm xúc, nhưng việc chuyển sang "làm việc chung thấy sao?" khiến cô ấy không biết mình đang được hỏi với tư cách gì',
-            role: 'assistant',
-            isEvaluateMsg: true,
-            timestamp,
-            type: 'text',
-          },
-        ];
-        onAppendMessage(negativeEvaluation);
-        // Move to round 2
-        onRoundChange?.(2);
-      }
-
-      // If round 2 ended (interactionIndex >= 5), append positive evaluation
-      if (interactionIndex >= 5 && round === 2 && onAppendMessage) {
-        const timestamp = new Date().toISOString();
-        const positiveEvaluation: Message[] = [
-          {
-            id: `interactive-message-1-${timestamp}`,
-            content: 'interactive',
-            role: 'assistant',
-            isInteractiveMsg: true,
-            timestamp,
-            type: 'text',
-          },
-          {
-            id: `evaluation-positive-${timestamp}`,
-            content:
-              'Bạn làm tốt hai điều rất quan trọng với Quyên: Bạn chọn không gian đúng Bạn nói rõ cảm xúc của bạn, cho thấy bạn thích Quyên ở điểm nào và cam kết mối quan hệ nghiêm túc Sau khi có sự xác nhận, hãy tiếp tục nói chuyện về các topics cả 2 cùng quan tâm và hãy kể với mình nghe những gì đã xảy ra sau buổi tỏ tình này. Rồi chúng ta cùng lên plan tiếp theo nhé!',
-            role: 'assistant',
-            isEvaluateMsg: true,
-            timestamp,
-            type: 'text',
-          },
-        ];
-        onAppendMessage(positiveEvaluation);
-      }
-
       // Reset interaction index
       setInteractionIndex(0);
     }
@@ -338,6 +268,7 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
   };
 
   const handleMicClick = () => {
+    console.log('listening:', listening);
     if (listening) {
       handleStopRecording();
     } else {
@@ -477,12 +408,7 @@ const InteractiveModalDemo: React.FC<InteractiveModalProps> = ({
 
   const partnerAvatarUrl = useMemo(() => {
     return PARTNER_AVATAR_WOMEN;
-  }, [partnerAvatar, partnerGender]);
-
-  const objectName = useMemo(() => {
-    if (partnerGender === 'Male') return 'her';
-    return 'him';
-  }, [partnerGender]);
+  }, [partnerAvatar]);
 
   const microRingClass =
     'before:content-[""] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-20 before:h-20 before:rounded-full before:border-2 before:border-white/60 before:pointer-events-none before:z-0 after:content-[""] after:absolute after:top-1/2 after:left-1/2 after:-translate-x-1/2 after:-translate-y-1/2 after:w-20 after:h-20 after:rounded-full after:border-2 after:border-white/60 after:pointer-events-none after:z-0';
